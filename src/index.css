@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply antialiased;
+  }
+  
+  ::selection {
+    @apply bg-primary-600 text-white;
+  }
+}
+
+@layer components {
+  .terminal-window {
+    @apply bg-dark-800 rounded-xl border border-dark-700 shadow-2xl overflow-hidden;
+  }
+  
+  .terminal-header {
+    @apply bg-dark-900 px-4 py-3 border-b border-dark-700 flex items-center gap-2;
+  }
+  
+  .terminal-button {
+    @apply w-3 h-3 rounded-full;
+  }
+  
+  .terminal-content {
+    @apply p-6 font-mono text-sm;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+  }
+  
+  .skill-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-dark-800 border border-dark-700;
+  }
+}
