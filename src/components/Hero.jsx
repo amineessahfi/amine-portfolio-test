@@ -1,12 +1,12 @@
 import React from 'react'
-import { FaAws, FaDocker, FaKubernetes, FaTerraform, FaGitAlt, FaPython } from 'react-icons/fa'
-import { SiDatabricks, SiApachekafka, SiPrometheus, SiGrafana } from 'react-icons/si'
+import { FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
+import { SiKubernetes, SiTerraform, SiDatabricks, SiApachekafka, SiPrometheus, SiGrafana } from 'react-icons/si'
 
 function Hero() {
   const skills = [
     { name: 'AWS', icon: <FaAws className="text-orange-500" /> },
-    { name: 'Kubernetes', icon: <FaKubernetes className="text-blue-500" /> },
-    { name: 'Terraform', icon: <FaTerraform className="text-purple-500" /> },
+    { name: 'Kubernetes', icon: <SiKubernetes className="text-blue-500" /> },
+    { name: 'Terraform', icon: <SiTerraform className="text-purple-500" /> },
     { name: 'Docker', icon: <FaDocker className="text-blue-400" /> },
     { name: 'Git', icon: <FaGitAlt className="text-orange-600" /> },
     { name: 'Python', icon: <FaPython className="text-yellow-500" /> },
