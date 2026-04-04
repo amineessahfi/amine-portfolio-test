@@ -23,6 +23,11 @@ function ServiceDetailPage() {
         ? 'Request AWS audit'
         : 'Discuss this service'
   const showArchitectureLink = isSandboxService
+  const sandboxLaunchSteps = [
+    'Open the dedicated sandbox page from the main demo launch area.',
+    'Review the boundaries, then start the five-minute runtime.',
+    'Use the live shell, watch the timer, and let the session self-destruct automatically.',
+  ]
 
   return (
     <>
@@ -114,6 +119,57 @@ function ServiceDetailPage() {
             </div>
           </div>
         </section>
+
+        {isSandboxService ? (
+          <section className="terminal-window">
+            <div className="terminal-header">
+              <div className="text-sm text-gray-400">sandbox - launch rail</div>
+            </div>
+
+            <div className="terminal-content">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+                <div>
+                  <span className="section-chip">Live entry sequence</span>
+                  <h2 className="section-title text-3xl sm:text-4xl">A cleaner path into the terminal experience</h2>
+                  <p className="section-copy">
+                    The sandbox should feel like a deliberate product moment, not just a utility block embedded in a long page. This launch rail frames the experience before the actual shell opens.
+                  </p>
+
+                  <ol className="mt-6 space-y-3">
+                    {sandboxLaunchSteps.map((step, index) => (
+                      <li key={step} className="flex gap-4 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
+                          {index + 1}
+                        </span>
+                        <span className="text-sm leading-7 text-gray-300">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div className="metric-card p-6">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-2.5 w-2.5 animate-pulse-slow rounded-full bg-cyan-300" />
+                    <span className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">Live terminal route</span>
+                  </div>
+                  <h3 className="mt-4 text-2xl font-semibold text-white">Jump straight into the shell</h3>
+                  <p className="mt-4 text-sm leading-8 text-gray-400">
+                    The terminal stays on its own route with stronger focus, cleaner copy hierarchy, and a more obvious transition into the live runtime.
+                  </p>
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <a href="#live-sandbox" className="primary-button">
+                      Start the live sandbox
+                    </a>
+                    <Link to="/architecture" className="secondary-button">
+                      See the system design
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {isSandboxService ? <SandboxTerminal /> : null}
 

@@ -2,7 +2,7 @@ import React from 'react'
 import Hero from '../components/Hero'
 import ServicesOverview from '../components/ServicesOverview'
 import TerminalCard from '../components/TerminalCard'
-import CostCalculator from '../components/CostCalculator'
+import DemoShowcase from '../components/DemoShowcase'
 import PortfolioProjects from '../components/PortfolioProjects'
 
 function HomePage() {
@@ -18,9 +18,9 @@ function HomePage() {
           showDirectoryLink
         />
 
-        <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+        <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,0.74fr)_minmax(0,1.26fr)]">
           <TerminalCard />
-          <CostCalculator />
+          <DemoShowcase />
         </div>
 
         <PortfolioProjects />
