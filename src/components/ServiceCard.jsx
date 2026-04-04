@@ -3,15 +3,18 @@ import { Link } from 'react-router-dom'
 
 function ServiceCard({ service }) {
   return (
-    <article className="card-hover flex h-full flex-col rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">{service.eyebrow}</p>
-      <h3 className="mt-3 text-xl font-semibold text-white">{service.title}</h3>
-      <p className="mt-4 flex-1 text-sm leading-7 text-gray-400">{service.summary}</p>
+    <article className="card-hover relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.12),transparent_34%)]" />
+      <div className="relative z-10">
+        <span className="section-chip">{service.eyebrow}</span>
+      </div>
+      <h3 className="relative z-10 mt-5 text-2xl font-semibold text-white">{service.title}</h3>
+      <p className="relative z-10 mt-4 flex-1 text-sm leading-8 text-gray-400">{service.summary}</p>
 
-      <ul className="mt-5 space-y-2 text-sm text-gray-300">
+      <ul className="relative z-10 mt-6 space-y-3 text-sm text-gray-300">
         {service.highlights.slice(0, 3).map((highlight) => (
-          <li key={highlight} className="flex gap-2">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-400" />
+          <li key={highlight} className="flex gap-3">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
             <span>{highlight}</span>
           </li>
         ))}
@@ -19,9 +22,10 @@ function ServiceCard({ service }) {
 
       <Link
         to={`/services/${service.slug}`}
-        className="mt-6 inline-flex w-fit items-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+        className="relative z-10 mt-8 inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary-200 transition-colors hover:text-white"
       >
         View service
+        <span aria-hidden="true">more</span>
       </Link>
     </article>
   )

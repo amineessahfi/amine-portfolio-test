@@ -31,14 +31,27 @@ function ServicesPage() {
     <>
       <section className="px-4 pb-10 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="rounded-[2rem] border border-dark-700/70 bg-dark-900/50 px-6 py-10 shadow-2xl shadow-black/20 backdrop-blur sm:px-10 sm:py-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Services</p>
-            <h1 className="mt-3 max-w-4xl text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
-              Dedicated service pages for platform, cloud, data, and telecom delivery.
-            </h1>
-            <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
-              If the website is meant to generate service work, visitors need clear offers and dedicated pages that explain the outcome, fit, and next step for each engagement.
-            </p>
+          <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:items-start">
+              <div>
+                <span className="section-chip">Services</span>
+                <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
+                  Service pages designed to feel
+                  <span className="gradient-text"> consultative</span>
+                  , not generic.
+                </h1>
+                <p className="section-copy max-w-3xl text-base sm:text-lg">
+                  Each route is structured to position a specific offer clearly: what it solves, who it fits, what gets delivered, and where the next conversation should start.
+                </p>
+              </div>
+
+              <div className="metric-card p-6">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this layout</p>
+                <p className="mt-4 text-sm leading-8 text-gray-400">
+                  A premium service site needs sharper message hierarchy, better spacing, and clearer conversion paths than a simple one-page portfolio. This section is built to support exactly that.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

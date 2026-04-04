@@ -76,11 +76,11 @@ function TerminalCard() {
         <div className="terminal-button bg-red-500"></div>
         <div className="terminal-button bg-yellow-500"></div>
         <div className="terminal-button bg-green-500"></div>
-        <div className="ml-4 text-sm text-gray-400">terminal — bash — 80×24</div>
+        <div className="ml-4 text-sm text-gray-400">terminal - live profile</div>
       </div>
-      
+
       <div className="terminal-content">
-        <div className="terminal-readout flex-1 rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4 sm:p-5">
+        <div className="terminal-readout flex-1 rounded-[1.5rem] border border-white/10 bg-[#040916]/70 p-4 sm:p-5">
           <div className="min-h-[18rem] space-y-1 break-words text-[13px] sm:text-sm">
           {/* Show all completed lines */}
           {terminalLines.slice(0, currentLine).map((line, index) => (
@@ -126,7 +126,7 @@ function TerminalCard() {
           </div>
         </div>
         
-        <div className="border-t border-dark-700/70 pt-5">
+        <div className="border-t border-white/10 pt-5">
           <div className="flex flex-col gap-4 text-xs text-gray-500 sm:text-sm">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="flex items-center gap-1">
@@ -142,12 +142,12 @@ function TerminalCard() {
                 Cost Optimization
               </span>
             </div>
-            <button 
+            <button
               onClick={() => {
                 setCurrentLine(0)
                 setDisplayText('')
               }}
-              className="inline-flex w-fit rounded-lg border border-dark-600 px-3 py-1.5 text-xs transition-colors hover:bg-dark-700"
+              className="secondary-button w-fit !rounded-full !px-4 !py-2 !text-xs"
             >
               Restart Demo
             </button>

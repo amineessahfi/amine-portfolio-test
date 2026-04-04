@@ -10,7 +10,7 @@ function HomePage() {
     <>
       <Hero />
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:gap-12 lg:px-8">
         <ServicesOverview
           eyebrow="Service lines"
           title="Service pages built for inbound consulting work"

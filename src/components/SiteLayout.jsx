@@ -6,13 +6,21 @@ import CtaBar from './CtaBar'
 
 function SiteLayout() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-gray-100">
-      <SiteHeader />
-      <Outlet />
-      <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-        <CtaBar />
+    <div className="relative min-h-screen overflow-hidden text-gray-100">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-12rem] top-[-10rem] h-[30rem] w-[30rem] rounded-full bg-primary-500/14 blur-3xl" />
+        <div className="absolute right-[-10rem] top-24 h-[26rem] w-[26rem] rounded-full bg-cyan-400/10 blur-3xl" />
+        <div className="absolute bottom-[-12rem] left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-sky-500/10 blur-3xl" />
       </div>
-      <SiteFooter />
+
+      <div className="relative z-10">
+        <SiteHeader />
+        <Outlet />
+        <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+          <CtaBar />
+        </div>
+        <SiteFooter />
+      </div>
     </div>
   )
 }

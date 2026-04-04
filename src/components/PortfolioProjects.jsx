@@ -26,48 +26,48 @@ function PortfolioProjects() {
     <section id="projects" className="scroll-mt-24">
       <div className="terminal-window">
         <div className="terminal-header">
-          <div className="text-sm text-gray-400">portfolio — projects — showcase</div>
+          <div className="text-sm text-gray-400">portfolio - selected work</div>
         </div>
-        
+
         <div className="terminal-content">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Proof of delivery</p>
-              <h3 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Selected Delivery Examples</h3>
+              <span className="section-chip">Proof of delivery</span>
+              <h3 className="section-title text-3xl sm:text-4xl">Selected delivery examples</h3>
             </div>
-            <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
+            <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
               Delivery examples that support the service pages with practical experience across platform, cloud, data, and telecom operations.
             </p>
           </div>
-          
+
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {projects.map((project, index) => (
-              <article key={index} className="card-hover flex h-full flex-col rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
+              <article key={index} className="metric-card card-hover flex h-full flex-col p-6">
                 <div className="flex items-start justify-between gap-3">
                   <h4 className="text-lg font-semibold text-gray-100">{project.title}</h4>
-                  <span className="rounded-full bg-primary-900/30 px-3 py-1 text-xs font-medium text-primary-300">
+                  <span className="section-chip !px-3 !py-1 !text-[10px]">
                     Platform
                   </span>
                 </div>
-                
-                <p className="mt-4 flex-1 text-sm leading-7 text-gray-400">{project.description}</p>
-                
+
+                <p className="mt-4 flex-1 text-sm leading-8 text-gray-400">{project.description}</p>
+
                 <div className="mt-5 flex flex-wrap gap-2">
                   {project.tech.map((tech, i) => (
-                    <span key={i} className="rounded-full bg-dark-700 px-3 py-1 text-xs text-gray-300">
+                    <span key={i} className="skill-badge !px-3 !py-1.5 !text-xs">
                       {tech}
                     </span>
                   ))}
                 </div>
-                
-                <div className="mt-6 border-t border-dark-700/70 pt-4 text-sm text-green-400">
-                  <span className="font-semibold">Impact:</span> {project.metrics}
+
+                <div className="mt-6 border-t border-white/10 pt-4 text-sm text-primary-200">
+                  <span className="font-semibold text-white">Impact:</span> {project.metrics}
                 </div>
               </article>
             ))}
           </div>
-          
-          <div className="border-t border-dark-700/70 pt-5">
+
+          <div className="border-t border-white/10 pt-5">
             <p className="text-sm leading-7 text-gray-400">
               <span className="font-semibold text-gray-300">Note:</span> Detailed case studies are available on request for deeper architecture, automation, and delivery details.
             </p>

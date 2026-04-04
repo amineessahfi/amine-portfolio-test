@@ -33,7 +33,8 @@ export default {
         }
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        'sans': ['Manrope', 'system-ui', 'sans-serif'],
+        'display': ['Space Grotesk', 'Manrope', 'system-ui', 'sans-serif'],
         'mono': ['JetBrains Mono', 'monospace'],
       },
       animation: {
