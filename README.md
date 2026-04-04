@@ -48,6 +48,10 @@ Automatically deployed by Vercel from the repository's default branch.
 
 The current contact, resume, and audit CTAs use `mailto:` links, so no backend is required for those flows.
 
+## Live sandbox
+
+The live terminal sandbox UI is hosted in the Vercel frontend, while the backend is intended to run separately on `essahfi_instance` behind `https://vm2.amineessahfi.xyz/sandbox-api`.
+
 ## License
 
 MIT

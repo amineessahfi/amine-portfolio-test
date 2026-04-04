@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import CostCalculator from '../components/CostCalculator'
+import SandboxTerminal from '../components/SandboxTerminal'
 import { AUDIT_REQUEST_URL, EMAIL_URL } from '../constants/links'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
@@ -13,9 +14,14 @@ function ServiceDetailPage() {
     return <NotFoundPage />
   }
 
-  const primaryCtaUrl = service.slug === 'aws-cost-optimization' ? AUDIT_REQUEST_URL : EMAIL_URL
-  const primaryCtaLabel =
-    service.slug === 'aws-cost-optimization' ? 'Request AWS audit' : 'Discuss this service'
+  const isAwsService = service.slug === 'aws-cost-optimization'
+  const isSandboxService = service.slug === 'live-terminal-sandbox'
+  const primaryCtaUrl = isSandboxService ? '#live-sandbox' : isAwsService ? AUDIT_REQUEST_URL : EMAIL_URL
+  const primaryCtaLabel = isSandboxService
+    ? 'Launch 5-minute sandbox'
+    : isAwsService
+      ? 'Request AWS audit'
+      : 'Discuss this service'
 
   return (
     <>
@@ -98,6 +104,8 @@ function ServiceDetailPage() {
           </div>
         </section>
 
+        {isSandboxService ? <SandboxTerminal /> : null}
+
         <section className="terminal-window">
           <div className="terminal-header">
             <div className="text-sm text-gray-400">service — outcomes</div>
@@ -119,7 +127,7 @@ function ServiceDetailPage() {
           </div>
         </section>
 
-        {service.slug === 'aws-cost-optimization' ? <CostCalculator /> : null}
+        {isAwsService ? <CostCalculator /> : null}
       </main>
     </>
   )

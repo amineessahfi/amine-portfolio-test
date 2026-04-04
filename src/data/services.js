@@ -127,6 +127,38 @@ export const services = [
       { label: 'Typical outcome', value: 'Less manual telecom ops' },
     ],
   },
+  {
+    slug: 'live-terminal-sandbox',
+    eyebrow: 'Service 05',
+    title: 'Live Linux Sandbox & Ephemeral Demo Environments',
+    summary:
+      'Offer visitors a real Linux shell in the browser for five minutes using isolated, time-limited containers that are safe enough for public demos and service-led discovery.',
+    highlights: [
+      'Browser-accessed Linux shell with hard session expiry',
+      'Docker isolation, no outbound network, and non-root execution',
+      'Useful for demos, onboarding flows, and service qualification',
+    ],
+    outcomes: [
+      'Let prospects try a real terminal-backed experience without permanent access',
+      'Turn service pages into hands-on proof instead of static copy only',
+      'Keep risk bounded with strict time, resource, and isolation controls',
+    ],
+    deliverables: [
+      'Session broker API with tokenized launch flow',
+      'Containerized Linux sandbox with hard 5-minute expiry',
+      'Frontend launch flow, terminal UI, and safe-usage messaging',
+    ],
+    bestFor: [
+      'Service-led websites that need a live proof-of-capability moment',
+      'Teams showcasing platforms, automation, or CLI-driven workflows',
+      'Use cases where a public terminal experience must stay tightly constrained',
+    ],
+    snapshot: [
+      { label: 'Primary focus', value: 'Safe live demo access' },
+      { label: 'Delivery style', value: 'Browser + backend sandbox' },
+      { label: 'Typical outcome', value: 'Hands-on visitor engagement' },
+    ],
+  },
 ]
 
 export function getServiceBySlug(serviceSlug) {

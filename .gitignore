@@ -7,3 +7,5 @@ dist/
 .env.*
 !.env.example
 *.local
+sandbox-backend/.venv/
+sandbox-backend/__pycache__/
