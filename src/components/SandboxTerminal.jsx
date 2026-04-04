@@ -13,6 +13,12 @@ const baseRestrictions = [
   'Non-root shell inside a constrained container',
 ]
 
+const signInBenefits = [
+  'Unlock repeat sandbox launches proactively instead of waiting for the gate.',
+  'Make terminal access attributable once authenticated launches are enabled.',
+  'Give visitors a cleaner “log in first” path if they prefer identified access.',
+]
+
 function formatProvider(provider) {
   if (!provider) return 'OAuth'
   if (provider === 'google') return 'Google'
@@ -82,6 +88,26 @@ function SandboxTerminal() {
     if (requiresSignInBeforeLaunch) return `${providerLabel} sign-in required`
     return 'Ready to launch'
   }, [providerLabel, requiresSignInBeforeLaunch, status])
+  const signInStatus = useMemo(() => {
+    if (authState.authenticated) {
+      return {
+        label: 'Signed in',
+        className: 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200',
+      }
+    }
+
+    if (authState.authConfigured) {
+      return {
+        label: 'Optional login',
+        className: 'border-primary-500/30 bg-primary-500/10 text-primary-200',
+      }
+    }
+
+    return {
+      label: 'Login section ready',
+      className: 'border-white/10 bg-white/[0.04] text-gray-300',
+    }
+  }, [authState.authConfigured, authState.authenticated])
 
   const syncAuthState = async () => {
     try {
@@ -419,15 +445,6 @@ function SandboxTerminal() {
                     Every browser gets one complimentary launch. When Google sign-in is enabled on the backend, repeat sessions become attributable and auditable without turning the terminal into an open public toy.
                   </p>
                 </div>
-                {authState.authenticated ? (
-                  <button
-                    type="button"
-                    onClick={signOut}
-                    className="secondary-button !rounded-xl !px-4 !py-2 !text-xs"
-                  >
-                    Sign out
-                  </button>
-                ) : null}
               </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
@@ -467,6 +484,73 @@ function SandboxTerminal() {
               ) : null}
               {authNotice ? <p className="mt-4 text-sm text-cyan-200">{authNotice}</p> : null}
               {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
+            </div>
+
+            <div id="sandbox-login" className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5 scroll-mt-28">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Sign in / login</h3>
+                  <p className="mt-3 text-sm leading-7 text-gray-400">
+                    If a visitor wants to identify themselves before launching the terminal, this section gives them a direct login path instead of waiting for the complimentary-session limit to trigger it.
+                  </p>
+                </div>
+                <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] ${signInStatus.className}`}>
+                  {signInStatus.label}
+                </span>
+              </div>
+
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
+                {signInBenefits.map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                {authState.authenticated ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={signOut}
+                      className="secondary-button !rounded-xl !px-4 !py-2"
+                    >
+                      Sign out
+                    </button>
+                    <span className="inline-flex items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-gray-300">
+                      {authState.user?.email ? `Signed in as ${authState.user.email}` : `Signed in with ${providerLabel}`}
+                    </span>
+                  </>
+                ) : authState.authConfigured ? (
+                  <button
+                    type="button"
+                    onClick={startGoogleAuth}
+                    className="primary-button !rounded-xl !px-4 !py-2"
+                  >
+                    Sign in with {providerLabel}
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      disabled
+                      className="secondary-button !rounded-xl !px-4 !py-2 opacity-70"
+                    >
+                      {providerLabel} login coming online
+                    </button>
+                    <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button !rounded-xl !px-4 !py-2">
+                      Request authenticated access
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              <p className="mt-4 text-sm text-gray-500">
+                {authState.authConfigured
+                  ? `Use ${providerLabel} login any time if you want the sandbox tied to an authenticated access path before you launch.`
+                  : `${providerLabel} login UI is now in place. The live button will activate once backend credentials are added.`}
+              </p>
             </div>
           </div>
         </div>

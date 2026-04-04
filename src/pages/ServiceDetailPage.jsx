@@ -30,7 +30,7 @@ function ServiceDetailPage() {
   const showArchitectureLink = isSandboxService
   const sandboxLaunchSteps = [
     'Land directly on the highlighted sandbox section instead of entering halfway down a long page.',
-    'Review the boundaries, then launch the five-minute runtime from the same visual sequence.',
+    'Review the boundaries, then optionally sign in from the login section before launching.',
     'Use the live shell, watch the timer, and let the session self-destruct automatically.',
   ]
 
@@ -173,6 +173,9 @@ function ServiceDetailPage() {
                   <div className="mt-6 flex flex-wrap gap-3">
                     <a href="#live-sandbox" className="primary-button">
                       Start the live sandbox
+                    </a>
+                    <a href="#sandbox-login" className="secondary-button">
+                      Sign in first
                     </a>
                     <Link to={createDiscussUrl(service.slug)} className="secondary-button">
                       Discuss this experience
