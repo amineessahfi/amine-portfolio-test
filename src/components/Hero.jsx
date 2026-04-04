@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
 import { SiDatabricks, SiKubernetes, SiTerraform } from 'react-icons/si'
-import { SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
+import { SANDBOX_LOGIN_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const expertisePillars = [
   {
@@ -65,6 +65,16 @@ function Hero() {
                 </a>
                 <Link to={createDiscussUrl()} className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3">
                   Start a project conversation
+                </Link>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-400">
+                <span>Need access right away?</span>
+                <a href="#landing-auth" className="soft-link">
+                  Sign in or sign up from the landing page
+                </a>
+                <Link to={SANDBOX_LOGIN_ROUTE} className="soft-link">
+                  Go straight to sandbox login
                 </Link>
               </div>
 
