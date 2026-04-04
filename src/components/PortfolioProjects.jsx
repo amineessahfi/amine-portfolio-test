@@ -32,11 +32,11 @@ function PortfolioProjects() {
         <div className="terminal-content">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Selected work</p>
-              <h3 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Platform Engineering Projects</h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Proof of delivery</p>
+              <h3 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Selected Delivery Examples</h3>
             </div>
             <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
-              Examples of platform, automation, and data engineering work with measurable impact across cloud infrastructure and telecom tooling.
+              Delivery examples that support the service pages with practical experience across platform, cloud, data, and telecom operations.
             </p>
           </div>
           

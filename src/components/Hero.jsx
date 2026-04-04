@@ -1,7 +1,8 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
 import { SiKubernetes, SiTerraform, SiDatabricks, SiApachekafka, SiPrometheus, SiGrafana } from 'react-icons/si'
-import { RESUME_REQUEST_URL } from '../constants/links'
+import { EMAIL_URL } from '../constants/links'
 
 function Hero() {
   const skills = [
@@ -40,23 +41,23 @@ function Hero() {
             </p>
             
             <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
-              <a 
-                href="#projects" 
+              <Link
+                to="/services"
                 className="inline-flex min-w-[11rem] justify-center rounded-xl bg-primary-600 px-6 py-3 font-semibold transition-colors hover:bg-primary-700"
               >
-                View Projects
-              </a>
+                Explore Services
+              </Link>
               <a 
-                href="#contact" 
+                href="#projects"
                 className="inline-flex min-w-[11rem] justify-center rounded-xl border border-primary-600 px-6 py-3 font-semibold text-primary-400 transition-colors hover:bg-primary-900/30"
               >
-                Contact Me
+                See Delivery Examples
               </a>
               <a 
-                href={RESUME_REQUEST_URL}
+                href={EMAIL_URL}
                 className="inline-flex min-w-[11rem] justify-center rounded-xl border border-dark-700 px-6 py-3 font-semibold text-gray-300 transition-colors hover:bg-dark-800"
               >
-                Request Resume
+                Discuss a Project
               </a>
             </div>
           </div>

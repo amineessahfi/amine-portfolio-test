@@ -38,6 +38,12 @@ npm run preview
 
 Automatically deployed by Vercel from the repository's default branch.
 
+## Routes
+
+- `/`
+- `/services`
+- `/services/:serviceSlug`
+
 ## Contact flows
 
 The current contact, resume, and audit CTAs use `mailto:` links, so no backend is required for those flows.
