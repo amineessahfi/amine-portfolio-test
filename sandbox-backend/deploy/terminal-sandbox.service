@@ -16,7 +16,8 @@ Environment=SESSION_SECONDS=300
 Environment=CONNECT_WINDOW_SECONDS=60
 Environment=MAX_SESSIONS_PER_HOUR=3
 Environment=MAX_CONCURRENT_PER_IP=1
-Environment=ALLOWED_ORIGIN_PATTERNS=https://*.vercel.app,https://amineessahfi.xyz,https://*.amineessahfi.xyz,https://aessahfi.xyz,https://www.aessahfi.xyz,http://localhost:*,http://127.0.0.1:*
+Environment=MAX_GLOBAL_CONCURRENT=4
+Environment=ALLOWED_ORIGIN_PATTERNS=https://amine-portfolio-test.vercel.app,https://amine-portfolio-test-8ggn.vercel.app,https://amine-portfolio-test-cfi3.vercel.app,https://amineessahfi.xyz,https://*.amineessahfi.xyz,https://aessahfi.xyz,https://www.aessahfi.xyz,http://localhost:*,http://127.0.0.1:*
 ExecStart=/opt/essahfi-terminal-sandbox/.venv/bin/python /opt/essahfi-terminal-sandbox/app.py
 Restart=always
 RestartSec=3

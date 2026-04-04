@@ -23,9 +23,12 @@ SESSION_SECONDS = int(os.getenv('SESSION_SECONDS', '300'))
 CONNECT_WINDOW_SECONDS = int(os.getenv('CONNECT_WINDOW_SECONDS', '60'))
 MAX_SESSIONS_PER_HOUR = int(os.getenv('MAX_SESSIONS_PER_HOUR', '3'))
 MAX_CONCURRENT_PER_IP = int(os.getenv('MAX_CONCURRENT_PER_IP', '1'))
+MAX_GLOBAL_CONCURRENT = int(os.getenv('MAX_GLOBAL_CONCURRENT', '4'))
 
 DEFAULT_ALLOWED_ORIGIN_PATTERNS = [
-    'https://*.vercel.app',
+    'https://amine-portfolio-test.vercel.app',
+    'https://amine-portfolio-test-8ggn.vercel.app',
+    'https://amine-portfolio-test-cfi3.vercel.app',
     'https://amineessahfi.xyz',
     'https://*.amineessahfi.xyz',
     'https://aessahfi.xyz',
@@ -38,6 +41,8 @@ ALLOWED_ORIGIN_PATTERNS = [
     for pattern in os.getenv('ALLOWED_ORIGIN_PATTERNS', ','.join(DEFAULT_ALLOWED_ORIGIN_PATTERNS)).split(',')
     if pattern.strip()
 ]
+PROTECTED_ORIGIN_PATHS = {'/sessions', '/ws'}
+ACTIVE_SESSION_STATUSES = {'created', 'starting', 'active'}
 
 
 @dataclass
@@ -100,9 +105,9 @@ def matches_origin_pattern(origin: str, pattern: str) -> bool:
     return origin_port == pattern_port
 
 
-def origin_allowed(origin: str | None) -> bool:
+def origin_allowed(origin: str | None, *, require_origin: bool = False) -> bool:
     if not origin:
-        return True
+        return not require_origin
     return any(matches_origin_pattern(origin, pattern) for pattern in ALLOWED_ORIGIN_PATTERNS)
 
 
@@ -199,7 +204,15 @@ def active_sessions_for_ip(app: web.Application, ip_address: str) -> int:
     return sum(
         1
         for session in app['sessions'].values()
-        if session.client_ip == ip_address and session.status in {'created', 'starting', 'active'}
+        if session.client_ip == ip_address and session.status in ACTIVE_SESSION_STATUSES
+    )
+
+
+def active_sessions_count(app: web.Application) -> int:
+    return sum(
+        1
+        for session in app['sessions'].values()
+        if session.status in ACTIVE_SESSION_STATUSES
     )
 
 
@@ -349,7 +362,9 @@ async def cleanup_session(app: web.Application, session: Session, reason: str) -
 @web.middleware
 async def cors_middleware(request: web.Request, handler):
     origin = request.headers.get('Origin')
-    if origin and not origin_allowed(origin):
+    require_origin = request.path in PROTECTED_ORIGIN_PATHS
+
+    if not origin_allowed(origin, require_origin=require_origin):
         return web.json_response({'error': 'Origin not allowed.'}, status=403)
 
     if request.method == 'OPTIONS':
@@ -380,6 +395,12 @@ async def create_session(request: web.Request) -> web.Response:
     app = request.app
     client_ip = get_client_ip(request)
     history = prune_rate_limit(app, client_ip)
+
+    if active_sessions_count(app) >= MAX_GLOBAL_CONCURRENT:
+        return web.json_response(
+            {'error': 'Sandbox service is at capacity. Please try again later.'},
+            status=503,
+        )
 
     if len(history) >= MAX_SESSIONS_PER_HOUR:
         return web.json_response(
