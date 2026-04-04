@@ -23,45 +23,55 @@ function PortfolioProjects() {
   ]
 
   return (
-    <section id="projects" className="terminal-window card-hover scroll-mt-24">
-      <div className="terminal-header">
-        <div className="text-sm text-gray-400">portfolio — projects — showcase</div>
-      </div>
-      
-      <div className="terminal-content">
-        <h3 className="text-xl font-semibold mb-6 gradient-text">Platform Engineering Projects</h3>
-        
-        <div className="space-y-6">
-          {projects.map((project, index) => (
-            <div key={index} className="p-4 border border-dark-700 rounded-lg hover:border-primary-500 transition-colors">
-              <div className="flex justify-between items-start mb-2">
-                <h4 className="text-lg font-semibold text-gray-100">{project.title}</h4>
-                <span className="text-xs px-2 py-1 bg-primary-900/30 text-primary-300 rounded">
-                  Platform Engineering
-                </span>
-              </div>
-              
-              <p className="text-gray-400 text-sm mb-3">{project.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-3">
-                {project.tech.map((tech, i) => (
-                  <span key={i} className="text-xs px-2 py-1 bg-dark-700 text-gray-300 rounded">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              
-              <div className="text-sm text-green-400">
-                <span className="font-semibold">Impact:</span> {project.metrics}
-              </div>
-            </div>
-          ))}
+    <section id="projects" className="scroll-mt-24">
+      <div className="terminal-window">
+        <div className="terminal-header">
+          <div className="text-sm text-gray-400">portfolio — projects — showcase</div>
         </div>
         
-        <div className="mt-6 pt-4 border-t border-dark-700">
-          <p className="text-sm text-gray-400">
-            <span className="font-semibold">Note:</span> Detailed case studies available upon request. These projects demonstrate platform engineering, infrastructure automation, and data pipeline expertise.
-          </p>
+        <div className="terminal-content">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Selected work</p>
+              <h3 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Platform Engineering Projects</h3>
+            </div>
+            <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
+              Examples of platform, automation, and data engineering work with measurable impact across cloud infrastructure and telecom tooling.
+            </p>
+          </div>
+          
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project, index) => (
+              <article key={index} className="card-hover flex h-full flex-col rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-lg font-semibold text-gray-100">{project.title}</h4>
+                  <span className="rounded-full bg-primary-900/30 px-3 py-1 text-xs font-medium text-primary-300">
+                    Platform
+                  </span>
+                </div>
+                
+                <p className="mt-4 flex-1 text-sm leading-7 text-gray-400">{project.description}</p>
+                
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {project.tech.map((tech, i) => (
+                    <span key={i} className="rounded-full bg-dark-700 px-3 py-1 text-xs text-gray-300">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="mt-6 border-t border-dark-700/70 pt-4 text-sm text-green-400">
+                  <span className="font-semibold">Impact:</span> {project.metrics}
+                </div>
+              </article>
+            ))}
+          </div>
+          
+          <div className="border-t border-dark-700/70 pt-5">
+            <p className="text-sm leading-7 text-gray-400">
+              <span className="font-semibold text-gray-300">Note:</span> Detailed case studies are available on request for deeper architecture, automation, and delivery details.
+            </p>
+          </div>
         </div>
       </div>
     </section>

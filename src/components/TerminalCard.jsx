@@ -80,7 +80,8 @@ function TerminalCard() {
       </div>
       
       <div className="terminal-content">
-        <div className="space-y-1">
+        <div className="terminal-readout flex-1 rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4 sm:p-5">
+          <div className="min-h-[18rem] space-y-1 break-words text-[13px] sm:text-sm">
           {/* Show all completed lines */}
           {terminalLines.slice(0, currentLine).map((line, index) => (
             <div key={index} className="text-gray-300">
@@ -122,11 +123,12 @@ function TerminalCard() {
               )}
             </div>
           )}
+          </div>
         </div>
         
-        <div className="mt-6 pt-4 border-t border-dark-700">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center gap-4">
+        <div className="border-t border-dark-700/70 pt-5">
+          <div className="flex flex-col gap-4 text-xs text-gray-500 sm:text-sm">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="flex items-center gap-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 Platform Engineering
@@ -145,7 +147,7 @@ function TerminalCard() {
                 setCurrentLine(0)
                 setDisplayText('')
               }}
-              className="px-3 py-1 text-xs border border-dark-600 rounded hover:bg-dark-700 transition-colors"
+              className="inline-flex w-fit rounded-lg border border-dark-600 px-3 py-1.5 text-xs transition-colors hover:bg-dark-700"
             >
               Restart Demo
             </button>

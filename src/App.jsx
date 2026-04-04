@@ -8,25 +8,24 @@ import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from './constants/links'
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900 text-gray-100">
       <Hero />
       
-      <main className="container mx-auto px-4 py-12 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-stretch gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
           <TerminalCard />
           <CostCalculator />
         </div>
         
         <PortfolioProjects />
+        <CtaBar />
       </main>
       
-      <CtaBar />
-      
       <footer className="border-t border-dark-800 py-8 text-center text-dark-400 text-sm">
-        <div className="container mx-auto px-4">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 sm:px-6 lg:px-8">
           <p>© {new Date().getFullYear()} Amine Essahfi. Platform Engineer & Data Infrastructure Specialist.</p>
-          <p className="mt-2">Built with React, Tailwind CSS, and deployed on Vercel.</p>
-          <div className="mt-4 flex justify-center gap-6">
+          <p>Built with React, Tailwind CSS, and deployed on Vercel.</p>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">GitHub</a>
             <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">LinkedIn</a>
             <a href={EMAIL_URL} className="hover:text-primary-400 transition-colors">Email</a>

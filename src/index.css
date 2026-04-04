@@ -8,7 +8,11 @@
   }
   
   body {
-    @apply antialiased;
+    @apply min-h-screen bg-dark-900 text-gray-100 antialiased;
+  }
+
+  #root {
+    @apply min-h-screen;
   }
   
   ::selection {
@@ -18,11 +22,11 @@
 
 @layer components {
   .terminal-window {
-    @apply bg-dark-800 rounded-xl border border-dark-700 shadow-2xl overflow-hidden;
+    @apply h-full overflow-hidden rounded-2xl border border-dark-700/80 bg-dark-800/80 shadow-2xl shadow-black/20 backdrop-blur;
   }
   
   .terminal-header {
-    @apply bg-dark-900 px-4 py-3 border-b border-dark-700 flex items-center gap-2;
+    @apply flex items-center gap-2 border-b border-dark-700/80 bg-dark-900/90 px-5 py-4;
   }
   
   .terminal-button {
@@ -30,7 +34,11 @@
   }
   
   .terminal-content {
-    @apply p-6 font-mono text-sm;
+    @apply flex h-full flex-col gap-6 p-6 sm:p-8;
+  }
+
+  .terminal-readout {
+    @apply font-mono text-sm leading-7;
   }
   
   .gradient-text {
@@ -38,10 +46,14 @@
   }
   
   .card-hover {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+    @apply transition duration-300 hover:-translate-y-1 hover:border-primary-500/70 hover:shadow-2xl;
   }
   
   .skill-badge {
     @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-dark-800 border border-dark-700;
+  }
+
+  .metric-card {
+    @apply rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5;
   }
 }
