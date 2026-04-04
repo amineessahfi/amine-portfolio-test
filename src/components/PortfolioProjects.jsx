@@ -23,7 +23,7 @@ function PortfolioProjects() {
   ]
 
   return (
-    <div className="terminal-window card-hover">
+    <section id="projects" className="terminal-window card-hover scroll-mt-24">
       <div className="terminal-header">
         <div className="text-sm text-gray-400">portfolio — projects — showcase</div>
       </div>
@@ -64,7 +64,7 @@ function PortfolioProjects() {
           </p>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 

@@ -1,6 +1,7 @@
 import React from 'react'
 import { FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
 import { SiKubernetes, SiTerraform, SiDatabricks, SiApachekafka, SiPrometheus, SiGrafana } from 'react-icons/si'
+import { RESUME_REQUEST_URL } from '../constants/links'
 
 function Hero() {
   const skills = [
@@ -50,10 +51,10 @@ function Hero() {
               Contact Me
             </a>
             <a 
-              href="/resume.pdf" 
+              href={RESUME_REQUEST_URL}
               className="px-8 py-3 border border-dark-700 text-gray-400 hover:bg-dark-800 rounded-lg font-semibold transition-colors"
             >
-              Download Resume
+              Request Resume
             </a>
           </div>
         </div>

@@ -22,7 +22,7 @@ Modern portfolio website for Amine Essahfi, Platform Engineer specializing in Da
 
 ```bash
 # Install dependencies
-npm install
+npm ci
 
 # Start development server
 npm run dev
@@ -36,7 +36,11 @@ npm run preview
 
 ## Deployment
 
-Automatically deployed to Vercel on push to main branch.
+Automatically deployed by Vercel from the repository's default branch.
+
+## Contact flows
+
+The current contact, resume, and audit CTAs use `mailto:` links, so no backend is required for those flows.
 
 ## License
 

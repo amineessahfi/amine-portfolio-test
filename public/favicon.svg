@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Amine Essahfi</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0f172a" />
+  <path d="M20 46 30 18h4l10 28h-5l-2.2-6.5H27.2L25 46Zm8.6-11h6.8L32 24.8Z" fill="url(#bg)" />
+  <path d="M42 20h4v24h-4z" fill="#cbd5e1" opacity=".85" />
+</svg>

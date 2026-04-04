@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Line } from 'react-chartjs-2'
+import { AUDIT_REQUEST_URL } from '../constants/links'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -242,9 +243,12 @@ function CostCalculator() {
             <p className="text-sm text-gray-300">
               <span className="font-semibold">Want a real cost analysis?</span> I can audit your AWS infrastructure and provide specific optimization recommendations.
             </p>
-            <button className="mt-3 px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded text-sm font-medium transition-colors">
+            <a
+              href={AUDIT_REQUEST_URL}
+              className="mt-3 inline-flex px-4 py-2 bg-primary-600 hover:bg-primary-700 rounded text-sm font-medium transition-colors"
+            >
               Request Free Audit
-            </button>
+            </a>
           </div>
         </div>
       </div>

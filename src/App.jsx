@@ -4,6 +4,7 @@ import TerminalCard from './components/TerminalCard'
 import CostCalculator from './components/CostCalculator'
 import PortfolioProjects from './components/PortfolioProjects'
 import CtaBar from './components/CtaBar'
+import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from './constants/links'
 
 function App() {
   return (
@@ -26,9 +27,9 @@ function App() {
           <p>© {new Date().getFullYear()} Amine Essahfi. Platform Engineer & Data Infrastructure Specialist.</p>
           <p className="mt-2">Built with React, Tailwind CSS, and deployed on Vercel.</p>
           <div className="mt-4 flex justify-center gap-6">
-            <a href="https://github.com/amineessahfi" className="hover:text-primary-400 transition-colors">GitHub</a>
-            <a href="https://linkedin.com/in/amine-essahfi" className="hover:text-primary-400 transition-colors">LinkedIn</a>
-            <a href="mailto:amine.essahfi@gmail.com" className="hover:text-primary-400 transition-colors">Email</a>
+            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">GitHub</a>
+            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">LinkedIn</a>
+            <a href={EMAIL_URL} className="hover:text-primary-400 transition-colors">Email</a>
           </div>
         </div>
       </footer>
