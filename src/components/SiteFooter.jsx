@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from '../constants/links'
 
 function SiteFooter() {
@@ -17,6 +18,9 @@ function SiteFooter() {
           <a href={EMAIL_URL} className="transition-colors hover:text-primary-400">
             Email
           </a>
+          <Link to="/architecture" className="transition-colors hover:text-primary-400">
+            Architecture
+          </Link>
         </div>
       </div>
     </footer>

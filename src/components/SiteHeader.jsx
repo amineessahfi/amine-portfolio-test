@@ -5,6 +5,7 @@ import { EMAIL_URL } from '../constants/links'
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/services', label: 'Services' },
+  { to: '/architecture', label: 'Architecture' },
 ]
 
 function SiteHeader() {

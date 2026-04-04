@@ -19,9 +19,10 @@ function ServiceDetailPage() {
   const primaryCtaUrl = isSandboxService ? '#live-sandbox' : isAwsService ? AUDIT_REQUEST_URL : EMAIL_URL
   const primaryCtaLabel = isSandboxService
     ? 'Launch 5-minute sandbox'
-    : isAwsService
-      ? 'Request AWS audit'
-      : 'Discuss this service'
+      : isAwsService
+        ? 'Request AWS audit'
+        : 'Discuss this service'
+  const showArchitectureLink = isSandboxService
 
   return (
     <>
@@ -94,12 +95,22 @@ function ServiceDetailPage() {
                 ))}
               </ul>
 
-              <a
-                href={primaryCtaUrl}
-                className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-              >
-                {primaryCtaLabel}
-              </a>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href={primaryCtaUrl}
+                  className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+                >
+                  {primaryCtaLabel}
+                </a>
+                {showArchitectureLink ? (
+                  <Link
+                    to="/architecture"
+                    className="inline-flex w-fit rounded-xl border border-dark-600 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-dark-700"
+                  >
+                    View architecture
+                  </Link>
+                ) : null}
+              </div>
             </div>
           </div>
         </section>
