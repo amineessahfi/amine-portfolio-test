@@ -1,3 +1,4 @@
+export const LOGIN_ROUTE = '/login'
 export const SERVICES_DIRECTORY_ROUTE = '/services#services-directory'
 export const LIVE_SANDBOX_ROUTE = '/services/live-terminal-sandbox#live-sandbox'
 export const SANDBOX_LOGIN_ROUTE = '/services/live-terminal-sandbox#sandbox-login'

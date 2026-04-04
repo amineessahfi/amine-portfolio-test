@@ -6,6 +6,7 @@ import ServicesPage from './pages/ServicesPage'
 import ServiceDetailPage from './pages/ServiceDetailPage'
 import ArchitecturePage from './pages/ArchitecturePage'
 import DiscussProjectPage from './pages/DiscussProjectPage'
+import LoginPage from './pages/LoginPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="services" element={<ServicesPage />} />
         <Route path="services/:serviceSlug" element={<ServiceDetailPage />} />
         <Route path="architecture" element={<ArchitecturePage />} />
+        <Route path="login" element={<LoginPage />} />
         <Route path="discuss" element={<DiscussProjectPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

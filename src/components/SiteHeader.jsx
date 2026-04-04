@@ -1,11 +1,12 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { createDiscussUrl } from '../constants/routes'
+import { LOGIN_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const navItems = [
   { to: '/', label: 'Home', end: true },
   { to: '/services', label: 'Services' },
   { to: '/architecture', label: 'Architecture' },
+  { to: LOGIN_ROUTE, label: 'Login' },
 ]
 
 function SiteHeader() {

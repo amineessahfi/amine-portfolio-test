@@ -1,6 +1,5 @@
 import React from 'react'
 import Hero from '../components/Hero'
-import LandingAccessPanel from '../components/LandingAccessPanel'
 import ServicesOverview from '../components/ServicesOverview'
 import TerminalCard from '../components/TerminalCard'
 import DemoShowcase from '../components/DemoShowcase'
@@ -12,8 +11,6 @@ function HomePage() {
       <Hero />
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:gap-12 lg:px-8">
-        <LandingAccessPanel />
-
         <ServicesOverview
           eyebrow="Service lines"
           title="Service pages built for inbound consulting work"
