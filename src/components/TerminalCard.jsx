@@ -4,27 +4,22 @@ function TerminalCard() {
   const [currentLine, setCurrentLine] = useState(0)
   const [displayText, setDisplayText] = useState('')
   const [cursorVisible, setCursorVisible] = useState(true)
-  
+
   const terminalLines = [
-    "> whoami",
-    "Amine Essahfi - Platform Engineer",
-    "",
-    "> cat specialty.txt",
-    "Platform Engineering + DataOps + Telco Infrastructure",
-    "",
-    "> ls projects/",
-    "semtech-ota-platform/  data-insight-tools/  sim-tooling/",
-    "cost-optimization/     kubernetes-platform/",
-    "",
-    "> cat experience.md | grep -E 'AWS|K8s|Terraform'",
-    "✓ AWS Certified Solutions Architect",
-    "✓ Kubernetes at scale (100+ nodes)",
-    "✓ Terraform infrastructure as code",
-    "✓ Cost optimization (30%+ savings)",
-    "",
-    "> connect --platform-engineering",
-    "Ready to build your internal developer platform."
+    '> whoami',
+    'Amine Essahfi - Platform Engineer',
+    '',
+    '> focus --current',
+    'Platform systems + cloud efficiency + data delivery',
+    '',
+    '> stack --core',
+    'AWS · Kubernetes · Terraform · Python',
+    '',
+    '> outcome',
+    'Cleaner delivery paths and stronger architecture decisions',
   ]
+
+  const profileTags = ['Platform Engineering', 'Cloud Efficiency', 'Data Systems']
 
   // Typewriter effect
   useEffect(() => {
@@ -71,7 +66,7 @@ function TerminalCard() {
   }, [currentLine])
 
   return (
-    <div className="terminal-window card-hover">
+    <div className="terminal-window card-hover h-auto self-start">
       <div className="terminal-header">
         <div className="terminal-button bg-red-500"></div>
         <div className="terminal-button bg-yellow-500"></div>
@@ -79,68 +74,60 @@ function TerminalCard() {
         <div className="ml-4 text-sm text-gray-400">terminal - live profile</div>
       </div>
 
-      <div className="terminal-content">
-        <div className="terminal-readout flex-1 rounded-[1.5rem] border border-white/10 bg-[#040916]/70 p-4 sm:p-5">
-          <div className="min-h-[18rem] space-y-1 break-words text-[13px] sm:text-sm">
-          {/* Show all completed lines */}
-          {terminalLines.slice(0, currentLine).map((line, index) => (
-            <div key={index} className="text-gray-300">
-              {line.startsWith('> ') ? (
-                <span className="text-green-400">{line}</span>
-              ) : line.startsWith('✓ ') ? (
-                <span className="text-green-300">{line}</span>
-              ) : line === '' ? (
-                <br />
-              ) : (
-                <span className="text-cyan-300">{line}</span>
-              )}
-            </div>
-          ))}
-          
-          {/* Current typing line */}
-          {currentLine < terminalLines.length && (
-            <div className="text-gray-300">
-              {terminalLines[currentLine].startsWith('> ') ? (
-                <span className="text-green-400">
-                  {terminalLines[currentLine].substring(0, 2)}
-                  <span className="text-gray-300">
-                    {displayText.substring(2)}
-                    {cursorVisible && <span className="inline-block w-2 h-5 bg-green-400 ml-1 align-middle animate-terminal-blink"></span>}
+      <div className="terminal-content !gap-5">
+        <div className="space-y-3">
+          <span className="section-chip">Profile snapshot</span>
+          <h3 className="text-2xl font-semibold text-white">A compact operator-style intro</h3>
+          <p className="text-sm leading-7 text-gray-400">
+            A denser terminal card keeps the homepage rhythm tighter while still showing the command-line identity of the site.
+          </p>
+        </div>
+
+        <div className="terminal-readout rounded-[1.35rem] border border-white/10 bg-[#040916]/80 p-4 sm:p-5">
+          <div className="min-h-[12.5rem] space-y-1 break-words text-[13px] sm:text-sm">
+            {terminalLines.slice(0, currentLine).map((line, index) => (
+              <div key={index} className="text-gray-300">
+                {line.startsWith('> ') ? (
+                  <span className="text-green-400">{line}</span>
+                ) : line === '' ? (
+                  <br />
+                ) : (
+                  <span className="text-cyan-300">{line}</span>
+                )}
+              </div>
+            ))}
+
+            {currentLine < terminalLines.length && (
+              <div className="text-gray-300">
+                {terminalLines[currentLine].startsWith('> ') ? (
+                  <span className="text-green-400">
+                    {terminalLines[currentLine].substring(0, 2)}
+                    <span className="text-gray-300">
+                      {displayText.substring(2)}
+                      {cursorVisible ? <span className="ml-1 inline-block h-5 w-2 animate-terminal-blink bg-green-400 align-middle"></span> : null}
+                    </span>
                   </span>
-                </span>
-              ) : terminalLines[currentLine].startsWith('✓ ') ? (
-                <span className="text-green-300">
-                  {displayText}
-                  {cursorVisible && <span className="inline-block w-2 h-5 bg-green-300 ml-1 align-middle animate-terminal-blink"></span>}
-                </span>
-              ) : terminalLines[currentLine] === '' ? (
-                <br />
-              ) : (
-                <span className="text-cyan-300">
-                  {displayText}
-                  {cursorVisible && <span className="inline-block w-2 h-5 bg-cyan-300 ml-1 align-middle animate-terminal-blink"></span>}
-                </span>
-              )}
-            </div>
-          )}
+                ) : terminalLines[currentLine] === '' ? (
+                  <br />
+                ) : (
+                  <span className="text-cyan-300">
+                    {displayText}
+                    {cursorVisible ? <span className="ml-1 inline-block h-5 w-2 animate-terminal-blink bg-cyan-300 align-middle"></span> : null}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
-        
-        <div className="border-t border-white/10 pt-5">
-          <div className="flex flex-col gap-4 text-xs text-gray-500 sm:text-sm">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Platform Engineering
-              </span>
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Data Infrastructure
-              </span>
-              <span className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                Cost Optimization
-              </span>
+
+        <div className="border-t border-white/10 pt-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap gap-2.5 text-xs text-gray-400">
+              {profileTags.map((tag) => (
+                <span key={tag} className="skill-badge !px-3 !py-1.5 !text-xs">
+                  {tag}
+                </span>
+              ))}
             </div>
             <button
               onClick={() => {
