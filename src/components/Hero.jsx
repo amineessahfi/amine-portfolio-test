@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
 import { SiDatabricks, SiKubernetes, SiTerraform } from 'react-icons/si'
-import { EMAIL_URL } from '../constants/links'
+import { SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const expertisePillars = [
   {
@@ -44,28 +44,28 @@ function Hero() {
             <div className="relative z-10">
               <span className="section-chip">Platform engineering / cloud / data systems</span>
               <p className="mt-6 text-sm font-semibold uppercase tracking-[0.32em] text-primary-200/90">
-                Consulting offers shaped like products
+                Consulting offers shaped like product experiences
               </p>
               <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4.4rem] lg:leading-[1.02]">
-                Build a stack that looks
+                Turn complex platform work into a system that feels
                 <span className="gradient-text"> deliberate</span>
-                , ships faster, and feels premium end to end.
+                , proves its value fast, and converts serious buyers.
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                I design developer platforms, cloud infrastructure, and data-heavy systems for teams that want cleaner architecture, stronger delivery workflows, and sharper technical positioning.
+                Explore the service paths, open the relevant proof points, and use the platform itself to decide whether the fit is strong before we ever get on a call.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                <Link to="/services" className="primary-button gap-2">
-                  Explore services
+                <Link to={SERVICES_DIRECTORY_ROUTE} className="primary-button gap-2">
+                  Find the right service path
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <a href="#projects" className="secondary-button">
-                  View delivery examples
+                  See proof of delivery
                 </a>
-                <a href={EMAIL_URL} className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3">
-                  Discuss a project
-                </a>
+                <Link to={createDiscussUrl()} className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3">
+                  Start a project conversation
+                </Link>
               </div>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -82,10 +82,10 @@ function Hero() {
               <div className="metric-card p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Current positioning</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                  Architecture, delivery, and operational polish in one offer.
+                  Interest, proof, and project fit in one route system.
                 </h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  The site is structured to feel closer to a premium consulting studio than a developer portfolio, while still showing real technical depth and hands-on systems work.
+                  The site now works more like a product funnel for technical consulting: understand the offer, try the strongest proof point, then move into a scoped conversation while the context is still warm.
                 </p>
               </div>
 

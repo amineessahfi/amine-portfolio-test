@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
 import { services } from '../data/services'
 import ServiceCard from './ServiceCard'
 
@@ -8,9 +9,10 @@ function ServicesOverview({
   title = 'Service lines built to generate qualified work',
   intro = 'Clear service pages make it easier for visitors to understand what you offer, what problems you solve, and how to start a conversation.',
   showDirectoryLink = false,
+  sectionId,
 }) {
   return (
-    <section>
+    <section id={sectionId} className={sectionId ? 'scroll-mt-28' : undefined}>
       <div className="terminal-window">
         <div className="terminal-header">
           <div className="text-sm text-gray-400">services - directory</div>
@@ -34,7 +36,7 @@ function ServicesOverview({
           {showDirectoryLink ? (
             <div className="border-t border-white/10 pt-5">
               <Link
-                to="/services"
+                to={SERVICES_DIRECTORY_ROUTE}
                 className="secondary-button"
               >
                 Browse all service pages

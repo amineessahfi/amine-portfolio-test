@@ -1,10 +1,41 @@
-import React from 'react'
-import { Outlet } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import SiteHeader from './SiteHeader'
 import SiteFooter from './SiteFooter'
 import CtaBar from './CtaBar'
 
 function SiteLayout() {
+  const location = useLocation()
+
+  useEffect(() => {
+    const hash = decodeURIComponent(location.hash.replace('#', ''))
+
+    if (!hash) {
+      window.scrollTo({ top: 0, left: 0 })
+      return undefined
+    }
+
+    let cancelled = false
+
+    const scrollToTarget = (attempt = 0) => {
+      const element = document.getElementById(hash)
+      if (element) {
+        element.scrollIntoView({ block: 'start' })
+        return
+      }
+
+      if (!cancelled && attempt < 12) {
+        window.setTimeout(() => scrollToTarget(attempt + 1), 60)
+      }
+    }
+
+    scrollToTarget()
+
+    return () => {
+      cancelled = true
+    }
+  }, [location.pathname, location.hash])
+
   return (
     <div className="relative min-h-screen overflow-hidden text-gray-100">
       <div className="pointer-events-none absolute inset-0">

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from '../constants/links'
+import { createDiscussUrl } from '../constants/routes'
 
 function SiteFooter() {
   return (
@@ -25,6 +26,9 @@ function SiteFooter() {
               <a href={EMAIL_URL} className="soft-link">
                 Email
               </a>
+              <Link to={createDiscussUrl()} className="soft-link">
+                Discuss
+              </Link>
               <Link to="/architecture" className="soft-link">
                 Architecture
               </Link>

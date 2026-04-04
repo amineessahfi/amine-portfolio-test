@@ -36,19 +36,19 @@ function ServicesPage() {
               <div>
                 <span className="section-chip">Services</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  Service pages designed to feel
-                  <span className="gradient-text"> consultative</span>
-                  , not generic.
+                  Choose the route that matches the bottleneck you want
+                  <span className="gradient-text"> gone</span>
+                  .
                 </h1>
                 <p className="section-copy max-w-3xl text-base sm:text-lg">
-                  Each route is structured to position a specific offer clearly: what it solves, who it fits, what gets delivered, and where the next conversation should start.
+                  These pages are built so visitors can self-qualify fast: pick the problem, open the strongest proof point, and decide whether it is time to start a real project conversation.
                 </p>
               </div>
 
               <div className="metric-card p-6">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this layout</p>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  A premium service site needs sharper message hierarchy, better spacing, and clearer conversion paths than a simple one-page portfolio. This section is built to support exactly that.
+                  A premium service site needs sharper hierarchy and more deliberate routing than a flat one-pager. Each path here is meant to pull the visitor toward the right action instead of just showing more content.
                 </p>
               </div>
             </div>
@@ -60,7 +60,8 @@ function ServicesPage() {
         <ServicesOverview
           eyebrow="Offerings"
           title="Choose the service path that matches the problem you need solved"
-          intro="Each service page is structured to support future expansion into richer case studies, lead forms, and more specific commercial messaging."
+          intro="Open the route that looks closest to your current friction point, then move from proof into the discuss page once the fit is clear."
+          sectionId="services-directory"
         />
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">

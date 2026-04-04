@@ -1,11 +1,13 @@
 import React from 'react'
-import { FaLinkedin, FaGithub, FaEnvelope, FaFileDownload } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
+import { FaArrowRight, FaEnvelope, FaFileDownload, FaGithub, FaLinkedin, FaTerminal } from 'react-icons/fa'
 import {
   EMAIL_URL,
   GITHUB_URL,
   LINKEDIN_URL,
   RESUME_REQUEST_URL,
 } from '../constants/links'
+import { AWS_CALCULATOR_ROUTE, LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
 
 function CtaBar() {
   return (
@@ -13,46 +15,49 @@ function CtaBar() {
       <div className="hero-shell px-6 py-8 sm:px-8 lg:px-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
           <div className="max-w-xl">
-            <span className="section-chip">Contact</span>
-            <h3 className="section-title text-3xl sm:text-4xl">Ready to turn the site into real inbound work?</h3>
+            <span className="section-chip">Next step</span>
+            <h3 className="section-title text-3xl sm:text-4xl">Ready to turn curiosity into a scoped project conversation?</h3>
             <p className="section-copy">
-              If you want the same level of technical polish in your platform, cloud footprint, or data workflows, I can help shape both the architecture and the implementation path.
+              Use the platform the same way I want your visitors to use yours: hit the route that matches the problem, try the proof point, then move into a deliberate conversation once the fit is obvious.
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <a
-              href={LINKEDIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="secondary-button gap-2"
-            >
-              <FaLinkedin /> Connect on LinkedIn
-            </a>
+            <Link to={createDiscussUrl()} className="primary-button gap-2">
+              <FaArrowRight />
+              Start a project conversation
+            </Link>
 
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="secondary-button gap-2"
-            >
-              <FaGithub /> View GitHub
-            </a>
+            <Link to={LIVE_SANDBOX_ROUTE} className="secondary-button gap-2">
+              <FaTerminal />
+              Try the live sandbox
+            </Link>
 
-            <a
-              href={EMAIL_URL}
-              className="primary-button gap-2"
-            >
-              <FaEnvelope /> Email Me
-            </a>
+            <Link to={AWS_CALCULATOR_ROUTE} className="secondary-button gap-2">
+              <FaEnvelope />
+              Run the AWS savings model
+            </Link>
 
-            <a
-              href={RESUME_REQUEST_URL}
-              className="secondary-button gap-2"
-            >
-              <FaFileDownload /> Request Resume
+            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="secondary-button gap-2">
+              <FaLinkedin />
+              Connect on LinkedIn
             </a>
           </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
+          <a href={EMAIL_URL} className="soft-link">
+            Email directly
+          </a>
+          <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
+            View GitHub
+          </a>
+          <a href={RESUME_REQUEST_URL} className="soft-link">
+            Request resume
+          </a>
+          <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
+            LinkedIn
+          </a>
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">

@@ -14,7 +14,7 @@ function HomePage() {
         <ServicesOverview
           eyebrow="Service lines"
           title="Service pages built for inbound consulting work"
-          intro="This keeps the homepage as the entry point while giving each service a dedicated route, stronger positioning, and room for future lead capture."
+          intro="The homepage stays as the entry layer while each service route carries stronger positioning, sharper proof points, and a cleaner handoff into a real project conversation."
           showDirectoryLink
         />
 

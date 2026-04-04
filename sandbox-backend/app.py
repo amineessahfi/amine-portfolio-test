@@ -1,6 +1,9 @@
 import asyncio
+import base64
 import contextlib
 import errno
+import hashlib
+import hmac
 import json
 import os
 import pty
@@ -11,9 +14,9 @@ import termios
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from aiohttp import WSMsgType, web
+from aiohttp import ClientSession, WSMsgType, web
 
 PORT = int(os.getenv('PORT', '3020'))
 HOST = os.getenv('HOST', '127.0.0.1')
@@ -24,6 +27,18 @@ CONNECT_WINDOW_SECONDS = int(os.getenv('CONNECT_WINDOW_SECONDS', '60'))
 MAX_SESSIONS_PER_HOUR = int(os.getenv('MAX_SESSIONS_PER_HOUR', '3'))
 MAX_CONCURRENT_PER_IP = int(os.getenv('MAX_CONCURRENT_PER_IP', '1'))
 MAX_GLOBAL_CONCURRENT = int(os.getenv('MAX_GLOBAL_CONCURRENT', '4'))
+FREE_ANONYMOUS_SESSIONS = int(os.getenv('FREE_ANONYMOUS_SESSIONS', '1'))
+VISITOR_COOKIE_NAME = os.getenv('VISITOR_COOKIE_NAME', 'sandbox_visitor')
+AUTH_COOKIE_NAME = os.getenv('AUTH_COOKIE_NAME', 'sandbox_auth')
+AUTH_COOKIE_MAX_AGE = int(os.getenv('AUTH_COOKIE_MAX_AGE', str(60 * 60 * 24 * 14)))
+AUTH_COOKIE_SECRET = os.getenv('AUTH_COOKIE_SECRET') or secrets.token_hex(32)
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID', '').strip()
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET', '').strip()
+GOOGLE_OAUTH_SCOPE = os.getenv('GOOGLE_OAUTH_SCOPE', 'openid email profile').strip()
+GOOGLE_OAUTH_REDIRECT_URL = os.getenv('GOOGLE_OAUTH_REDIRECT_URL', f'{PUBLIC_BASE_URL}/auth/google/callback').rstrip('/')
+GOOGLE_OAUTH_AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
+GOOGLE_OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token'
+GOOGLE_OAUTH_USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo'
 
 DEFAULT_ALLOWED_ORIGIN_PATTERNS = [
     'https://amine-portfolio-test.vercel.app',
@@ -41,7 +56,8 @@ ALLOWED_ORIGIN_PATTERNS = [
     for pattern in os.getenv('ALLOWED_ORIGIN_PATTERNS', ','.join(DEFAULT_ALLOWED_ORIGIN_PATTERNS)).split(',')
     if pattern.strip()
 ]
-PROTECTED_ORIGIN_PATHS = {'/sessions', '/ws'}
+DEFAULT_FRONTEND_ORIGIN = os.getenv('DEFAULT_FRONTEND_ORIGIN', 'https://amine-portfolio-test.vercel.app').rstrip('/')
+PROTECTED_ORIGIN_PATHS = {'/sessions', '/ws', '/auth/status', '/auth/logout'}
 ACTIVE_SESSION_STATUSES = {'created', 'starting', 'active'}
 
 
@@ -51,6 +67,9 @@ class Session:
     token: str
     client_ip: str
     created_at: float
+    visitor_id: str = 'unknown'
+    auth_user: str | None = None
+    auth_provider: str | None = None
     cols: int = 120
     rows: int = 30
     status: str = 'created'
@@ -69,6 +88,19 @@ class Session:
     connect_timeout_task: asyncio.Task | None = None
     output_queue: asyncio.Queue = field(default_factory=asyncio.Queue)
     cleanup_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+
+
+def google_oauth_enabled() -> bool:
+    return bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
+
+
+def audit_log(event: str, **fields) -> None:
+    payload = {
+        'event': event,
+        'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+    }
+    payload.update({key: value for key, value in fields.items() if value is not None})
+    print(json.dumps(payload, separators=(',', ':'), sort_keys=True), flush=True)
 
 
 def matches_origin_pattern(origin: str, pattern: str) -> bool:
@@ -216,6 +248,133 @@ def active_sessions_count(app: web.Application) -> int:
     )
 
 
+def sign_payload(payload: dict) -> str:
+    serialized = json.dumps(payload, separators=(',', ':'), sort_keys=True).encode('utf-8')
+    encoded = base64.urlsafe_b64encode(serialized).decode('utf-8').rstrip('=')
+    signature = hmac.new(AUTH_COOKIE_SECRET.encode('utf-8'), encoded.encode('utf-8'), hashlib.sha256).hexdigest()
+    return f'{encoded}.{signature}'
+
+
+def read_signed_payload(token: str | None) -> dict | None:
+    if not token or '.' not in token:
+        return None
+
+    encoded, signature = token.rsplit('.', 1)
+    expected = hmac.new(AUTH_COOKIE_SECRET.encode('utf-8'), encoded.encode('utf-8'), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(signature, expected):
+        return None
+
+    padding = '=' * (-len(encoded) % 4)
+    try:
+        decoded = base64.urlsafe_b64decode(f'{encoded}{padding}'.encode('utf-8'))
+        payload = json.loads(decoded.decode('utf-8'))
+    except (ValueError, json.JSONDecodeError):
+        return None
+
+    return payload if isinstance(payload, dict) else None
+
+
+def new_visitor_state() -> dict:
+    return {
+        'visitor_id': secrets.token_urlsafe(18),
+        'anonymous_sessions_used': 0,
+    }
+
+
+def get_visitor_state(request: web.Request) -> tuple[dict, bool]:
+    payload = read_signed_payload(request.cookies.get(VISITOR_COOKIE_NAME))
+    if not payload:
+        return new_visitor_state(), True
+
+    visitor_id = str(payload.get('visitor_id') or secrets.token_urlsafe(18))
+    try:
+        anonymous_sessions_used = max(0, int(payload.get('anonymous_sessions_used', 0)))
+    except (TypeError, ValueError):
+        anonymous_sessions_used = 0
+
+    normalized = {
+        'visitor_id': visitor_id,
+        'anonymous_sessions_used': anonymous_sessions_used,
+    }
+    return normalized, normalized != payload
+
+
+def get_auth_identity(request: web.Request) -> dict | None:
+    payload = read_signed_payload(request.cookies.get(AUTH_COOKIE_NAME))
+    if not payload:
+        return None
+
+    try:
+        expiry = int(payload.get('exp', 0))
+    except (TypeError, ValueError):
+        return None
+
+    if expiry <= int(time.time()):
+        return None
+
+    if not payload.get('sub'):
+        return None
+
+    return payload
+
+
+def set_signed_cookie(response: web.StreamResponse, cookie_name: str, payload: dict, *, max_age: int) -> None:
+    response.set_cookie(
+        cookie_name,
+        sign_payload(payload),
+        max_age=max_age,
+        secure=True,
+        httponly=True,
+        samesite='None',
+        path='/',
+    )
+
+
+def set_visitor_cookie(response: web.StreamResponse, visitor_state: dict) -> None:
+    set_signed_cookie(response, VISITOR_COOKIE_NAME, visitor_state, max_age=60 * 60 * 24 * 365)
+
+
+def set_auth_cookie(response: web.StreamResponse, auth_identity: dict) -> None:
+    set_signed_cookie(response, AUTH_COOKIE_NAME, auth_identity, max_age=AUTH_COOKIE_MAX_AGE)
+
+
+def clear_auth_cookie(response: web.StreamResponse) -> None:
+    response.del_cookie(
+        AUTH_COOKIE_NAME,
+        path='/',
+        secure=True,
+        httponly=True,
+        samesite='None',
+    )
+
+
+def normalize_return_to(candidate: str | None) -> str:
+    default_return_to = f'{DEFAULT_FRONTEND_ORIGIN}/services/live-terminal-sandbox#live-sandbox'
+
+    if not candidate:
+        return default_return_to
+
+    if candidate.startswith('/') and not candidate.startswith('//'):
+        return f'{DEFAULT_FRONTEND_ORIGIN}{candidate}'
+
+    parsed = urlparse(candidate)
+    origin = f'{parsed.scheme}://{parsed.netloc}'.rstrip('/')
+    if parsed.scheme not in {'http', 'https'}:
+        return default_return_to
+
+    if origin_allowed(origin, require_origin=True):
+        return candidate
+
+    return default_return_to
+
+
+def append_query_param(url: str, key: str, value: str) -> str:
+    parsed = urlparse(url)
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    query[key] = value
+    return urlunparse(parsed._replace(query=urlencode(query)))
+
+
 def queue_pty_output(app: web.Application, session: Session) -> None:
     if session.master_fd is None or session.closed:
         return
@@ -294,6 +453,15 @@ async def start_session(app: web.Application, session: Session) -> None:
     session.expires_at = session.connected_at + SESSION_SECONDS
     session.status = 'active'
 
+    audit_log(
+        'sandbox_session_started',
+        session_id=session.session_id,
+        client_ip=session.client_ip,
+        visitor_id=session.visitor_id,
+        auth_provider=session.auth_provider,
+        auth_user=session.auth_user,
+    )
+
     await send_json_if_open(
         session,
         {
@@ -353,6 +521,16 @@ async def cleanup_session(app: web.Application, session: Session, reason: str) -
             with contextlib.suppress(asyncio.CancelledError):
                 await session.output_task
 
+        audit_log(
+            'sandbox_session_closed',
+            session_id=session.session_id,
+            client_ip=session.client_ip,
+            visitor_id=session.visitor_id,
+            auth_provider=session.auth_provider,
+            auth_user=session.auth_user,
+            reason=reason,
+        )
+
         await send_json_if_open(session, {'type': 'system', 'message': reason, 'closed': True})
         if session.websocket and not session.websocket.closed:
             with contextlib.suppress(Exception):
@@ -374,6 +552,7 @@ async def cors_middleware(request: web.Request, handler):
 
     if origin and origin_allowed(origin):
         response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Vary'] = 'Origin'
         response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
@@ -387,22 +566,188 @@ async def health(request: web.Request) -> web.Response:
             'status': 'ok',
             'sessions': len(app['sessions']),
             'image': SANDBOX_IMAGE,
+            'googleOAuthConfigured': google_oauth_enabled(),
         }
     )
+
+
+async def auth_status(request: web.Request) -> web.Response:
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    auth_identity = get_auth_identity(request)
+
+    response = web.json_response(
+        {
+            'authenticated': bool(auth_identity),
+            'authConfigured': google_oauth_enabled(),
+            'provider': 'google',
+            'freeAnonymousSessions': FREE_ANONYMOUS_SESSIONS,
+            'anonymousSessionsUsed': visitor_state['anonymous_sessions_used'],
+            'user': {
+                'email': auth_identity.get('email'),
+                'name': auth_identity.get('name'),
+            }
+            if auth_identity
+            else None,
+        }
+    )
+
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
+
+    return response
+
+
+async def google_oauth_start(request: web.Request) -> web.StreamResponse:
+    if not google_oauth_enabled():
+        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured.')
+
+    return_to = normalize_return_to(request.query.get('returnTo'))
+    state = sign_payload(
+        {
+            'iat': int(time.time()),
+            'nonce': secrets.token_urlsafe(12),
+            'return_to': return_to,
+        }
+    )
+
+    audit_log(
+        'google_oauth_start',
+        client_ip=get_client_ip(request),
+        return_to=return_to,
+    )
+
+    params = {
+        'client_id': GOOGLE_OAUTH_CLIENT_ID,
+        'redirect_uri': GOOGLE_OAUTH_REDIRECT_URL,
+        'response_type': 'code',
+        'scope': GOOGLE_OAUTH_SCOPE,
+        'state': state,
+        'access_type': 'online',
+        'include_granted_scopes': 'true',
+        'prompt': 'select_account',
+    }
+
+    raise web.HTTPFound(location=f'{GOOGLE_OAUTH_AUTHORIZE_URL}?{urlencode(params)}')
+
+
+async def google_oauth_callback(request: web.Request) -> web.StreamResponse:
+    if not google_oauth_enabled():
+        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured.')
+
+    state = read_signed_payload(request.query.get('state'))
+    if not state:
+        raise web.HTTPBadRequest(text='Invalid OAuth state.')
+
+    try:
+        issued_at = int(state.get('iat', 0))
+    except (TypeError, ValueError):
+        issued_at = 0
+
+    if issued_at <= 0 or time.time() - issued_at > 600:
+        raise web.HTTPBadRequest(text='OAuth state expired.')
+
+    return_to = normalize_return_to(state.get('return_to'))
+    error = request.query.get('error')
+    code = request.query.get('code')
+
+    if error or not code:
+        audit_log(
+            'google_oauth_failed',
+            client_ip=get_client_ip(request),
+            reason=error or 'missing_code',
+        )
+        raise web.HTTPFound(location=append_query_param(return_to, 'oauth', 'error'))
+
+    async with ClientSession() as client_session:
+        token_response = await client_session.post(
+            GOOGLE_OAUTH_TOKEN_URL,
+            data={
+                'code': code,
+                'client_id': GOOGLE_OAUTH_CLIENT_ID,
+                'client_secret': GOOGLE_OAUTH_CLIENT_SECRET,
+                'redirect_uri': GOOGLE_OAUTH_REDIRECT_URL,
+                'grant_type': 'authorization_code',
+            },
+        )
+        token_payload = await token_response.json()
+        access_token = token_payload.get('access_token')
+        if token_response.status >= 400 or not access_token:
+            audit_log(
+                'google_oauth_failed',
+                client_ip=get_client_ip(request),
+                reason='token_exchange_failed',
+            )
+            raise web.HTTPFound(location=append_query_param(return_to, 'oauth', 'error'))
+
+        userinfo_response = await client_session.get(
+            GOOGLE_OAUTH_USERINFO_URL,
+            headers={'Authorization': f'Bearer {access_token}'},
+        )
+        userinfo_payload = await userinfo_response.json()
+        if userinfo_response.status >= 400 or not userinfo_payload.get('sub'):
+            audit_log(
+                'google_oauth_failed',
+                client_ip=get_client_ip(request),
+                reason='userinfo_failed',
+            )
+            raise web.HTTPFound(location=append_query_param(return_to, 'oauth', 'error'))
+
+    auth_identity = {
+        'sub': userinfo_payload.get('sub'),
+        'email': userinfo_payload.get('email'),
+        'name': userinfo_payload.get('name') or userinfo_payload.get('email') or 'Google user',
+        'provider': 'google',
+        'exp': int(time.time()) + AUTH_COOKIE_MAX_AGE,
+    }
+
+    response = web.HTTPFound(location=append_query_param(return_to, 'oauth', 'success'))
+    set_auth_cookie(response, auth_identity)
+
+    visitor_state, _ = get_visitor_state(request)
+    set_visitor_cookie(response, visitor_state)
+
+    audit_log(
+        'google_oauth_success',
+        client_ip=get_client_ip(request),
+        email=auth_identity.get('email'),
+        sub=auth_identity.get('sub'),
+    )
+
+    return response
+
+
+async def logout(request: web.Request) -> web.Response:
+    auth_identity = get_auth_identity(request)
+    response = web.json_response({'ok': True})
+    clear_auth_cookie(response)
+
+    audit_log(
+        'google_oauth_logout',
+        client_ip=get_client_ip(request),
+        email=auth_identity.get('email') if auth_identity else None,
+    )
+
+    return response
 
 
 async def create_session(request: web.Request) -> web.Response:
     app = request.app
     client_ip = get_client_ip(request)
     history = prune_rate_limit(app, client_ip)
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    auth_identity = get_auth_identity(request)
+    anonymous_sessions_used = visitor_state['anonymous_sessions_used']
+    auth_gate_enabled = google_oauth_enabled() and FREE_ANONYMOUS_SESSIONS >= 0
 
     if active_sessions_count(app) >= MAX_GLOBAL_CONCURRENT:
+        audit_log('sandbox_capacity_blocked', client_ip=client_ip, visitor_id=visitor_state['visitor_id'])
         return web.json_response(
             {'error': 'Sandbox service is at capacity. Please try again later.'},
             status=503,
         )
 
     if len(history) >= MAX_SESSIONS_PER_HOUR:
+        audit_log('sandbox_rate_limited', client_ip=client_ip, visitor_id=visitor_state['visitor_id'])
         return web.json_response(
             {'error': 'Rate limit exceeded for sandbox sessions. Please try again later.'},
             status=429,
@@ -414,9 +759,40 @@ async def create_session(request: web.Request) -> web.Response:
             status=429,
         )
 
+    if not auth_identity and auth_gate_enabled and anonymous_sessions_used >= FREE_ANONYMOUS_SESSIONS:
+        response = web.json_response(
+            {
+                'error': 'Your complimentary anonymous terminal session has already been used. Sign in with Google to unlock additional launches.',
+                'authRequired': True,
+                'authConfigured': google_oauth_enabled(),
+                'provider': 'google',
+            },
+            status=401,
+        )
+        if refresh_visitor_cookie:
+            set_visitor_cookie(response, visitor_state)
+
+        audit_log(
+            'sandbox_auth_required',
+            client_ip=client_ip,
+            visitor_id=visitor_state['visitor_id'],
+        )
+        return response
+
+    if not auth_identity:
+        visitor_state['anonymous_sessions_used'] = anonymous_sessions_used + 1
+
     session_id = secrets.token_urlsafe(9)
     token = secrets.token_urlsafe(24)
-    session = Session(session_id=session_id, token=token, client_ip=client_ip, created_at=time.time())
+    session = Session(
+        session_id=session_id,
+        token=token,
+        client_ip=client_ip,
+        created_at=time.time(),
+        visitor_id=visitor_state['visitor_id'],
+        auth_user=auth_identity.get('email') if auth_identity else None,
+        auth_provider=auth_identity.get('provider') if auth_identity else None,
+    )
     app['sessions'][session_id] = session
     history.append(time.time())
     session.connect_timeout_task = asyncio.create_task(
@@ -426,7 +802,7 @@ async def create_session(request: web.Request) -> web.Response:
     base_ws_url = PUBLIC_BASE_URL.replace('https://', 'wss://').replace('http://', 'ws://')
     ws_url = f'{base_ws_url}/ws?sessionId={session_id}&token={token}'
 
-    return web.json_response(
+    response = web.json_response(
         {
             'sessionId': session_id,
             'token': token,
@@ -439,8 +815,23 @@ async def create_session(request: web.Request) -> web.Response:
                 'Non-root user',
                 'Automatic expiration after 5 minutes',
             ],
+            'authConfigured': google_oauth_enabled(),
+            'authProvider': 'google',
+            'anonymousSessionsRemaining': max(FREE_ANONYMOUS_SESSIONS - visitor_state['anonymous_sessions_used'], 0),
         }
     )
+    set_visitor_cookie(response, visitor_state)
+
+    audit_log(
+        'sandbox_session_created',
+        session_id=session.session_id,
+        client_ip=client_ip,
+        visitor_id=session.visitor_id,
+        auth_provider=session.auth_provider,
+        auth_user=session.auth_user,
+    )
+
+    return response
 
 
 async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
@@ -514,6 +905,11 @@ def create_app() -> web.Application:
             web.post('/sessions', create_session),
             web.options('/sessions', create_session),
             web.get('/ws', websocket_handler),
+            web.get('/auth/status', auth_status),
+            web.get('/auth/google/start', google_oauth_start),
+            web.get('/auth/google/callback', google_oauth_callback),
+            web.post('/auth/logout', logout),
+            web.options('/auth/logout', logout),
         ]
     )
     return app

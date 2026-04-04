@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Line } from 'react-chartjs-2'
-import { AUDIT_REQUEST_URL } from '../constants/links'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,6 +12,7 @@ import {
   Legend,
   Filler
 } from 'chart.js'
+import { createDiscussUrl } from '../constants/routes'
 
 ChartJS.register(
   CategoryScale,
@@ -122,20 +123,21 @@ function CostCalculator() {
   }
 
   return (
-    <div className="terminal-window card-hover">
-      <div className="terminal-header">
-        <div className="text-sm text-gray-400">aws-cost-optimizer — interactive</div>
-      </div>
-      
-      <div className="terminal-content">
-        <div className="space-y-3">
-          <h3 className="text-2xl font-semibold text-white">AWS Cost Optimization Calculator</h3>
-          <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
-            Estimate your potential AWS savings with infrastructure optimization strategies I&apos;ve implemented for clients.
-          </p>
+    <section id="aws-cost-calculator" className="scroll-mt-28">
+      <div className="terminal-window card-hover">
+        <div className="terminal-header">
+          <div className="text-sm text-gray-400">aws-cost-optimizer — interactive</div>
         </div>
-        
-        <div className="flex flex-1 flex-col gap-6">
+
+        <div className="terminal-content">
+          <div className="space-y-3">
+            <h3 className="text-2xl font-semibold text-white">AWS Cost Optimization Calculator</h3>
+            <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
+              Model the upside first, then use the discuss route to turn the estimate into a targeted infrastructure review.
+            </p>
+          </div>
+
+          <div className="flex flex-1 flex-col gap-6">
           {/* Input Controls */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
@@ -244,20 +246,21 @@ function CostCalculator() {
           </div>
           
           {/* CTA */}
-          <div className="rounded-2xl border border-primary-800 bg-primary-900/20 p-5">
-            <p className="text-sm leading-7 text-gray-300">
-              <span className="font-semibold">Want a real cost analysis?</span> I can audit your AWS infrastructure and provide specific optimization recommendations.
-            </p>
-            <a
-              href={AUDIT_REQUEST_URL}
-              className="mt-4 inline-flex justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-700"
-            >
-              Request Free Audit
-            </a>
+            <div className="rounded-2xl border border-primary-800 bg-primary-900/20 p-5">
+              <p className="text-sm leading-7 text-gray-300">
+                <span className="font-semibold">If the estimate feels real,</span> use the platform&apos;s discuss route and I&apos;ll turn it into a sharper savings plan with the right technical starting point.
+              </p>
+              <Link
+                to={createDiscussUrl('aws-cost-optimization')}
+                className="mt-4 inline-flex justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-700"
+              >
+                Turn this into an AWS review
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 

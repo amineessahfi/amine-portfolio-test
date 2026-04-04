@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { EMAIL_URL } from '../constants/links'
+import { createDiscussUrl } from '../constants/routes'
 
 const navItems = [
   { to: '/', label: 'Home', end: true },
@@ -39,12 +39,9 @@ function SiteHeader() {
             ))}
           </nav>
 
-          <a
-            href={EMAIL_URL}
-            className="primary-button hidden px-4 py-2.5 md:inline-flex"
-          >
-            Discuss a project
-          </a>
+          <Link to={createDiscussUrl()} className="primary-button hidden px-4 py-2.5 md:inline-flex">
+            Start a project
+          </Link>
         </div>
       </div>
     </header>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const architectureLayers = [
   {
@@ -49,8 +50,8 @@ const stackFlow = [
 ]
 
 const requestFlow = [
-  'A visitor requests a sandbox session from the service page.',
-  'The backend validates the browser origin and checks per-visitor and total-capacity limits.',
+  'A visitor lands on the highlighted sandbox section and requests a session from the service page.',
+  'The backend validates the browser origin, tracks complimentary anonymous usage, and checks per-visitor and total-capacity limits.',
   'A short-lived session token is issued and the browser upgrades to a WebSocket connection.',
   'The backend starts an isolated container and relays shell input/output between browser and runtime.',
   'Automatic cleanup destroys the session on timeout, disconnect, or process exit.',
@@ -63,6 +64,7 @@ const guardrails = [
   'Read-only base filesystem with temporary writable scratch space',
   'Non-root execution and dropped Linux capabilities',
   'CPU, memory, process, and file descriptor limits',
+  'One complimentary anonymous launch before Google-backed repeat access',
   'Per-visitor throttling plus a global concurrent session cap',
   'Trusted-origin enforcement for both session creation and terminal upgrade',
 ]
@@ -89,7 +91,7 @@ function ArchitecturePage() {
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
-                <Link to="/services/live-terminal-sandbox" className="soft-link inline-flex items-center gap-2">
+                <Link to={LIVE_SANDBOX_ROUTE} className="soft-link inline-flex items-center gap-2">
                   Back to sandbox service
                 </Link>
                 <div className="mt-6">
@@ -104,11 +106,11 @@ function ArchitecturePage() {
                 </div>
 
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link to="/services/live-terminal-sandbox" className="primary-button">
-                    Open sandbox service
+                  <Link to={LIVE_SANDBOX_ROUTE} className="primary-button">
+                    Open live sandbox
                   </Link>
-                  <Link to="/services" className="secondary-button">
-                    Browse all services
+                  <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button">
+                    Discuss this system
                   </Link>
                 </div>
               </div>
@@ -143,7 +145,7 @@ function ArchitecturePage() {
       </section>
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8">
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <section id="stack-flow" className="grid scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           <div className="terminal-window">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">architecture - system stack</div>

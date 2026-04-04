@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaChartLine, FaShieldAlt, FaTerminal } from 'react-icons/fa'
+import { ARCHITECTURE_STACK_ROUTE, AWS_CALCULATOR_ROUTE, LIVE_SANDBOX_ROUTE } from '../constants/routes'
 
 const sandboxHighlights = [
   'Browser-based Linux shell',
@@ -32,10 +33,10 @@ function DemoShowcase() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <span className="section-chip">Interactive demos</span>
-            <h2 className="section-title text-3xl sm:text-4xl">Use the demos from dedicated routes</h2>
+            <h2 className="section-title text-3xl sm:text-4xl">Jump straight to the proof, not just the page</h2>
           </div>
           <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-            The landing page should tease the experience, not carry every heavy interactive surface. These cards route visitors into the demos with more context and stronger focus.
+            These launch cards now land on the highlighted experience itself, so visitors hit the terminal or calculator where the value starts instead of re-scanning a long route from the middle.
           </p>
         </div>
 
@@ -56,7 +57,7 @@ function DemoShowcase() {
             </div>
 
             <p className="mt-4 text-sm leading-8 text-gray-400">
-              The wow-factor route: a browser terminal backed by a real ephemeral Linux runtime, shaped to feel high-touch without exposing unsafe access.
+              The strongest "show, don&apos;t tell" route: a browser terminal backed by a real ephemeral Linux runtime, designed to turn curiosity into a serious project conversation.
             </p>
 
             <div className="mt-5 rounded-[1.4rem] border border-cyan-400/15 bg-[#040916]/80 p-4 font-mono text-xs leading-7 text-cyan-200">
@@ -75,13 +76,13 @@ function DemoShowcase() {
             </ul>
 
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/services/live-terminal-sandbox" className="primary-button gap-2">
-                Open live sandbox
+              <Link to={LIVE_SANDBOX_ROUTE} className="primary-button gap-2">
+                Launch the live sandbox
                 <FaArrowRight className="text-xs" />
               </Link>
-              <Link to="/architecture" className="secondary-button gap-2">
+              <Link to={ARCHITECTURE_STACK_ROUTE} className="secondary-button gap-2">
                 <FaShieldAlt className="text-xs" />
-                View architecture
+                Inspect the architecture
               </Link>
             </div>
           </article>
@@ -102,7 +103,7 @@ function DemoShowcase() {
             </div>
 
             <p className="mt-4 text-sm leading-8 text-gray-400">
-              A lightweight estimation flow that helps visitors model the commercial upside before they ask for a deeper infrastructure review.
+              A fast commercial proof point for teams that already suspect waste in their AWS footprint and want a smarter entry into the review conversation.
             </p>
 
             <div className="mt-5 grid grid-cols-3 gap-3">
@@ -130,8 +131,8 @@ function DemoShowcase() {
             </ul>
 
             <div className="mt-7">
-              <Link to="/services/aws-cost-optimization" className="secondary-button gap-2">
-                Open AWS cost demo
+              <Link to={AWS_CALCULATOR_ROUTE} className="secondary-button gap-2">
+                Open the AWS cost model
                 <FaArrowRight className="text-xs" />
               </Link>
             </div>

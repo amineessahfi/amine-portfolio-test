@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import CostCalculator from '../components/CostCalculator'
 import SandboxTerminal from '../components/SandboxTerminal'
-import { AUDIT_REQUEST_URL, EMAIL_URL } from '../constants/links'
+import { ARCHITECTURE_STACK_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
@@ -16,16 +16,21 @@ function ServiceDetailPage() {
 
   const isAwsService = service.slug === 'aws-cost-optimization'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
-  const primaryCtaUrl = isSandboxService ? '#live-sandbox' : isAwsService ? AUDIT_REQUEST_URL : EMAIL_URL
-  const primaryCtaLabel = isSandboxService
-    ? 'Launch 5-minute sandbox'
-      : isAwsService
-        ? 'Request AWS audit'
-        : 'Discuss this service'
+  const discussUrl = createDiscussUrl(service.slug)
+  const primaryCta = isSandboxService
+    ? { label: 'Jump to the live shell', href: '#live-sandbox' }
+    : isAwsService
+      ? { label: 'Open the savings model', href: '#aws-cost-calculator' }
+      : { label: 'Open the project fit page', to: discussUrl }
+  const secondaryCta = isSandboxService
+    ? { label: 'Discuss this demo flow', to: discussUrl }
+    : isAwsService
+      ? { label: 'Plan the AWS review', to: discussUrl }
+      : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
   const sandboxLaunchSteps = [
-    'Open the dedicated sandbox page from the main demo launch area.',
-    'Review the boundaries, then start the five-minute runtime.',
+    'Land directly on the highlighted sandbox section instead of entering halfway down a long page.',
+    'Review the boundaries, then launch the five-minute runtime from the same visual sequence.',
     'Use the live shell, watch the timer, and let the session self-destruct automatically.',
   ]
 
@@ -101,20 +106,28 @@ function ServiceDetailPage() {
               </ul>
 
               <div className="flex flex-wrap gap-3">
-                <a
-                  href={primaryCtaUrl}
-                  className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-                >
-                  {primaryCtaLabel}
-                </a>
-                {showArchitectureLink ? (
-                  <Link
-                    to="/architecture"
-                    className="inline-flex w-fit rounded-xl border border-dark-600 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-dark-700"
+                {'href' in primaryCta ? (
+                  <a
+                    href={primaryCta.href}
+                    className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
                   >
-                    View architecture
+                    {primaryCta.label}
+                  </a>
+                ) : (
+                  <Link
+                    to={primaryCta.to}
+                    className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+                  >
+                    {primaryCta.label}
                   </Link>
-                ) : null}
+                )}
+                <Link
+                  to={secondaryCta.to}
+                  className="inline-flex w-fit rounded-xl border border-dark-600 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-dark-700"
+                >
+                  {secondaryCta.label}
+                </Link>
+                {showArchitectureLink ? <Link to={ARCHITECTURE_STACK_ROUTE} className="secondary-button">View architecture</Link> : null}
               </div>
             </div>
           </div>
@@ -132,7 +145,7 @@ function ServiceDetailPage() {
                   <span className="section-chip">Live entry sequence</span>
                   <h2 className="section-title text-3xl sm:text-4xl">A cleaner path into the terminal experience</h2>
                   <p className="section-copy">
-                    The sandbox should feel like a deliberate product moment, not just a utility block embedded in a long page. This launch rail frames the experience before the actual shell opens.
+                    The sandbox should feel like a deliberate product moment, not just a utility block buried in the route. This launch rail now hands visitors directly into the live shell instead of making them hunt for it.
                   </p>
 
                   <ol className="mt-6 space-y-3">
@@ -154,15 +167,15 @@ function ServiceDetailPage() {
                   </div>
                   <h3 className="mt-4 text-2xl font-semibold text-white">Jump straight into the shell</h3>
                   <p className="mt-4 text-sm leading-8 text-gray-400">
-                    The terminal stays on its own route with stronger focus, cleaner copy hierarchy, and a more obvious transition into the live runtime.
+                    The terminal stays on its own route with stronger focus, sharper copy, one complimentary anonymous run, and a cleaner handoff into Google-backed repeat access when visitors want more.
                   </p>
 
                   <div className="mt-6 flex flex-wrap gap-3">
                     <a href="#live-sandbox" className="primary-button">
                       Start the live sandbox
                     </a>
-                    <Link to="/architecture" className="secondary-button">
-                      See the system design
+                    <Link to={createDiscussUrl(service.slug)} className="secondary-button">
+                      Discuss this experience
                     </Link>
                   </div>
                 </div>

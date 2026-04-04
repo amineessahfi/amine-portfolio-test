@@ -20,6 +20,27 @@ ssh "$REMOTE_HOST" "
   sudo cp deploy/terminal-sandbox.service /etc/systemd/system/terminal-sandbox.service
   sudo python3 - <<'PY'
 from pathlib import Path
+import secrets
+
+env_file = Path('/etc/essahfi-terminal-sandbox.env')
+env_values = {}
+
+if env_file.exists():
+    for line in env_file.read_text().splitlines():
+        if not line or line.lstrip().startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        env_values[key] = value
+
+env_values.setdefault('AUTH_COOKIE_SECRET', secrets.token_hex(32))
+env_values.setdefault('GOOGLE_OAUTH_CLIENT_ID', '')
+env_values.setdefault('GOOGLE_OAUTH_CLIENT_SECRET', '')
+
+env_file.write_text('\n'.join(f'{key}={value}' for key, value in env_values.items()) + '\n')
+env_file.chmod(0o600)
+PY
+  sudo python3 - <<'PY'
+from pathlib import Path
 
 caddyfile = Path('/etc/caddy/Caddyfile')
 content = caddyfile.read_text()
