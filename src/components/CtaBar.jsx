@@ -1,47 +1,68 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaEnvelope, FaFileDownload, FaGithub, FaLinkedin, FaTerminal } from 'react-icons/fa'
+import { FaArrowRight, FaTerminal } from 'react-icons/fa'
 import {
   EMAIL_URL,
   GITHUB_URL,
   LINKEDIN_URL,
   RESUME_REQUEST_URL,
 } from '../constants/links'
-import { AWS_CALCULATOR_ROUTE, LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
 
 function CtaBar() {
   return (
     <section id="contact" className="scroll-mt-24">
       <div className="hero-shell px-6 py-8 sm:px-8 lg:px-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
           <div className="max-w-xl">
             <span className="section-chip">Next step</span>
-            <h3 className="section-title text-3xl sm:text-4xl">Ready to turn curiosity into a scoped project conversation?</h3>
+            <h3 className="section-title text-3xl sm:text-4xl">Use the focused route, then move into scope.</h3>
             <p className="section-copy">
-              Use the platform the same way I want your visitors to use yours: hit the route that matches the problem, try the proof point, then move into a deliberate conversation once the fit is obvious.
+              The cleaner sequence is simple now: open the service page, jump into the dedicated demo if there is one, and start the project conversation once the fit is obvious.
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Link to={createDiscussUrl()} className="primary-button gap-2">
-              <FaArrowRight />
-              Start a project conversation
-            </Link>
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,0.6fr)_minmax(0,0.4fr)]">
+            <div className="metric-card p-6 sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Primary route</p>
+              <h4 className="mt-4 text-2xl font-semibold text-white">Start with the problem worth solving.</h4>
+              <p className="mt-4 text-sm leading-8 text-gray-400">
+                When the fit is serious, the next step should feel direct: describe the context, define the pressure point, and turn the conversation into scope.
+              </p>
 
-            <Link to={LIVE_SANDBOX_ROUTE} className="secondary-button gap-2">
-              <FaTerminal />
-              Try the live sandbox
-            </Link>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row xl:flex-col">
+                <Link to={createDiscussUrl()} className="primary-button gap-2">
+                  <FaArrowRight />
+                  Start a scoped conversation
+                </Link>
+                <Link to={LIVE_SANDBOX_ROUTE} className="secondary-button gap-2">
+                  <FaTerminal />
+                  Open the live demo
+                </Link>
+              </div>
+            </div>
 
-            <Link to={AWS_CALCULATOR_ROUTE} className="secondary-button gap-2">
-              <FaEnvelope />
-              Run the AWS savings model
-            </Link>
+            <div className="grid gap-4">
+              <Link to={LIVE_SANDBOX_ROUTE} className="metric-card card-hover p-5">
+                <p className="text-sm font-semibold text-white">Live shell demo</p>
+                <p className="mt-3 text-sm leading-7 text-gray-400">Open the focused terminal page when you want the strongest interactive proof first.</p>
+              </Link>
 
-            <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="secondary-button gap-2">
-              <FaLinkedin />
-              Connect on LinkedIn
-            </a>
+              <Link to={COST_REVIEW_ROUTE} className="metric-card card-hover p-5">
+                <p className="text-sm font-semibold text-white">Savings model demo</p>
+                <p className="mt-3 text-sm leading-7 text-gray-400">Open the dedicated review model when efficiency is the clearest path into the conversation.</p>
+              </Link>
+
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="metric-card card-hover p-5"
+              >
+                <p className="text-sm font-semibold text-white">Professional profile</p>
+                <p className="mt-3 text-sm leading-7 text-gray-400">Review external background and credentials separately from the core service flow.</p>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -50,33 +71,33 @@ function CtaBar() {
             Email directly
           </a>
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
-            View GitHub
+            Code profile
           </a>
           <a href={RESUME_REQUEST_URL} className="soft-link">
             Request resume
           </a>
           <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
-            LinkedIn
+            Professional profile
           </a>
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
-          <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4">
+          <div className="grid gap-4 text-center sm:grid-cols-2 xl:grid-cols-4">
             <div className="metric-card p-4">
               <div className="text-2xl font-semibold text-white">5+</div>
-              <div className="mt-2 text-sm text-gray-400">Years Experience</div>
+              <div className="mt-2 text-sm text-gray-400">Years in complex delivery</div>
             </div>
             <div className="metric-card p-4">
               <div className="text-2xl font-semibold text-white">30%+</div>
-              <div className="mt-2 text-sm text-gray-400">Cost Savings</div>
+              <div className="mt-2 text-sm text-gray-400">Savings identified</div>
             </div>
             <div className="metric-card p-4">
-              <div className="text-2xl font-semibold text-white">100+</div>
-              <div className="mt-2 text-sm text-gray-400">Nodes Managed</div>
+              <div className="text-2xl font-semibold text-white">Fast</div>
+              <div className="mt-2 text-sm text-gray-400">From diagnosis to action</div>
             </div>
             <div className="metric-card p-4">
-              <div className="text-2xl font-semibold text-white">24/7</div>
-              <div className="mt-2 text-sm text-gray-400">Operational Ownership</div>
+              <div className="text-2xl font-semibold text-white">Hands-on</div>
+              <div className="mt-2 text-sm text-gray-400">Architecture through handoff</div>
             </div>
           </div>
         </div>

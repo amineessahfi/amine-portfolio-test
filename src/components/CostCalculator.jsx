@@ -251,7 +251,7 @@ function CostCalculator() {
                 <span className="font-semibold">If the estimate feels real,</span> use the platform&apos;s discuss route and I&apos;ll turn it into a sharper savings plan with the right technical starting point.
               </p>
               <Link
-                to={createDiscussUrl('aws-cost-optimization')}
+                to={createDiscussUrl('cloud-cost-optimization')}
                 className="mt-4 inline-flex justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-700"
               >
                 Turn this into an AWS review

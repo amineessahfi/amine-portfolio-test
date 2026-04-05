@@ -32,7 +32,7 @@ export const services = [
     ],
   },
   {
-    slug: 'aws-cost-optimization',
+    slug: 'cloud-cost-optimization',
     eyebrow: 'Service 02',
     title: 'AWS Cost Optimization & Cloud Efficiency',
     summary:
@@ -162,5 +162,6 @@ export const services = [
 ]
 
 export function getServiceBySlug(serviceSlug) {
-  return services.find((service) => service.slug === serviceSlug)
+  const normalizedSlug = serviceSlug === 'aws-cost-optimization' ? 'cloud-cost-optimization' : serviceSlug
+  return services.find((service) => service.slug === normalizedSlug)
 }

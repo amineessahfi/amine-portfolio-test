@@ -1,7 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, createServiceRoute } from '../constants/routes'
+
+const demoRoutes = {
+  'cloud-cost-optimization': COST_REVIEW_ROUTE,
+  'live-terminal-sandbox': LIVE_SANDBOX_ROUTE,
+}
 
 function ServiceCard({ service }) {
+  const demoRoute = demoRoutes[service.slug]
+
   return (
     <article className="card-hover relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.12),transparent_34%)]" />
@@ -20,13 +28,22 @@ function ServiceCard({ service }) {
         ))}
       </ul>
 
-      <Link
-        to={`/services/${service.slug}`}
-        className="relative z-10 mt-8 inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary-200 transition-colors hover:text-white"
-      >
-        View service
-        <span aria-hidden="true">more</span>
-      </Link>
+      <div className="relative z-10 mt-8 flex flex-wrap gap-x-4 gap-y-2">
+        <Link
+          to={createServiceRoute(service.slug)}
+          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary-200 transition-colors hover:text-white"
+        >
+          Open route
+        </Link>
+        {demoRoute ? (
+          <Link
+            to={demoRoute}
+            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-gray-300 transition-colors hover:text-white"
+          >
+            Open demo
+          </Link>
+        ) : null}
+      </div>
     </article>
   )
 }

@@ -1,8 +1,13 @@
 import React from 'react'
 import { Link, useParams } from 'react-router-dom'
-import CostCalculator from '../components/CostCalculator'
-import SandboxTerminal from '../components/SandboxTerminal'
-import { ARCHITECTURE_STACK_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
+import {
+  ARCHITECTURE_STACK_ROUTE,
+  COST_REVIEW_ROUTE,
+  LIVE_SANDBOX_ROUTE,
+  SERVICES_DIRECTORY_ROUTE,
+  createDiscussUrl,
+  createServiceRoute,
+} from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
@@ -18,9 +23,9 @@ function ServiceDetailPage() {
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const discussUrl = createDiscussUrl(service.slug)
   const primaryCta = isSandboxService
-    ? { label: 'Jump to the live shell', href: '#live-sandbox' }
+    ? { label: 'Open the dedicated live demo', to: LIVE_SANDBOX_ROUTE }
     : isCostService
-      ? { label: 'Open the savings model', href: '#cost-review-model' }
+      ? { label: 'Open the dedicated review demo', to: COST_REVIEW_ROUTE }
       : { label: 'Open the project fit page', to: discussUrl }
   const secondaryCta = isSandboxService
     ? { label: 'Discuss this demo flow', to: discussUrl }
@@ -28,57 +33,81 @@ function ServiceDetailPage() {
       ? { label: 'Plan the cost review', to: discussUrl }
       : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
-  const sandboxLaunchSteps = [
-    'Land directly on the highlighted sandbox section instead of entering halfway down a long page.',
-    'Review the boundaries, then optionally sign in from the access panel before launching.',
-    'Use the live shell, watch the timer, and let the session self-destruct automatically.',
-  ]
+  const demoPanel = isSandboxService
+    ? {
+        eyebrow: 'Dedicated demo page',
+        title: 'The live shell now sits on its own route',
+        description:
+          'The service page explains fit and delivery. The terminal, access panel, and guardrails live on a separate page so the demo can stay focused.',
+        highlights: [
+          'Launch directly into the browser shell from a dedicated route.',
+          'Keep sign-in, access policy, and runtime controls together in one place.',
+          'Move back into architecture or discussion only after the terminal has made its point.',
+        ],
+        primaryLabel: 'Open the live demo',
+        primaryTo: LIVE_SANDBOX_ROUTE,
+        secondaryLabel: 'View architecture',
+        secondaryTo: ARCHITECTURE_STACK_ROUTE,
+      }
+    : isCostService
+      ? {
+          eyebrow: 'Dedicated demo page',
+          title: 'The savings model now lives on its own route',
+          description:
+            'The service page stays about delivery scope and savings work itself. The scenario model now has its own page so it can be used without stacked service sections around it.',
+          highlights: [
+            'Adjust the scenario inputs without the rest of the page competing for space.',
+            'Keep the estimate-to-discussion path sharper and easier to follow.',
+            'Return here when you want delivery context instead of just the model.',
+          ],
+          primaryLabel: 'Open the review demo',
+          primaryTo: COST_REVIEW_ROUTE,
+          secondaryLabel: 'Plan the cost review',
+          secondaryTo: discussUrl,
+        }
+      : null
 
   return (
     <>
       <section className="page-hero">
-          <div className="mx-auto max-w-7xl">
-            <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-              <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
-                <div className="relative z-10">
-                  <Link to="/services" className="soft-link inline-flex items-center gap-2">
-                    Back to services
+        <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
+            <div className="relative z-10">
+              <Link to={createServiceRoute()} className="soft-link inline-flex items-center gap-2">
+                Back to services
+              </Link>
+
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">{service.eyebrow}</p>
+              <h1 className="mt-3 max-w-4xl text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
+                {service.title}
+              </h1>
+              <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-300 sm:text-base">{service.summary}</p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to={primaryCta.to} className="primary-button">
+                  {primaryCta.label}
+                </Link>
+                <Link to={secondaryCta.to} className="secondary-button">
+                  {secondaryCta.label}
+                </Link>
+                {showArchitectureLink ? (
+                  <Link to={ARCHITECTURE_STACK_ROUTE} className="soft-link inline-flex items-center px-2 py-3">
+                    View architecture
                   </Link>
-
-                  <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">{service.eyebrow}</p>
-                  <h1 className="mt-3 max-w-4xl text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
-                    {service.title}
-                  </h1>
-                  <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-300 sm:text-base">{service.summary}</p>
-
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    {'href' in primaryCta ? (
-                      <a href={primaryCta.href} className="primary-button">
-                        {primaryCta.label}
-                      </a>
-                    ) : (
-                      <Link to={primaryCta.to} className="primary-button">
-                        {primaryCta.label}
-                      </Link>
-                    )}
-                    <Link to={secondaryCta.to} className="secondary-button">
-                      {secondaryCta.label}
-                    </Link>
-                    {showArchitectureLink ? <Link to={ARCHITECTURE_STACK_ROUTE} className="soft-link inline-flex items-center px-2 py-3">View architecture</Link> : null}
-                  </div>
-                </div>
-
-                <div className="relative z-10 grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
-                  {service.snapshot.map((item) => (
-                    <div key={item.label} className="metric-card">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.label}</p>
-                      <p className="mt-3 text-lg font-semibold text-white">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
+                ) : null}
               </div>
             </div>
+
+            <div className="relative z-10 grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+              {service.snapshot.map((item) => (
+                <div key={item.label} className="metric-card">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.label}</p>
+                  <p className="mt-3 text-lg font-semibold text-white">{item.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
       </section>
 
       <main className="page-shell">
@@ -128,58 +157,49 @@ function ServiceDetailPage() {
           </div>
         </section>
 
-        {isSandboxService ? (
+        {demoPanel ? (
           <section className="terminal-window">
             <div className="terminal-header">
-              <div className="text-sm text-gray-400">sandbox - launch rail</div>
+              <div className="text-sm text-gray-400">demo — route</div>
             </div>
 
             <div className="terminal-content">
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                 <div>
-                  <span className="section-chip">Live entry sequence</span>
-                  <h2 className="section-title text-3xl sm:text-4xl">A cleaner path into the terminal experience</h2>
-                  <p className="section-copy">
-                    The sandbox should feel like a deliberate product moment, not just a utility block buried in the route. This launch rail now hands visitors directly into the live shell instead of making them hunt for it.
-                  </p>
+                  <span className="section-chip">{demoPanel.eyebrow}</span>
+                  <h2 className="section-title text-3xl sm:text-4xl">{demoPanel.title}</h2>
+                  <p className="section-copy">{demoPanel.description}</p>
 
-                  <ol className="mt-6 space-y-3">
-                    {sandboxLaunchSteps.map((step, index) => (
-                      <li key={step} className="flex gap-4 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
-                          {index + 1}
-                        </span>
-                        <span className="text-sm leading-7 text-gray-300">{step}</span>
+                  <ul className="mt-6 space-y-3 text-sm leading-7 text-gray-300">
+                    {demoPanel.highlights.map((item) => (
+                      <li key={item} className="flex gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                        <span>{item}</span>
                       </li>
                     ))}
-                  </ol>
+                  </ul>
                 </div>
 
-                <div className="metric-card p-6">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-2.5 w-2.5 animate-pulse-slow rounded-full bg-cyan-300" />
-                    <span className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">Live terminal route</span>
-                  </div>
-                  <h3 className="mt-4 text-2xl font-semibold text-white">Jump straight into the shell</h3>
+                <div className="metric-card p-6 sm:p-7">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this changed</p>
+                  <h3 className="mt-4 text-2xl font-semibold text-white">The demo no longer has to fight the service page.</h3>
                   <p className="mt-4 text-sm leading-8 text-gray-400">
-                    The terminal stays on its own route with stronger focus, sharper copy, one complimentary anonymous run, and a cleaner handoff into identified repeat access when visitors want more.
+                    Keep this page for delivery shape, fit, and outcomes. Use the demo page when you want the live experience itself without the rest of the service route crowding it.
                   </p>
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <a href="#live-sandbox" className="primary-button">
-                      Start the live shell
-                    </a>
-                    <a href="#sandbox-login" className="soft-link inline-flex items-center px-2 py-3">
-                      Review access options
-                    </a>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <Link to={demoPanel.primaryTo} className="primary-button justify-center">
+                      {demoPanel.primaryLabel}
+                    </Link>
+                    <Link to={demoPanel.secondaryTo} className="secondary-button justify-center">
+                      {demoPanel.secondaryLabel}
+                    </Link>
                   </div>
                 </div>
               </div>
             </div>
           </section>
         ) : null}
-
-        {isSandboxService ? <SandboxTerminal /> : null}
 
         <section className="terminal-window">
           <div className="terminal-header">
@@ -201,8 +221,6 @@ function ServiceDetailPage() {
             </div>
           </div>
         </section>
-
-        {isCostService ? <CostCalculator /> : null}
       </main>
     </>
   )

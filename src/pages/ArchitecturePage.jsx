@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
+import { LIVE_SANDBOX_ROUTE, LIVE_SANDBOX_SERVICE_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const architectureLayers = [
   {
@@ -91,7 +91,7 @@ function ArchitecturePage() {
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
-                <Link to={LIVE_SANDBOX_ROUTE} className="soft-link inline-flex items-center gap-2">
+                <Link to={LIVE_SANDBOX_SERVICE_ROUTE} className="soft-link inline-flex items-center gap-2">
                   Back to sandbox service
                 </Link>
                 <div className="mt-6">
@@ -107,7 +107,7 @@ function ArchitecturePage() {
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link to={LIVE_SANDBOX_ROUTE} className="primary-button">
-                    Open live sandbox
+                    Open live demo
                   </Link>
                   <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button">
                     Discuss this system

@@ -4,11 +4,22 @@ import { FaArrowRight, FaEnvelope, FaLinkedin } from 'react-icons/fa'
 import { LINKEDIN_URL, createDiscussEmailUrl } from '../constants/links'
 import {
   ARCHITECTURE_STACK_ROUTE,
-  AWS_CALCULATOR_ROUTE,
+  COST_REVIEW_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
+
+const costReviewPreset = {
+  eyebrow: 'Cost review fit',
+  title: 'Take the savings model from estimate to action.',
+  intro:
+    'If the model feels close to your current spend profile, the next move is a focused conversation around what is actually wasting money and what should be fixed first.',
+  emailSubject: 'Cloud cost review discussion',
+  primaryLabel: 'Discuss the cost review',
+  secondaryLabel: 'Reopen the savings model',
+  secondaryTo: COST_REVIEW_ROUTE,
+}
 
 const topicPresets = {
   general: {
@@ -31,16 +42,8 @@ const topicPresets = {
     secondaryLabel: 'Reopen the live sandbox',
     secondaryTo: LIVE_SANDBOX_ROUTE,
   },
-  'aws-cost-optimization': {
-    eyebrow: 'AWS fit',
-    title: 'Take the calculator from rough estimate to a real savings plan.',
-    intro:
-      'If the model looks close to your current spend profile, the next move is a focused conversation around what is actually wasting money and what can be fixed first.',
-    emailSubject: 'AWS optimization discussion',
-    primaryLabel: 'Discuss the AWS review',
-    secondaryLabel: 'Reopen the savings model',
-    secondaryTo: AWS_CALCULATOR_ROUTE,
-  },
+  'cloud-cost-optimization': costReviewPreset,
+  'aws-cost-optimization': costReviewPreset,
 }
 
 const whatToBring = [
@@ -56,9 +59,9 @@ const platformRoutes = [
     to: LIVE_SANDBOX_ROUTE,
   },
   {
-    title: 'AWS savings model',
-    description: 'Use the calculator when cost pressure is the fastest way into the conversation.',
-    to: AWS_CALCULATOR_ROUTE,
+    title: 'Savings model demo',
+    description: 'Use the dedicated demo page when cost pressure is the fastest way into the conversation.',
+    to: COST_REVIEW_ROUTE,
   },
   {
     title: 'Architecture page',

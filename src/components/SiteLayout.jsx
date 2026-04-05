@@ -6,6 +6,12 @@ import CtaBar from './CtaBar'
 
 function SiteLayout() {
   const location = useLocation()
+  const isServiceDetailRoute = /^\/services\/[^/]+$/.test(location.pathname)
+  const showGlobalCta =
+    location.pathname === '/' ||
+    location.pathname === '/architecture' ||
+    location.pathname === '/services' ||
+    isServiceDetailRoute
 
   useEffect(() => {
     const hash = decodeURIComponent(location.hash.replace('#', ''))
@@ -47,9 +53,11 @@ function SiteLayout() {
       <div className="relative z-10">
         <SiteHeader />
         <Outlet />
-        <div className="page-frame pb-16">
-          <CtaBar />
-        </div>
+        {showGlobalCta ? (
+          <div className="page-frame pb-16">
+            <CtaBar />
+          </div>
+        ) : null}
         <SiteFooter />
       </div>
     </div>
