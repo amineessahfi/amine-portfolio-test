@@ -90,8 +90,18 @@ class Session:
     cleanup_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
 
+def google_oauth_configuration_error() -> str | None:
+    if not GOOGLE_OAUTH_CLIENT_ID or not GOOGLE_OAUTH_CLIENT_SECRET:
+        return 'missing_credentials'
+
+    if not GOOGLE_OAUTH_CLIENT_ID.endswith('.apps.googleusercontent.com'):
+        return 'invalid_google_web_client'
+
+    return None
+
+
 def google_oauth_enabled() -> bool:
-    return bool(GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET)
+    return google_oauth_configuration_error() is None
 
 
 def audit_log(event: str, **fields) -> None:
@@ -579,6 +589,7 @@ async def auth_status(request: web.Request) -> web.Response:
         {
             'authenticated': bool(auth_identity),
             'authConfigured': google_oauth_enabled(),
+            'authConfigurationError': google_oauth_configuration_error(),
             'provider': 'google',
             'freeAnonymousSessions': FREE_ANONYMOUS_SESSIONS,
             'anonymousSessionsUsed': visitor_state['anonymous_sessions_used'],
@@ -599,7 +610,7 @@ async def auth_status(request: web.Request) -> web.Response:
 
 async def google_oauth_start(request: web.Request) -> web.StreamResponse:
     if not google_oauth_enabled():
-        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured.')
+        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured for browser sign-in.')
 
     return_to = normalize_return_to(request.query.get('returnTo'))
     state = sign_payload(
@@ -632,7 +643,7 @@ async def google_oauth_start(request: web.Request) -> web.StreamResponse:
 
 async def google_oauth_callback(request: web.Request) -> web.StreamResponse:
     if not google_oauth_enabled():
-        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured.')
+        raise web.HTTPServiceUnavailable(text='Google OAuth is not configured for browser sign-in.')
 
     state = read_signed_payload(request.query.get('state'))
     if not state:

@@ -45,6 +45,9 @@ function SandboxTerminal() {
     () => Math.max((authState.freeAnonymousSessions || 0) - (authState.anonymousSessionsUsed || 0), 0),
     [authState.anonymousSessionsUsed, authState.freeAnonymousSessions],
   )
+  const signInUnavailableMessage = authState.authConfigurationError === 'invalid_google_web_client'
+    ? 'Site-wide Google sign-in is being reconfigured with the correct browser client.'
+    : 'The sign-in UI is in place. The live button will activate once backend credentials are connected.'
   const requiresSignInBeforeLaunch =
     !authState.authenticated && authState.authConfigured && complimentarySessionsRemaining === 0
   const restrictions = useMemo(
@@ -446,7 +449,7 @@ function SandboxTerminal() {
                   disabled
                   className="secondary-button !rounded-xl !px-4 !py-2 opacity-70"
                 >
-                  Secure sign-in coming online
+                  Sign-in temporarily unavailable
                 </button>
                 <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button !rounded-xl !px-4 !py-2">
                   Request authenticated access
@@ -458,7 +461,7 @@ function SandboxTerminal() {
           <p className="mt-4 text-sm text-gray-500">
             {authState.authConfigured
               ? 'Use sign-in any time if you want the sandbox tied to an identified access path before you launch, while keeping the same session available across the site.'
-              : 'The sign-in UI is now in place. The live button will fully activate once backend credentials are added.'}
+              : signInUnavailableMessage}
           </p>
           {authNotice ? <p className="mt-4 text-sm text-cyan-200">{authNotice}</p> : null}
           {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}

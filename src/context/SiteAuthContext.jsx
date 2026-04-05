@@ -4,6 +4,7 @@ import { SANDBOX_API_BASE } from '../constants/sandbox'
 const defaultAuthState = {
   authenticated: false,
   authConfigured: false,
+  authConfigurationError: '',
   provider: 'google',
   freeAnonymousSessions: 1,
   anonymousSessionsUsed: 0,
@@ -16,6 +17,7 @@ function normalizeAuthState(payload = {}) {
   return {
     authenticated: Boolean(payload.authenticated),
     authConfigured: Boolean(payload.authConfigured),
+    authConfigurationError: payload.authConfigurationError || '',
     provider: payload.provider || 'google',
     freeAnonymousSessions: payload.freeAnonymousSessions ?? 1,
     anonymousSessionsUsed: payload.anonymousSessionsUsed ?? 0,
@@ -77,6 +79,10 @@ export function SiteAuthProvider({ children }) {
 
   const startSignIn = useCallback((returnTo = window.location.href) => {
     if (!authState.authConfigured) {
+      if (authState.authConfigurationError === 'invalid_google_web_client') {
+        return 'Google Sign-In is being reconfigured with the correct web client.'
+      }
+
       return 'Secure sign-in is not configured on the backend yet.'
     }
 
@@ -88,7 +94,7 @@ export function SiteAuthProvider({ children }) {
     )
 
     return ''
-  }, [authState.authConfigured])
+  }, [authState.authConfigured, authState.authConfigurationError])
 
   const signOut = useCallback(async () => {
     try {

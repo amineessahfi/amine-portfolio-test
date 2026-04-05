@@ -17,7 +17,9 @@ function SiteHeader() {
       ? authState.user?.email || 'Signed in'
       : authState.authConfigured
         ? 'Site-wide sign-in ready'
-        : 'Sign-in setup in progress'
+        : authState.authConfigurationError === 'invalid_google_web_client'
+          ? 'Sign-in unavailable'
+          : 'Sign-in setup in progress'
 
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
