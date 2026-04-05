@@ -35,6 +35,7 @@ if env_file.exists():
 env_values.setdefault('AUTH_COOKIE_SECRET', secrets.token_hex(32))
 env_values.setdefault('GOOGLE_OAUTH_CLIENT_ID', '')
 env_values.setdefault('GOOGLE_OAUTH_CLIENT_SECRET', '')
+env_values.setdefault('GOOGLE_OAUTH_SCOPE', 'openid email')
 
 env_file.write_text('\n'.join(f'{key}={value}' for key, value in env_values.items()) + '\n')
 env_file.chmod(0o600)

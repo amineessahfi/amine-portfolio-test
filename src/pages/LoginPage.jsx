@@ -1,130 +1,88 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaGoogle } from 'react-icons/fa'
-import { SANDBOX_API_BASE } from '../constants/sandbox'
+import { FaArrowRight, FaShieldAlt } from 'react-icons/fa'
+import { useSiteAuth } from '../context/SiteAuthContext'
 import { LIVE_SANDBOX_ROUTE } from '../constants/routes'
 
 function LoginPage() {
-  const [authState, setAuthState] = useState({
-    authenticated: false,
-    authConfigured: false,
-    provider: 'google',
-    user: null,
-  })
+  const {
+    authReady,
+    authState,
+    consumeOauthResult,
+    signOut,
+    startSignIn,
+    syncAuthState,
+  } = useSiteAuth()
   const [notice, setNotice] = useState('')
   const [error, setError] = useState('')
 
-  const providerLabel = useMemo(() => {
-    if (authState.provider === 'google') return 'Google'
-    if (!authState.provider) return 'Google'
-    return authState.provider.charAt(0).toUpperCase() + authState.provider.slice(1)
-  }, [authState.provider])
-
-  const syncAuthState = async () => {
-    try {
-      const response = await fetch(`${SANDBOX_API_BASE}/auth/status`, {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        return
-      }
-
-      const payload = await response.json()
-      setAuthState({
-        authenticated: Boolean(payload.authenticated),
-        authConfigured: Boolean(payload.authConfigured),
-        provider: payload.provider || 'google',
-        user: payload.user || null,
-      })
-    } catch {
-      setError('Login status could not be loaded right now.')
-    }
-  }
-
   useEffect(() => {
-    const currentUrl = new URL(window.location.href)
-    const oauthState = currentUrl.searchParams.get('oauth')
+    const oauthState = consumeOauthResult()
 
     if (oauthState === 'success') {
-      setNotice('Google sign-in complete.')
+      setNotice('Sign-in complete.')
       setError('')
+      void syncAuthState()
     } else if (oauthState === 'error') {
-      setError('Google sign-in did not complete. Please try again.')
+      setError('Sign-in did not complete. Please try again.')
     }
+  }, [consumeOauthResult, syncAuthState])
 
-    if (oauthState) {
-      currentUrl.searchParams.delete('oauth')
-      window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+  const handleSignIn = () => {
+    const signInError = startSignIn(window.location.href)
+
+    if (signInError) {
+      setNotice('')
+      setError(signInError)
     }
-
-    void syncAuthState()
-  }, [])
-
-  const buildReturnToUrl = () => {
-    const currentUrl = new URL(window.location.href)
-    currentUrl.searchParams.delete('oauth')
-    return currentUrl.toString()
   }
 
-  const startGoogleAuth = () => {
-    if (!authState.authConfigured) {
-      setError('Google sign-in is not configured on the backend yet.')
+  const handleSignOut = async () => {
+    const signOutError = await signOut()
+
+    if (signOutError) {
+      setNotice('')
+      setError(signOutError)
       return
     }
 
-    window.location.assign(
-      `${SANDBOX_API_BASE}/auth/google/start?returnTo=${encodeURIComponent(buildReturnToUrl())}`,
-    )
-  }
-
-  const signOut = async () => {
-    try {
-      await fetch(`${SANDBOX_API_BASE}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-      setNotice('Signed out.')
-      setError('')
-      await syncAuthState()
-    } catch {
-      setError('Could not sign out right now.')
-    }
+    setNotice('Signed out.')
+    setError('')
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 pt-12 sm:px-6 lg:px-8">
+    <main className="page-shell pt-12">
       <section className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(20rem,0.95fr)] xl:items-start">
           <div>
             <span className="section-chip">Login</span>
             <h1 className="section-title max-w-3xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-              Sign in with
-              <span className="gradient-text"> Google</span>
+              Secure sign-in for
+              <span className="gradient-text"> identified access</span>
             </h1>
             <p className="section-copy max-w-2xl text-base sm:text-lg">
-              This route keeps auth simple: open `/login`, sign in with Google, then continue into the live sandbox when you want an identified access path.
+              Use this route when you want one authenticated session across the website. Sign in here once, then move between pages, demos, and future gated features with the same identified access path.
             </p>
 
             <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
               {authState.authenticated ? (
                 <>
-                  <button type="button" onClick={signOut} className="primary-button gap-2">
+                  <button type="button" onClick={handleSignOut} className="primary-button gap-2">
                     Sign out
                   </button>
                   <Link to={LIVE_SANDBOX_ROUTE} className="secondary-button gap-2">
-                    Continue to sandbox
+                    Continue to live shell
                     <FaArrowRight className="text-xs" />
                   </Link>
                 </>
               ) : (
                 <button
                   type="button"
-                  onClick={startGoogleAuth}
+                  onClick={handleSignIn}
                   className="primary-button gap-2"
                 >
-                  <FaGoogle />
-                  Sign in with Google
+                  <FaShieldAlt />
+                  Continue to sign in
                 </button>
               )}
             </div>
@@ -136,16 +94,18 @@ function LoginPage() {
           <div className="metric-card p-6 sm:p-7">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Status</p>
             <h2 className="mt-4 text-2xl font-semibold text-white">
-              {authState.authenticated ? 'Signed in' : 'Ready to sign in'}
+              {authState.authenticated ? 'Signed in' : authReady ? 'Ready to sign in' : 'Checking access'}
             </h2>
             <p className="mt-4 text-sm leading-8 text-gray-400">
-              {authState.authenticated
+              {!authReady
+                ? 'Checking sign-in availability for the current deployed site.'
+                : authState.authenticated
                 ? authState.user?.email
                   ? `Authenticated as ${authState.user.email}.`
-                  : 'Authenticated with Google.'
+                  : 'Authenticated.'
                 : authState.authConfigured
-                  ? 'Google sign-in is available from this page.'
-                  : 'The Google button is wired here, but backend credentials still need to be configured before it can complete.'}
+                  ? 'Secure sign-in is available across the website from this route.'
+                  : 'The sign-in button is wired here, but backend credentials still need to be configured before it can complete.'}
             </p>
 
             <div className="mt-6 space-y-3">
@@ -153,10 +113,10 @@ function LoginPage() {
                 Route: <span className="text-white">/login</span>
               </div>
               <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-gray-300">
-                Provider: <span className="text-white">{providerLabel}</span>
+                Scope: <span className="text-white">Whole website session</span>
               </div>
               <div className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-gray-300">
-                Next step: <span className="text-white">Continue into the live sandbox after sign-in</span>
+                Next step: <span className="text-white">Move between the site and the live shell with one shared sign-in</span>
               </div>
             </div>
           </div>

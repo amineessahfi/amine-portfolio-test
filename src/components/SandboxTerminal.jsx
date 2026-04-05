@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { SANDBOX_API_BASE } from '../constants/sandbox'
 import { createDiscussUrl } from '../constants/routes'
+import { SANDBOX_API_BASE } from '../constants/sandbox'
+import { useSiteAuth } from '../context/SiteAuthContext'
 
 const baseRestrictions = [
   '5-minute hard time limit',
@@ -15,15 +16,9 @@ const baseRestrictions = [
 
 const signInBenefits = [
   'Unlock repeat sandbox launches proactively instead of waiting for the gate.',
-  'Make terminal access attributable once authenticated launches are enabled.',
-  'Give visitors a cleaner “log in first” path if they prefer identified access.',
+  'Create an identified access path before the shell session begins.',
+  'Keep repeat launches attributable once authenticated access is enabled.',
 ]
-
-function formatProvider(provider) {
-  if (!provider) return 'OAuth'
-  if (provider === 'google') return 'Google'
-  return provider.charAt(0).toUpperCase() + provider.slice(1)
-}
 
 function SandboxTerminal() {
   const terminalHostRef = useRef(null)
@@ -37,16 +32,15 @@ function SandboxTerminal() {
   const [expiresAt, setExpiresAt] = useState('')
   const [timeLeft, setTimeLeft] = useState('')
   const [sessionMeta, setSessionMeta] = useState(null)
-  const [authState, setAuthState] = useState({
-    authenticated: false,
-    authConfigured: false,
-    provider: 'google',
-    freeAnonymousSessions: 1,
-    anonymousSessionsUsed: 0,
-    user: null,
-  })
+  const {
+    authReady,
+    authState,
+    consumeOauthResult,
+    signOut,
+    startSignIn,
+    syncAuthState,
+  } = useSiteAuth()
 
-  const providerLabel = useMemo(() => formatProvider(authState.provider), [authState.provider])
   const complimentarySessionsRemaining = useMemo(
     () => Math.max((authState.freeAnonymousSessions || 0) - (authState.anonymousSessionsUsed || 0), 0),
     [authState.anonymousSessionsUsed, authState.freeAnonymousSessions],
@@ -57,15 +51,19 @@ function SandboxTerminal() {
     () => [
       ...baseRestrictions,
       authState.authConfigured
-        ? `1 complimentary anonymous session, then ${providerLabel} sign-in for repeat launches`
-        : `${providerLabel} sign-in is wired for repeat launches and can be switched on once credentials are configured`,
+        ? '1 complimentary anonymous session, then sign-in for repeat launches'
+        : 'Secure sign-in is wired for repeat launches and becomes active once backend credentials are configured',
     ],
-    [authState.authConfigured, providerLabel],
+    [authState.authConfigured],
   )
 
   const accessStatus = useMemo(() => {
+    if (!authReady) {
+      return 'Checking current site access state'
+    }
+
     if (authState.authenticated) {
-      return `Signed in via ${providerLabel}${authState.user?.email ? ` as ${authState.user.email}` : ''}`
+      return `Signed in${authState.user?.email ? ` as ${authState.user.email}` : ''}`
     }
 
     if (complimentarySessionsRemaining > 0) {
@@ -73,21 +71,22 @@ function SandboxTerminal() {
     }
 
     if (authState.authConfigured) {
-      return `${providerLabel} sign-in unlocks more launches`
+      return 'Sign in unlocks more launches'
     }
 
-    return `${providerLabel} sign-in will unlock repeat launches once configured`
-  }, [authState.authenticated, authState.authConfigured, authState.user, complimentarySessionsRemaining, providerLabel])
+    return 'Secure sign-in will unlock repeat launches once configured'
+  }, [authReady, authState.authenticated, authState.authConfigured, authState.user, complimentarySessionsRemaining])
 
   const statusLabel = useMemo(() => {
+    if (status === 'idle' && !authReady) return 'Checking access'
     if (status === 'creating') return 'Requesting session'
     if (status === 'connecting') return 'Connecting terminal'
     if (status === 'active') return 'Live session active'
     if (status === 'ended') return 'Session ended'
     if (status === 'error') return 'Session unavailable'
-    if (requiresSignInBeforeLaunch) return `${providerLabel} sign-in required`
+    if (requiresSignInBeforeLaunch) return 'Sign-in required'
     return 'Ready to launch'
-  }, [providerLabel, requiresSignInBeforeLaunch, status])
+  }, [authReady, requiresSignInBeforeLaunch, status])
   const signInStatus = useMemo(() => {
     if (authState.authenticated) {
       return {
@@ -96,42 +95,25 @@ function SandboxTerminal() {
       }
     }
 
+    if (!authReady) {
+      return {
+        label: 'Checking site auth',
+        className: 'border-white/10 bg-white/[0.04] text-gray-300',
+      }
+    }
+
     if (authState.authConfigured) {
       return {
-        label: 'Optional login',
+        label: 'Optional sign-in',
         className: 'border-primary-500/30 bg-primary-500/10 text-primary-200',
       }
     }
 
     return {
-      label: 'Login section ready',
+      label: 'Access panel ready',
       className: 'border-white/10 bg-white/[0.04] text-gray-300',
     }
-  }, [authState.authConfigured, authState.authenticated])
-
-  const syncAuthState = async () => {
-    try {
-      const response = await fetch(`${SANDBOX_API_BASE}/auth/status`, {
-        credentials: 'include',
-      })
-
-      if (!response.ok) {
-        return
-      }
-
-      const payload = await response.json()
-      setAuthState({
-        authenticated: Boolean(payload.authenticated),
-        authConfigured: Boolean(payload.authConfigured),
-        provider: payload.provider || 'google',
-        freeAnonymousSessions: payload.freeAnonymousSessions ?? 1,
-        anonymousSessionsUsed: payload.anonymousSessionsUsed ?? 0,
-        user: payload.user || null,
-      })
-    } catch {
-      // Keep the current UI state if the auth status probe fails.
-    }
-  }
+  }, [authReady, authState.authConfigured, authState.authenticated])
 
   const disposeTerminal = () => {
     resizeObserverRef.current?.disconnect()
@@ -147,19 +129,14 @@ function SandboxTerminal() {
   }
 
   useEffect(() => {
-    const currentUrl = new URL(window.location.href)
-    const oauthState = currentUrl.searchParams.get('oauth')
+    const oauthState = consumeOauthResult()
 
     if (oauthState === 'success') {
-      setAuthNotice('Google sign-in complete. Additional terminal sessions are now available.')
+      setAuthNotice('Sign-in complete. Additional terminal sessions are now available.')
       setError('')
+      void syncAuthState()
     } else if (oauthState === 'error') {
-      setError('Google sign-in did not complete. Please try again.')
-    }
-
-    if (oauthState) {
-      currentUrl.searchParams.delete('oauth')
-      window.history.replaceState({}, '', `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`)
+      setError('Sign-in did not complete. Please try again.')
     }
 
     void syncAuthState()
@@ -167,7 +144,7 @@ function SandboxTerminal() {
     return () => {
       disposeTerminal()
     }
-  }, [])
+  }, [consumeOauthResult, syncAuthState])
 
   useEffect(() => {
     if (!expiresAt) {
@@ -200,27 +177,22 @@ function SandboxTerminal() {
     return currentUrl.toString()
   }
 
-  const startGoogleAuth = () => {
-    if (!authState.authConfigured) {
-      setError('Google sign-in is not configured on the backend yet.')
-      return
-    }
+  const handleStartSignIn = () => {
+    const signInError = startSignIn(buildReturnToUrl())
 
-    window.location.assign(
-      `${SANDBOX_API_BASE}/auth/google/start?returnTo=${encodeURIComponent(buildReturnToUrl())}`,
-    )
+    if (signInError) {
+      setError(signInError)
+    }
   }
 
-  const signOut = async () => {
-    try {
-      await fetch(`${SANDBOX_API_BASE}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      })
+  const handleSignOut = async () => {
+    const signOutError = await signOut()
+
+    if (signOutError) {
+      setError(signOutError)
+    } else {
       setAuthNotice('Signed out. You can still use the complimentary anonymous launch if it has not been used yet.')
-      await syncAuthState()
-    } catch {
-      setError('Could not sign out from the sandbox session broker.')
+      setError('')
     }
   }
 
@@ -353,7 +325,8 @@ function SandboxTerminal() {
 
   const startSandbox = async () => {
     if (requiresSignInBeforeLaunch) {
-      startGoogleAuth()
+      setStatus('idle')
+      handleStartSignIn()
       return
     }
 
@@ -380,7 +353,7 @@ function SandboxTerminal() {
       if (!response.ok) {
         if (payload.authRequired) {
           setStatus('idle')
-          setError(payload.error || `Sign in with ${providerLabel} to unlock more terminal sessions.`)
+          setError(payload.error || 'Sign in to unlock more terminal sessions.')
           return
         }
 
@@ -405,7 +378,7 @@ function SandboxTerminal() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Live sandbox</p>
-            <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Try a real Linux shell for 5 minutes</h2>
+            <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">Try a real shell for 5 minutes</h2>
           </div>
           <div className="flex flex-col items-start gap-2 text-sm text-gray-400 lg:items-end">
             <span className="rounded-full border border-primary-500/30 bg-primary-500/10 px-3 py-1 text-primary-200">
@@ -419,10 +392,10 @@ function SandboxTerminal() {
         <div id="sandbox-login" className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5 scroll-mt-28">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Sign in / login</p>
-              <h3 className="mt-2 text-xl font-semibold text-white sm:text-2xl">Prefer to log in before launching?</h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Access control</p>
+              <h3 className="mt-2 text-xl font-semibold text-white sm:text-2xl">Prefer identified access before launching?</h3>
               <p className="mt-3 text-sm leading-7 text-gray-400">
-                If a visitor wants an identified access path before touching the terminal, this panel is now visible above the sandbox itself instead of being buried underneath the terminal layout.
+                If a visitor wants an identified access path before touching the terminal, this panel uses the same sign-in state that is now available across the rest of the website.
               </p>
             </div>
             <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] ${signInStatus.className}`}>
@@ -444,23 +417,23 @@ function SandboxTerminal() {
               <>
                 <button
                   type="button"
-                  onClick={signOut}
+                  onClick={handleSignOut}
                   className="secondary-button !rounded-xl !px-4 !py-2"
                 >
                   Sign out
                 </button>
                 <span className="inline-flex items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-gray-300">
-                  {authState.user?.email ? `Signed in as ${authState.user.email}` : `Signed in with ${providerLabel}`}
+                  {authState.user?.email ? `Signed in as ${authState.user.email}` : 'Signed in'}
                 </span>
               </>
             ) : authState.authConfigured ? (
               <>
                 <button
                   type="button"
-                  onClick={startGoogleAuth}
+                  onClick={handleStartSignIn}
                   className="primary-button !rounded-xl !px-4 !py-2"
                 >
-                  Sign in with {providerLabel}
+                  Continue to sign in
                 </button>
                 <span className="inline-flex items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-gray-300">
                   Or use the complimentary anonymous launch below
@@ -473,7 +446,7 @@ function SandboxTerminal() {
                   disabled
                   className="secondary-button !rounded-xl !px-4 !py-2 opacity-70"
                 >
-                  {providerLabel} login coming online
+                  Secure sign-in coming online
                 </button>
                 <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button !rounded-xl !px-4 !py-2">
                   Request authenticated access
@@ -484,8 +457,8 @@ function SandboxTerminal() {
 
           <p className="mt-4 text-sm text-gray-500">
             {authState.authConfigured
-              ? `Use ${providerLabel} login any time if you want the sandbox tied to an authenticated access path before you launch.`
-              : `${providerLabel} login UI is now in place. The live button will activate once backend credentials are added.`}
+              ? 'Use sign-in any time if you want the sandbox tied to an identified access path before you launch, while keeping the same session available across the site.'
+              : 'The sign-in UI is now in place. The live button will fully activate once backend credentials are added.'}
           </p>
           {authNotice ? <p className="mt-4 text-sm text-cyan-200">{authNotice}</p> : null}
           {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
@@ -515,7 +488,7 @@ function SandboxTerminal() {
             <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
               <h3 className="text-lg font-semibold text-white">Access policy</h3>
               <p className="mt-3 text-sm leading-7 text-gray-400">
-                Every browser gets one complimentary launch. When Google sign-in is enabled on the backend, repeat sessions become attributable and auditable without turning the terminal into an open public toy.
+                Every browser gets one complimentary launch. Once sign-in is enabled on the backend, repeat sessions become attributable and auditable without turning the terminal into an open public toy.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-3">
@@ -528,7 +501,7 @@ function SandboxTerminal() {
                   {status === 'active'
                     ? 'Session running'
                     : requiresSignInBeforeLaunch
-                      ? `Continue with ${providerLabel}`
+                      ? 'Continue to sign in'
                       : authState.authenticated
                         ? 'Start another 5-minute sandbox'
                         : 'Start complimentary 5-minute sandbox'}
