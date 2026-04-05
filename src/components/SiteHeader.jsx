@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { LOGIN_ROUTE, createDiscussUrl } from '../constants/routes'
+import { LOGIN_ROUTE } from '../constants/routes'
 import { useSiteAuth } from '../context/SiteAuthContext'
 
 function SiteHeader() {
@@ -12,14 +12,10 @@ function SiteHeader() {
     { to: LOGIN_ROUTE, label: authState.authenticated ? 'Account' : 'Login' },
   ]
   const authLabel = !authReady
-    ? 'Checking access'
+    ? 'Account'
     : authState.authenticated
-      ? authState.user?.email || 'Signed in'
-      : authState.authConfigured
-        ? 'Site-wide sign-in ready'
-        : authState.authConfigurationError === 'invalid_google_web_client'
-          ? 'Sign-in unavailable'
-          : 'Sign-in setup in progress'
+      ? authState.user?.email || 'Account'
+      : 'Account'
 
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
@@ -56,10 +52,6 @@ function SiteHeader() {
             className="hidden max-w-[15rem] items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] lg:inline-flex"
           >
             <span className="truncate">{authLabel}</span>
-          </Link>
-
-          <Link to={createDiscussUrl()} className="primary-button hidden px-4 py-2.5 md:inline-flex">
-            Discuss a project
           </Link>
         </div>
       </div>

@@ -1,38 +1,36 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaAws, FaDocker, FaGitAlt, FaPython } from 'react-icons/fa'
-import { SiDatabricks, SiKubernetes, SiTerraform } from 'react-icons/si'
-import { SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
+import { FaArrowRight } from 'react-icons/fa'
+import { SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
 
 const expertisePillars = [
   {
-    title: 'Platform engineering',
-    description: 'Golden paths, internal developer platforms, and delivery guardrails that scale with engineering teams.',
+    title: 'Platform systems',
+    description: 'Shared workflows, delivery guardrails, and reusable foundations that keep engineering teams moving without drift.',
   },
   {
-    title: 'Cloud efficiency',
-    description: 'AWS architecture decisions shaped around performance, cost visibility, and operational confidence.',
+    title: 'Cost discipline',
+    description: 'Architecture choices that protect margin, reduce waste, and keep technical decisions commercially sharp.',
   },
   {
-    title: 'Data and telecom systems',
-    description: 'Pipeline-heavy systems, operational tooling, and infrastructure built for high-volume environments.',
+    title: 'Operational data',
+    description: 'Pipelines, workflow design, and telecom-grade tooling built for environments where reliability cannot feel accidental.',
   },
 ]
 
 const metrics = [
-  { value: '5+', label: 'Years across platform, cloud, and data delivery' },
-  { value: '50+', label: 'Projects spanning platform and infrastructure work' },
-  { value: '30%+', label: 'Savings identified in targeted cloud reviews' },
+  { value: '5+', label: 'Years across platform, infrastructure, and data delivery' },
+  { value: '50+', label: 'Systems, tools, and delivery paths shaped' },
+  { value: '30%+', label: 'Savings identified in targeted efficiency reviews' },
 ]
 
-const tools = [
-  { label: 'AWS', icon: <FaAws className="text-orange-400" /> },
-  { label: 'Kubernetes', icon: <SiKubernetes className="text-sky-400" /> },
-  { label: 'Terraform', icon: <SiTerraform className="text-violet-400" /> },
-  { label: 'Docker', icon: <FaDocker className="text-cyan-400" /> },
-  { label: 'Python', icon: <FaPython className="text-yellow-400" /> },
-  { label: 'Git', icon: <FaGitAlt className="text-orange-500" /> },
-  { label: 'Databricks', icon: <SiDatabricks className="text-red-400" /> },
+const focusAreas = [
+  'Platform foundations',
+  'Delivery automation',
+  'Runtime safety',
+  'Cost visibility',
+  'Operational data',
+  'Telecom-grade tooling',
 ]
 
 function Hero() {
@@ -42,30 +40,26 @@ function Hero() {
         <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
           <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
             <div className="relative z-10">
-              <span className="section-chip">Platform engineering / cloud / data systems</span>
+              <span className="section-chip">Platform systems / cost discipline / data operations</span>
               <p className="mt-6 text-sm font-semibold uppercase tracking-[0.32em] text-primary-200/90">
-                Consulting offers shaped like product experiences
+                Engineering delivery for real operational pressure
               </p>
               <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4.4rem] lg:leading-[1.02]">
-                Turn complex platform work into a system that feels
-                <span className="gradient-text"> deliberate</span>
-                , proves its value fast, and converts serious buyers.
+                Platform, data, and delivery systems that
+                <span className="gradient-text"> hold up in production.</span>
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                Explore the service paths, open the relevant proof points, and use the platform itself to decide whether the fit is strong before we ever get on a call.
+                I work across runtime architecture, delivery automation, operational data, and cost discipline - shaping systems that need to be reliable, usable, and commercially sound.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                 <Link to={SERVICES_DIRECTORY_ROUTE} className="primary-button gap-2">
-                  Find the right service path
+                  Explore service paths
                   <FaArrowRight className="text-xs" />
                 </Link>
-                <a href="#projects" className="secondary-button">
-                  See proof of delivery
+                <a href="#projects" className="soft-link inline-flex items-center justify-center px-2 py-3">
+                  Review recent work
                 </a>
-                <Link to={createDiscussUrl()} className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3">
-                  Start a project conversation
-                </Link>
               </div>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -80,12 +74,12 @@ function Hero() {
 
             <div className="relative z-10 space-y-5">
               <div className="metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Current positioning</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Positioning</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                  Interest, proof, and project fit in one route system.
+                  Architecture decisions tied to delivery reality.
                 </h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  The site now works more like a product funnel for technical consulting: understand the offer, try the strongest proof point, then move into a scoped conversation while the context is still warm.
+                  The work spans platform foundations, cost-sensitive design, and operating models that need to stay clear under pressure.
                 </p>
               </div>
 
@@ -103,16 +97,15 @@ function Hero() {
           <div className="relative z-10 mt-10 border-t border-white/10 pt-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Core toolkit</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Delivery strengths</p>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400">
-                  Tools and platforms I reach for when I am building paved roads, cost-aware cloud setups, and reliable delivery foundations.
+                  The work leans toward environments where architecture, operations, and commercial pressure all matter at the same time.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2.5">
-                {tools.map((tool) => (
-                  <span key={tool.label} className="skill-badge">
-                    {tool.icon}
-                    {tool.label}
+                {focusAreas.map((area) => (
+                  <span key={area} className="skill-badge">
+                    {area}
                   </span>
                 ))}
               </div>

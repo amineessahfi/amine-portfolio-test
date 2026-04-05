@@ -14,54 +14,74 @@ function ServiceDetailPage() {
     return <NotFoundPage />
   }
 
-  const isAwsService = service.slug === 'aws-cost-optimization'
+  const isCostService = service.slug === 'cloud-cost-optimization'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const discussUrl = createDiscussUrl(service.slug)
   const primaryCta = isSandboxService
     ? { label: 'Jump to the live shell', href: '#live-sandbox' }
-    : isAwsService
-      ? { label: 'Open the savings model', href: '#aws-cost-calculator' }
+    : isCostService
+      ? { label: 'Open the savings model', href: '#cost-review-model' }
       : { label: 'Open the project fit page', to: discussUrl }
   const secondaryCta = isSandboxService
     ? { label: 'Discuss this demo flow', to: discussUrl }
-    : isAwsService
-      ? { label: 'Plan the AWS review', to: discussUrl }
+    : isCostService
+      ? { label: 'Plan the cost review', to: discussUrl }
       : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
   const sandboxLaunchSteps = [
     'Land directly on the highlighted sandbox section instead of entering halfway down a long page.',
-    'Review the boundaries, then optionally sign in from the login section before launching.',
+    'Review the boundaries, then optionally sign in from the access panel before launching.',
     'Use the live shell, watch the timer, and let the session self-destruct automatically.',
   ]
 
   return (
     <>
-      <section className="px-4 pb-10 pt-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-[2rem] border border-dark-700/70 bg-dark-900/50 px-6 py-10 shadow-2xl shadow-black/20 backdrop-blur sm:px-10 sm:py-12">
-            <Link to="/services" className="text-sm text-primary-300 transition-colors hover:text-primary-200">
-              ← Back to services
-            </Link>
+      <section className="page-hero">
+          <div className="mx-auto max-w-7xl">
+            <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
+              <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
+                <div className="relative z-10">
+                  <Link to="/services" className="soft-link inline-flex items-center gap-2">
+                    Back to services
+                  </Link>
 
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">{service.eyebrow}</p>
-            <h1 className="mt-3 max-w-4xl text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
-              {service.title}
-            </h1>
-            <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">{service.summary}</p>
+                  <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">{service.eyebrow}</p>
+                  <h1 className="mt-3 max-w-4xl text-3xl font-semibold text-white sm:text-4xl lg:text-5xl">
+                    {service.title}
+                  </h1>
+                  <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-300 sm:text-base">{service.summary}</p>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              {service.snapshot.map((item) => (
-                <div key={item.label} className="metric-card">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.label}</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{item.value}</p>
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    {'href' in primaryCta ? (
+                      <a href={primaryCta.href} className="primary-button">
+                        {primaryCta.label}
+                      </a>
+                    ) : (
+                      <Link to={primaryCta.to} className="primary-button">
+                        {primaryCta.label}
+                      </Link>
+                    )}
+                    <Link to={secondaryCta.to} className="secondary-button">
+                      {secondaryCta.label}
+                    </Link>
+                    {showArchitectureLink ? <Link to={ARCHITECTURE_STACK_ROUTE} className="soft-link inline-flex items-center px-2 py-3">View architecture</Link> : null}
+                  </div>
                 </div>
-              ))}
+
+                <div className="relative z-10 grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+                  {service.snapshot.map((item) => (
+                    <div key={item.label} className="metric-card">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.label}</p>
+                      <p className="mt-3 text-lg font-semibold text-white">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
       </section>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8">
+      <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="terminal-window">
             <div className="terminal-header">
@@ -104,31 +124,6 @@ function ServiceDetailPage() {
                   </li>
                 ))}
               </ul>
-
-              <div className="flex flex-wrap gap-3">
-                {'href' in primaryCta ? (
-                  <a
-                    href={primaryCta.href}
-                    className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-                  >
-                    {primaryCta.label}
-                  </a>
-                ) : (
-                  <Link
-                    to={primaryCta.to}
-                    className="inline-flex w-fit rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
-                  >
-                    {primaryCta.label}
-                  </Link>
-                )}
-                <Link
-                  to={secondaryCta.to}
-                  className="inline-flex w-fit rounded-xl border border-dark-600 px-4 py-2 text-sm font-medium text-gray-200 transition-colors hover:bg-dark-700"
-                >
-                  {secondaryCta.label}
-                </Link>
-                {showArchitectureLink ? <Link to={ARCHITECTURE_STACK_ROUTE} className="secondary-button">View architecture</Link> : null}
-              </div>
             </div>
           </div>
         </section>
@@ -167,19 +162,16 @@ function ServiceDetailPage() {
                   </div>
                   <h3 className="mt-4 text-2xl font-semibold text-white">Jump straight into the shell</h3>
                   <p className="mt-4 text-sm leading-8 text-gray-400">
-                    The terminal stays on its own route with stronger focus, sharper copy, one complimentary anonymous run, and a cleaner handoff into Google-backed repeat access when visitors want more.
+                    The terminal stays on its own route with stronger focus, sharper copy, one complimentary anonymous run, and a cleaner handoff into identified repeat access when visitors want more.
                   </p>
 
-                  <div className="mt-6 flex flex-wrap gap-3">
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
                     <a href="#live-sandbox" className="primary-button">
-                      Start the live sandbox
+                      Start the live shell
                     </a>
-                    <a href="#sandbox-login" className="secondary-button">
-                      Sign in first
+                    <a href="#sandbox-login" className="soft-link inline-flex items-center px-2 py-3">
+                      Review access options
                     </a>
-                    <Link to={createDiscussUrl(service.slug)} className="secondary-button">
-                      Discuss this experience
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -210,7 +202,7 @@ function ServiceDetailPage() {
           </div>
         </section>
 
-        {isAwsService ? <CostCalculator /> : null}
+        {isCostService ? <CostCalculator /> : null}
       </main>
     </>
   )

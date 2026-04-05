@@ -30,15 +30,6 @@ function LoginPage() {
       : signInUnavailable
         ? 'Google sign-in is not available right now.'
         : 'Optional authentication for the website. One sign-in applies across the site.'
-  const statusPanelClass = authState.authenticated
-    ? 'border-cyan-400/25 bg-cyan-400/10 text-cyan-100'
-    : !authReady
-      ? 'border-white/10 bg-white/[0.04] text-gray-200'
-      : signInUnavailable
-        ? 'border-amber-400/25 bg-amber-400/10 text-amber-100'
-        : authState.authConfigured
-          ? 'border-primary-500/25 bg-primary-500/10 text-primary-100'
-          : 'border-white/10 bg-white/[0.04] text-gray-200'
 
   useEffect(() => {
     const oauthState = consumeOauthResult()
@@ -76,8 +67,8 @@ function LoginPage() {
 
   return (
     <main className="page-shell pt-12">
-      <section className="mx-auto w-full max-w-xl">
-        <div className="metric-card p-6 sm:p-8">
+      <section className="mx-auto w-full max-w-lg">
+        <div className="rounded-[1.75rem] border border-white/10 bg-[#050816]/72 p-6 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-8">
           <div className="relative z-10">
             <span className="section-chip">Login</span>
             <h1 className="section-title max-w-none text-3xl sm:text-4xl">Sign in</h1>
@@ -85,11 +76,12 @@ function LoginPage() {
               Optional authentication for the website. Nothing else needs to happen here beyond starting or ending your session.
             </p>
 
-            <div className={`mt-6 rounded-[1.35rem] border px-4 py-4 sm:px-5 sm:py-5 ${statusPanelClass}`}>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em]">
-                {statusTitle}
+            <div className="mt-6 rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-4 py-4 sm:px-5 sm:py-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-gray-400">
+                Status
               </p>
-              <p className="mt-3 text-sm leading-7 sm:text-[15px]">{statusDescription}</p>
+              <p className="mt-3 text-base font-semibold text-white">{statusTitle}</p>
+              <p className="mt-2 text-sm leading-7 text-gray-300 sm:text-[15px]">{statusDescription}</p>
             </div>
 
             {notice ? <p className="mt-4 text-sm text-cyan-200">{notice}</p> : null}
