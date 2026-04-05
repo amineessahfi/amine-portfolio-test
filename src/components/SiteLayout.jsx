@@ -47,7 +47,7 @@ function SiteLayout() {
       <div className="relative z-10">
         <SiteHeader />
         <Outlet />
-        <div className="mx-auto w-full max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="page-frame pb-16">
           <CtaBar />
         </div>
         <SiteFooter />

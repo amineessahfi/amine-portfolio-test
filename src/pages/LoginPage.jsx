@@ -67,7 +67,7 @@ function LoginPage() {
 
   return (
     <main className="page-shell pt-12">
-      <section className="mx-auto w-full max-w-lg">
+      <section className="page-panel-compact">
         <div className="rounded-[1.75rem] border border-white/10 bg-[#050816]/72 p-6 shadow-[0_20px_60px_rgba(2,6,23,0.35)] backdrop-blur-xl sm:p-8">
           <div className="relative z-10">
             <span className="section-chip">Login</span>

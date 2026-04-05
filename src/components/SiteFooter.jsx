@@ -5,7 +5,7 @@ import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from '../constants/links'
 function SiteFooter() {
   return (
     <footer className="pb-10 pt-2 text-sm text-dark-400">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="page-frame">
         <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.035] px-6 py-6 shadow-[0_20px_60px_rgba(2,6,23,0.3)] backdrop-blur-xl sm:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>

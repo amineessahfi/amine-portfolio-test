@@ -86,7 +86,7 @@ const headlineStats = [
 function ArchitecturePage() {
   return (
     <>
-      <section className="px-4 pb-10 pt-12 sm:px-6 lg:px-8">
+      <section className="page-hero">
         <div className="mx-auto max-w-7xl">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
@@ -144,7 +144,7 @@ function ArchitecturePage() {
         </div>
       </section>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8">
+      <main className="page-shell">
         <section id="stack-flow" className="grid scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           <div className="terminal-window">
             <div className="terminal-header">
