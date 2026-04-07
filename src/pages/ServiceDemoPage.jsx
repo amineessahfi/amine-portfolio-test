@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import CostCalculator from '../components/CostCalculator'
 import SandboxTerminal from '../components/SandboxTerminal'
+import WorkflowComposerDemo from '../components/WorkflowComposerDemo'
 import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
@@ -16,8 +17,9 @@ function ServiceDemoPage() {
 
   const isSandboxDemo = service.slug === 'live-terminal-sandbox'
   const isCostDemo = service.slug === 'cloud-cost-optimization'
+  const isWorkflowDemo = service.slug === 'workflow-composer'
 
-  if (!isSandboxDemo && !isCostDemo) {
+  if (!isSandboxDemo && !isCostDemo && !isWorkflowDemo) {
     return <NotFoundPage />
   }
 
@@ -44,24 +46,43 @@ function ServiceDemoPage() {
         tertiaryLabel: 'View architecture',
         tertiaryTo: ARCHITECTURE_STACK_ROUTE,
       }
-    : {
-        eyebrow: 'Dedicated demo route',
-        title: 'Run the savings model on a page built just for the review.',
-        intro:
-          'This page keeps the interactive model isolated so you can test the scenario cleanly. The service page stays responsible for delivery scope, fit, and the shape of the engagement.',
-        notes: [
-          'Use this route when you want to pressure-test the scenario inputs directly.',
-          'Use the service page when you want the surrounding implementation context.',
-          'Move into the discuss flow once the estimate feels close to the real spend pressure.',
-        ],
-        focusTitle: 'Why this lives separately',
-        focusText:
-          'The review model works better when the controls and outputs are not stacked in the middle of a longer service route.',
-        primaryLabel: 'Back to service context',
-        primaryTo: serviceRoute,
-        secondaryLabel: 'Plan the cost review',
-        secondaryTo: discussUrl,
-      }
+    : isCostDemo
+      ? {
+          eyebrow: 'Dedicated demo route',
+          title: 'Run the savings model on a page built just for the review.',
+          intro:
+            'This page keeps the interactive model isolated so you can test the scenario cleanly. The service page stays responsible for delivery scope, fit, and the shape of the engagement.',
+          notes: [
+            'Use this route when you want to pressure-test the scenario inputs directly.',
+            'Use the service page when you want the surrounding implementation context.',
+            'Move into the discuss flow once the estimate feels close to the real spend pressure.',
+          ],
+          focusTitle: 'Why this lives separately',
+          focusText:
+            'The review model works better when the controls and outputs are not stacked in the middle of a longer service route.',
+          primaryLabel: 'Back to service context',
+          primaryTo: serviceRoute,
+          secondaryLabel: 'Plan the cost review',
+          secondaryTo: discussUrl,
+        }
+      : {
+          eyebrow: 'Dedicated demo route',
+          title: 'Shape the workflow on a page built for the composer.',
+          intro:
+            'This page isolates the automation builder so triggers, branches, approvals, and notifications are easier to reason about. The service page stays focused on delivery scope and operating fit.',
+          notes: [
+            'Use this route when the workflow shape itself is what you want to evaluate.',
+            'Use the service page when you want the implementation context around the automation layer.',
+            'Move into the discuss flow once the orchestration pattern feels close to the real operating problem.',
+          ],
+          focusTitle: 'Why this lives separately',
+          focusText:
+            'Workflow design is easier to judge when the canvas, control rail, and execution summary are the primary focus instead of one section inside a longer page.',
+          primaryLabel: 'Back to service context',
+          primaryTo: serviceRoute,
+          secondaryLabel: 'Discuss this workflow',
+          secondaryTo: discussUrl,
+        }
 
   return (
     <>
@@ -146,7 +167,7 @@ function ServiceDemoPage() {
           </div>
         </section>
 
-        {isSandboxDemo ? <SandboxTerminal /> : <CostCalculator />}
+        {isSandboxDemo ? <SandboxTerminal /> : isCostDemo ? <CostCalculator /> : <WorkflowComposerDemo />}
       </main>
     </>
   )

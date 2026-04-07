@@ -5,6 +5,7 @@ import {
   COST_REVIEW_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
+  WORKFLOW_COMPOSER_ROUTE,
   createDiscussUrl,
   createServiceRoute,
 } from '../constants/routes'
@@ -21,17 +22,25 @@ function ServiceDetailPage() {
 
   const isCostService = service.slug === 'cloud-cost-optimization'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
+  const isWorkflowService = service.slug === 'workflow-composer'
   const discussUrl = createDiscussUrl(service.slug)
   const primaryCta = isSandboxService
     ? { label: 'Open the dedicated live demo', to: LIVE_SANDBOX_ROUTE }
     : isCostService
       ? { label: 'Open the dedicated review demo', to: COST_REVIEW_ROUTE }
-      : { label: 'Open the project fit page', to: discussUrl }
-  const secondaryCta = isSandboxService
-    ? { label: 'Discuss this demo flow', to: discussUrl }
-    : isCostService
-      ? { label: 'Plan the cost review', to: discussUrl }
-      : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
+      : isWorkflowService
+        ? { label: 'Open the dedicated workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
+        : { label: 'Open the project fit page', to: discussUrl }
+  const secondaryCta = isSandboxService || isCostService || isWorkflowService
+    ? {
+        label: isWorkflowService
+          ? 'Discuss the workflow build'
+          : isCostService
+            ? 'Plan the cost review'
+            : 'Discuss this demo flow',
+        to: discussUrl,
+      }
+    : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
   const demoPanel = isSandboxService
     ? {
@@ -65,6 +74,22 @@ function ServiceDetailPage() {
           secondaryLabel: 'Plan the cost review',
           secondaryTo: discussUrl,
         }
+      : isWorkflowService
+        ? {
+            eyebrow: 'Dedicated demo page',
+            title: 'The workflow composer now lives on its own route',
+            description:
+              'The service page stays about automation architecture and delivery scope. The composer now has a separate page so visitors can shape the flow without the rest of the route competing for attention.',
+            highlights: [
+              'Adjust templates, approvals, and branching logic on a focused canvas.',
+              'Keep the orchestration path readable instead of embedding it mid-page.',
+              'Move into project scope only after the workflow shape feels right.',
+            ],
+            primaryLabel: 'Open the workflow demo',
+            primaryTo: WORKFLOW_COMPOSER_ROUTE,
+            secondaryLabel: 'Discuss the workflow build',
+            secondaryTo: discussUrl,
+          }
       : null
 
   return (

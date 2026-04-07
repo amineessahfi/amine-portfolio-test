@@ -7,6 +7,7 @@ import {
   COST_REVIEW_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
+  WORKFLOW_COMPOSER_ROUTE,
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 
@@ -44,6 +45,16 @@ const topicPresets = {
   },
   'cloud-cost-optimization': costReviewPreset,
   'aws-cost-optimization': costReviewPreset,
+  'workflow-composer': {
+    eyebrow: 'Workflow fit',
+    title: 'Turn the workflow composer into a real operating surface.',
+    intro:
+      'If the automation composer is the part that clicked, tell me what triggers the flow, where humans must stay in the loop, and what the orchestration needs to prove.',
+    emailSubject: 'Workflow automation discussion',
+    primaryLabel: 'Discuss the workflow build',
+    secondaryLabel: 'Reopen the workflow demo',
+    secondaryTo: WORKFLOW_COMPOSER_ROUTE,
+  },
 }
 
 const whatToBring = [
@@ -62,6 +73,11 @@ const platformRoutes = [
     title: 'Savings model demo',
     description: 'Use the dedicated demo page when cost pressure is the fastest way into the conversation.',
     to: COST_REVIEW_ROUTE,
+  },
+  {
+    title: 'Workflow composer demo',
+    description: 'Use the composer route when automation design, approvals, and branching logic are the clearest proof point.',
+    to: WORKFLOW_COMPOSER_ROUTE,
   },
   {
     title: 'Architecture page',
@@ -192,7 +208,7 @@ function DiscussProjectPage() {
           </div>
         </section>
 
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {platformRoutes.map((route) => (
             <article key={route.title} className="metric-card card-hover p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Use the platform first</p>

@@ -159,6 +159,38 @@ export const services = [
       { label: 'Typical outcome', value: 'Hands-on visitor engagement' },
     ],
   },
+  {
+    slug: 'workflow-composer',
+    eyebrow: 'Service 06',
+    title: 'Workflow Composer & Automation Orchestration',
+    summary:
+      'Design automation flows, operator approvals, and cross-system handoffs that turn messy internal sequences into reliable operating paths.',
+    highlights: [
+      'Visual workflow composition for triggers, branches, and handoffs',
+      'Guardrails around retries, approvals, and fallback behavior',
+      'Useful for ops automation, internal tools, and service qualification',
+    ],
+    outcomes: [
+      'Reduce manual coordination across teams and systems',
+      'Make automation logic reviewable before implementation starts',
+      'Turn ad-hoc sequences into clearer internal operating products',
+    ],
+    deliverables: [
+      'Workflow architecture and orchestration design',
+      'Automation step mapping across triggers, integrations, and approvals',
+      'Implementation support for runtime controls, observability, and handoff',
+    ],
+    bestFor: [
+      'Teams replacing spreadsheet-driven or chat-driven internal workflows',
+      'Operators who need automation with clear approval and fallback points',
+      'Organizations turning repetitive service work into productized flows',
+    ],
+    snapshot: [
+      { label: 'Primary focus', value: 'Automation clarity' },
+      { label: 'Delivery style', value: 'Workflow design + buildout' },
+      { label: 'Typical outcome', value: 'Cleaner internal operations' },
+    ],
+  },
 ]
 
 export function getServiceBySlug(serviceSlug) {

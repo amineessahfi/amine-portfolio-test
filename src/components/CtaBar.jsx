@@ -7,7 +7,7 @@ import {
   LINKEDIN_URL,
   RESUME_REQUEST_URL,
 } from '../constants/links'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, createDiscussUrl } from '../constants/routes'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
 
 function CtaBar() {
   return (
@@ -53,15 +53,10 @@ function CtaBar() {
                 <p className="mt-3 text-sm leading-7 text-gray-400">Open the dedicated review model when efficiency is the clearest path into the conversation.</p>
               </Link>
 
-              <a
-                href={LINKEDIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="metric-card card-hover p-5"
-              >
-                <p className="text-sm font-semibold text-white">Professional profile</p>
-                <p className="mt-3 text-sm leading-7 text-gray-400">Review external background and credentials separately from the core service flow.</p>
-              </a>
+              <Link to={WORKFLOW_COMPOSER_ROUTE} className="metric-card card-hover p-5">
+                <p className="text-sm font-semibold text-white">Workflow composer demo</p>
+                <p className="mt-3 text-sm leading-7 text-gray-400">Open the focused automation builder when orchestration design is the clearest proof point.</p>
+              </Link>
             </div>
           </div>
         </div>

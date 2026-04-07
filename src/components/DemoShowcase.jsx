@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaChartLine, FaTerminal } from 'react-icons/fa'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE } from '../constants/routes'
+import { FaArrowRight, FaChartLine, FaCodeBranch, FaTerminal } from 'react-icons/fa'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE } from '../constants/routes'
 
 const demoPages = [
   {
@@ -30,6 +30,19 @@ const demoPages = [
     textClassName: 'text-primary-200',
     iconClassName: 'text-primary-300',
   },
+  {
+    eyebrow: 'Workflow composer',
+    title: 'The automation composer now runs on its own page',
+    description:
+      'Shape triggers, branches, approvals, and notifications on a focused workflow route instead of squeezing the builder into a long service page.',
+    highlights: ['Template-driven orchestration', 'Approvals and failure branches', 'Clear handoff into delivery scope'],
+    to: WORKFLOW_COMPOSER_ROUTE,
+    cta: 'Open workflow demo',
+    icon: FaCodeBranch,
+    dotClassName: 'bg-violet-300',
+    textClassName: 'text-violet-200',
+    iconClassName: 'text-violet-300',
+  },
 ]
 
 function DemoShowcase() {
@@ -50,7 +63,7 @@ function DemoShowcase() {
           </p>
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {demoPages.map((demo) => {
             const Icon = demo.icon
 

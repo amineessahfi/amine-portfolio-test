@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, createServiceRoute } from '../constants/routes'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createServiceRoute } from '../constants/routes'
 
 const demoRoutes = {
   'cloud-cost-optimization': COST_REVIEW_ROUTE,
   'live-terminal-sandbox': LIVE_SANDBOX_ROUTE,
+  'workflow-composer': WORKFLOW_COMPOSER_ROUTE,
 }
 
 function ServiceCard({ service }) {
