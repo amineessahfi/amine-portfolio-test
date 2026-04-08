@@ -6,8 +6,8 @@ import ServiceCard from './ServiceCard'
 
 function ServicesOverview({
   eyebrow = 'Services',
-  title = 'Service lines built to generate qualified work',
-  intro = 'Clear service pages make it easier for visitors to understand what you offer, what problems you solve, and how to start a conversation.',
+  title = 'Service lines built to remove expensive technical drag',
+  intro = 'Start with the bottleneck that is slowing delivery, creating avoidable spend, or making operational work harder than it should be.',
   showDirectoryLink = false,
   sectionId,
 }) {
@@ -15,7 +15,7 @@ function ServicesOverview({
     <section id={sectionId} className={sectionId ? 'scroll-mt-28' : undefined}>
       <div className="terminal-window">
         <div className="terminal-header">
-          <div className="text-sm text-gray-400">services - directory</div>
+          <div className="text-sm text-gray-400">services - fit</div>
         </div>
 
         <div className="terminal-content">
@@ -39,7 +39,7 @@ function ServicesOverview({
                 to={SERVICES_DIRECTORY_ROUTE}
                 className="secondary-button"
               >
-                Browse all service pages
+                View the full services directory
               </Link>
             </div>
           ) : null}

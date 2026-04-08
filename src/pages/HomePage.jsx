@@ -12,8 +12,8 @@ function HomePage() {
       <main className="page-shell lg:gap-12">
         <ServicesOverview
           eyebrow="Service lines"
-          title="Service pages built for inbound consulting work"
-          intro="The homepage stays as the entry layer while each service route carries stronger positioning, sharper proof points, and a cleaner handoff into a real project conversation."
+          title="Start with the service that matches the pressure point"
+          intro="Use the homepage to orient quickly, then move into the service page with the closest fit once the bottleneck is clear."
           showDirectoryLink
         />
 

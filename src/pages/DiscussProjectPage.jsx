@@ -10,56 +10,117 @@ import {
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 
+const generalBriefFields = [
+  'Problem / pressure point:',
+  'Current stack or environment:',
+  'What good looks like in the first phase:',
+  'Anything time-sensitive:',
+]
+
+const sandboxBriefFields = [
+  'What visitors should be able to try:',
+  'What must stay protected or off-limits:',
+  'Where the experience should live:',
+  'What the sandbox needs to prove or convert into:',
+  'Anything time-sensitive:',
+]
+
+const costReviewBriefFields = [
+  'Approximate monthly cloud spend or scale:',
+  'Biggest suspected waste areas:',
+  'Constraints that limit cost changes:',
+  'Desired savings target or budget pressure:',
+  'Anything time-sensitive:',
+]
+
+const workflowBriefFields = [
+  'What starts the workflow:',
+  'Systems, teams, or integrations involved:',
+  'Where approvals or human checkpoints are required:',
+  'What outcome the automation must protect:',
+  'Anything time-sensitive:',
+]
+
+const generalNextSteps = [
+  'I review the problem, the constraints, and whether the work is a strong fit.',
+  'You get a recommendation on the best starting shape: audit, design pass, implementation sprint, or staged engagement.',
+  'If the fit is real, we move into a concrete next step instead of an open-ended discovery loop.',
+]
+
 const costReviewPreset = {
   eyebrow: 'Cost review fit',
-  title: 'Take the savings model from estimate to action.',
+  title: 'Turn the savings signal into a real efficiency plan.',
   intro:
-    'If the model feels close to your current spend profile, the next move is a focused conversation around what is actually wasting money and what should be fixed first.',
+    'If the model feels directionally right, send the rough spend profile, the budget pressure, and the areas most likely leaking money.',
   emailSubject: 'Cloud cost review discussion',
-  primaryLabel: 'Discuss the cost review',
+  emailIntro: 'I would like to discuss a cloud cost-efficiency review.',
+  emailPrompts: costReviewBriefFields,
+  primaryLabel: 'Email the cost brief',
   secondaryLabel: 'Reopen the savings model',
   secondaryTo: COST_REVIEW_ROUTE,
+  responseSteps: [
+    'We identify where the biggest savings signal is likely real versus noisy.',
+    'I recommend the fastest high-leverage review scope and where execution support matters most.',
+    'You get a concrete starting plan instead of a generic cost-optimization checklist.',
+  ],
 }
 
 const topicPresets = {
   general: {
     eyebrow: 'Project fit',
-    title: 'Bring the messy platform problem, not a polished brief.',
+    title: 'Send the version of the problem that actually matters.',
     intro:
-      'Use this page when you want to move from browsing into a serious delivery conversation. The goal is to make the next step feel obvious, not salesy.',
+      'You do not need a polished brief. A short note with the bottleneck, the current environment, and the outcome you need is enough to make the next step useful.',
     emailSubject: 'Project conversation',
-    primaryLabel: 'Send the project brief',
+    emailIntro: 'I would like to discuss a delivery problem.',
+    emailPrompts: generalBriefFields,
+    primaryLabel: 'Email the project brief',
     secondaryLabel: 'Browse service paths',
     secondaryTo: SERVICES_DIRECTORY_ROUTE,
+    responseSteps: generalNextSteps,
   },
   'live-terminal-sandbox': {
     eyebrow: 'Sandbox fit',
-    title: 'Turn the live terminal moment into a differentiator on your own platform.',
+    title: 'Turn the live sandbox pattern into a real product surface.',
     intro:
-      'If the sandbox is the part that caught your attention, tell me what visitors should be allowed to try, what must stay protected, and what the experience needs to prove.',
+      'If the live shell is the proof point you want, send the visitor action, the guardrails that must hold, and what the experience needs to convert into.',
     emailSubject: 'Sandbox-led platform discussion',
-    primaryLabel: 'Discuss the sandbox flow',
+    emailIntro: 'I would like to discuss a live sandbox or ephemeral demo environment.',
+    emailPrompts: sandboxBriefFields,
+    primaryLabel: 'Email the sandbox brief',
     secondaryLabel: 'Reopen the live sandbox',
     secondaryTo: LIVE_SANDBOX_ROUTE,
+    responseSteps: [
+      'We clarify the allowed user actions, risk boundaries, and runtime controls.',
+      'I recommend the right launch flow and implementation shape for the sandbox experience.',
+      'You get a concrete next step for prototype, hardening, or production rollout.',
+    ],
   },
   'cloud-cost-optimization': costReviewPreset,
   'aws-cost-optimization': costReviewPreset,
   'workflow-composer': {
     eyebrow: 'Workflow fit',
-    title: 'Turn the workflow composer into a real operating surface.',
+    title: 'Turn the workflow pattern into an implementation plan.',
     intro:
-      'If the automation composer is the part that clicked, tell me what triggers the flow, where humans must stay in the loop, and what the orchestration needs to prove.',
+      'If the workflow demo looks close to the operating problem, send the trigger, the systems involved, and where human approvals or fallback steps must stay in the loop.',
     emailSubject: 'Workflow automation discussion',
-    primaryLabel: 'Discuss the workflow build',
+    emailIntro: 'I would like to discuss a workflow automation or orchestration build.',
+    emailPrompts: workflowBriefFields,
+    primaryLabel: 'Email the workflow brief',
     secondaryLabel: 'Reopen the workflow demo',
     secondaryTo: WORKFLOW_COMPOSER_ROUTE,
+    responseSteps: [
+      'We map the operating sequence, risk points, and where human intervention still matters.',
+      'I recommend the right starting shape: workflow design, prototype, or constrained production build.',
+      'You get a clear delivery path for orchestration, guardrails, and rollout.',
+    ],
   },
 }
 
 const whatToBring = [
-  'The bottleneck, cost pressure, or delivery friction you want removed',
-  'Enough stack context to understand the current architecture and team constraints',
-  'What success should look like in the first few weeks of work',
+  'A concrete bottleneck that is costing time, money, or operational confidence',
+  'Enough system context to explain where the current constraints come from',
+  'The outcome you need in the first phase, not just the long-term ambition',
 ]
 
 function DiscussProjectPage() {
@@ -67,13 +128,13 @@ function DiscussProjectPage() {
   const topic = searchParams.get('topic') || 'general'
   const preset = topicPresets[topic] || topicPresets.general
   const relatedService = getServiceBySlug(topic)
+  const emailHref = createDiscussEmailUrl({
+    subject: preset.emailSubject,
+    intro: preset.emailIntro,
+    prompts: preset.emailPrompts,
+  })
   const fitSignals = relatedService?.bestFor || whatToBring
-  const nextStepSignals =
-    relatedService?.deliverables || [
-      'We align on the problem, the operating context, and the highest-leverage starting point.',
-      'I map the likely delivery shape: audit, architecture pass, implementation sprint, or a staged engagement.',
-      'You get a clear next step instead of a vague "let\'s keep in touch" answer.',
-    ]
+  const nextStepSignals = preset.responseSteps || generalNextSteps
 
   return (
     <>
@@ -89,7 +150,7 @@ function DiscussProjectPage() {
                 <p className="section-copy max-w-3xl text-base sm:text-lg">{preset.intro}</p>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                  <a href={createDiscussEmailUrl(preset.emailSubject)} className="primary-button gap-2">
+                  <a href={emailHref} className="primary-button gap-2">
                     <FaEnvelope className="text-xs" />
                     {preset.primaryLabel}
                   </a>
@@ -110,13 +171,13 @@ function DiscussProjectPage() {
               </div>
 
               <div className="relative z-10 metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this page exists</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Keep the CTA inside the platform</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Best first email</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">Send enough context to get a useful answer.</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  The site should move visitors from interest to proof to a serious conversation. This page is the handoff layer, so the next step feels deliberate instead of placeholder copy.
+                  A short note is enough. These prompts make it easier to reply with fit, scope, and the right first engagement instead of a generic discovery reply.
                 </p>
                 <div className="mt-6 space-y-3">
-                  {whatToBring.map((item) => (
+                  {preset.emailPrompts.map((item) => (
                     <div key={item} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-gray-300">
                       {item}
                     </div>
@@ -140,7 +201,7 @@ function DiscussProjectPage() {
                 <span className="section-chip">Best starting context</span>
                 <h2 className="section-title text-3xl sm:text-4xl">What makes this a strong fit</h2>
                 <p className="section-copy">
-                  Share the version of the problem that is costing you time, clarity, or platform confidence right now.
+                  Share the part of the problem that is burning time, budget, or operator confidence right now.
                 </p>
               </div>
 
@@ -163,7 +224,7 @@ function DiscussProjectPage() {
             <div className="terminal-content">
               <div>
                 <span className="section-chip">Conversation flow</span>
-                <h2 className="section-title text-3xl sm:text-4xl">What happens after you reach out</h2>
+                <h2 className="section-title text-3xl sm:text-4xl">What you should get back</h2>
               </div>
 
               <ol className="space-y-3">
@@ -178,7 +239,7 @@ function DiscussProjectPage() {
               </ol>
 
               <div className="rounded-[1.35rem] border border-primary-500/20 bg-primary-500/10 px-4 py-4 text-sm leading-7 text-primary-100">
-                The outcome here is a sharp recommendation and a clear path into delivery, not a vague discovery loop.
+                The goal is a decision and a first delivery shape, not a vague "let's keep in touch" loop.
               </div>
             </div>
           </div>

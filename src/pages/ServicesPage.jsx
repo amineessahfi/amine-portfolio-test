@@ -10,20 +10,26 @@ const deliverySteps = [
   {
     title: 'Design',
     description:
-      'Translate that assessment into a practical architecture, roadmap, and service approach that teams can actually adopt.',
+      'Turn that diagnosis into a practical architecture, delivery shape, and first scope that a team can actually adopt.',
   },
   {
     title: 'Implement',
     description:
-      'Work hands-on with engineering teams to ship the highest-value improvements and leave behind maintainable patterns.',
+      'Ship the highest-value improvements with the team and leave behind clearer patterns, guardrails, and handoff points.',
   },
 ]
 
 const engagementNotes = [
-  'Architecture and platform assessments',
-  'Hands-on implementation with internal teams',
-  'Short targeted audits or longer delivery engagements',
-  'Follow-up enablement, docs, and operational handoff',
+  'Architecture and platform assessments with decision-ready outputs',
+  'Hands-on implementation alongside internal teams',
+  'Short targeted audits or staged engagements for larger programmes',
+  'Operational handoff, documentation, and enablement once the core work lands',
+]
+
+const expectationPoints = [
+  'A concrete diagnosis of the bottleneck',
+  'A delivery shape matched to the team and the constraint',
+  'Hands-on implementation when the work needs shipping, not just advice',
 ]
 
 function ServicesPage() {
@@ -36,20 +42,23 @@ function ServicesPage() {
               <div>
                 <span className="section-chip">Services</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  Choose the route that matches the bottleneck you want
-                  <span className="gradient-text"> gone</span>
-                  .
+                  Choose the engagement that matches the pressure point.
                 </h1>
                 <p className="section-copy max-w-3xl text-base sm:text-lg">
-                  These pages are built so visitors can self-qualify fast: pick the problem, open the strongest proof point, and decide whether it is time to start a real project conversation.
+                  Each service page is built to show what gets solved, what gets delivered, and where proof exists before you commit to a project conversation.
                 </p>
               </div>
 
               <div className="metric-card p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this layout</p>
-                <p className="mt-4 text-sm leading-8 text-gray-400">
-                  A premium service site needs sharper hierarchy and more deliberate routing than a flat one-pager. Each path here is meant to pull the visitor toward the right action instead of just showing more content.
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">What you should expect</p>
+                <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
+                  {expectationPoints.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
@@ -60,7 +69,7 @@ function ServicesPage() {
         <ServicesOverview
           eyebrow="Offerings"
           title="Choose the service path that matches the problem you need solved"
-          intro="Open the route that looks closest to your current friction point, then move from proof into the discuss page once the fit is clear."
+          intro="Start with the bottleneck that is costing the most time, money, or operator confidence right now."
           sectionId="services-directory"
         />
 
@@ -73,7 +82,7 @@ function ServicesPage() {
             <div className="terminal-content">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Approach</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">How engagements usually work</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-white">How the work usually lands</h2>
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
@@ -96,7 +105,7 @@ function ServicesPage() {
             <div className="terminal-content">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Typical scope</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">Flexible engagement model</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-white">How the engagement can start</h2>
               </div>
 
               <ul className="space-y-3 text-sm leading-7 text-gray-300">

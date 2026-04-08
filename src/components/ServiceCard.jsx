@@ -10,6 +10,7 @@ const demoRoutes = {
 
 function ServiceCard({ service }) {
   const demoRoute = demoRoutes[service.slug]
+  const typicalOutcome = service.snapshot.find((item) => item.label === 'Typical outcome')?.value
 
   return (
     <article className="card-hover relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)]">
@@ -19,6 +20,13 @@ function ServiceCard({ service }) {
       </div>
       <h3 className="relative z-10 mt-5 text-2xl font-semibold text-white">{service.title}</h3>
       <p className="relative z-10 mt-4 flex-1 text-sm leading-8 text-gray-400">{service.summary}</p>
+
+      {typicalOutcome ? (
+        <div className="relative z-10 mt-5 rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-200">Typical outcome</p>
+          <p className="mt-2 text-sm text-gray-100">{typicalOutcome}</p>
+        </div>
+      ) : null}
 
       <ul className="relative z-10 mt-6 space-y-3 text-sm text-gray-300">
         {service.highlights.slice(0, 3).map((highlight) => (
@@ -34,14 +42,14 @@ function ServiceCard({ service }) {
           to={createServiceRoute(service.slug)}
           className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary-200 transition-colors hover:text-white"
         >
-          Open route
+          View service
         </Link>
         {demoRoute ? (
           <Link
             to={demoRoute}
             className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-gray-300 transition-colors hover:text-white"
           >
-            Open demo
+            View proof
           </Link>
         ) : null}
       </div>

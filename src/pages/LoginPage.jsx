@@ -11,7 +11,7 @@ const accessBenefits = [
 
 const quickRoutes = [
   {
-    title: 'Browse service routes',
+    title: 'Browse services',
     description: 'Stay in the service directory when you are still deciding where the fit is strongest.',
     to: SERVICES_DIRECTORY_ROUTE,
   },
@@ -22,7 +22,7 @@ const quickRoutes = [
   },
   {
     title: 'Open the workflow demo',
-    description: 'Use the workflow route when you want access to the restricted live studio.',
+    description: 'Use the workflow demo when you want access to the restricted live studio.',
     to: WORKFLOW_COMPOSER_ROUTE,
   },
 ]
@@ -100,7 +100,7 @@ function LoginPage() {
               Use sign-in only when a gated demo needs it.
             </h1>
             <p className="section-copy max-w-3xl text-base sm:text-lg">
-              Authentication is optional for browsing. It exists to support the small part of the site that actually gates access, not to dominate the main navigation.
+              Authentication is optional for browsing. It exists only for the small part of the site that actually needs gated proof surfaces.
             </p>
 
             <div className="mt-8 metric-card p-6 sm:p-7">

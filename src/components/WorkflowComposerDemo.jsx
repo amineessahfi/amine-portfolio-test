@@ -53,7 +53,7 @@ const templates = [
       },
       {
         title: 'Profile validation',
-        detail: 'Confirm owner details, engagement type, and the internal route for the request.',
+        detail: 'Confirm owner details, engagement type, and the right intake path for the request.',
         tone: 'text-cyan-200 border-cyan-500/20 bg-cyan-500/10',
       },
       {
@@ -510,7 +510,7 @@ function WorkflowComposerDemo() {
 
               <div className="rounded-2xl border border-primary-500/20 bg-primary-500/10 p-5">
                 <p className="text-sm leading-7 text-gray-300">
-                  <span className="font-semibold">If the preview feels close to the real problem,</span> open the restricted live studio for the real n8n editor, then use the discuss route and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
+                  <span className="font-semibold">If the preview feels close to the real problem,</span> open the restricted live studio for the real n8n editor, then send the workflow brief and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
                 </p>
                 <Link
                   to={createDiscussUrl('workflow-composer')}

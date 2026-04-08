@@ -6,21 +6,21 @@ import { SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
 const expertisePillars = [
   {
     title: 'Platform systems',
-    description: 'Shared workflows, delivery guardrails, and reusable foundations that keep engineering teams moving without drift.',
+    description: 'Delivery foundations, paved roads, and runtime guardrails that let teams ship with less friction.',
   },
   {
     title: 'Cost discipline',
-    description: 'Architecture choices that protect margin, reduce waste, and keep technical decisions commercially sharp.',
+    description: 'Architecture and spend decisions that protect margin without making delivery slower.',
   },
   {
     title: 'Operational data',
-    description: 'Pipelines, workflow design, and telecom-grade tooling built for environments where reliability cannot feel accidental.',
+    description: 'Pipelines and workflow systems built for environments where unreliable operations get expensive fast.',
   },
 ]
 
 const metrics = [
-  { value: '5+', label: 'Years across platform, infrastructure, and data delivery' },
-  { value: '50+', label: 'Systems, tools, and delivery paths shaped' },
+  { value: '5+', label: 'Years across platform, cloud, and operational delivery' },
+  { value: '50+', label: 'Systems, tools, and delivery workflows shaped' },
   { value: '30%+', label: 'Savings identified in targeted efficiency reviews' },
 ]
 
@@ -42,23 +42,23 @@ function Hero() {
             <div className="relative z-10">
               <span className="section-chip">Platform systems / cost discipline / data operations</span>
               <p className="mt-6 text-sm font-semibold uppercase tracking-[0.32em] text-primary-200/90">
-                Engineering delivery for real operational pressure
+                Engineering delivery for teams under real operational pressure
               </p>
               <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4.4rem] lg:leading-[1.02]">
-                Platform, data, and delivery systems that
+                Platform, automation, and data systems that
                 <span className="gradient-text"> hold up in production.</span>
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                I work across runtime architecture, delivery automation, operational data, and cost discipline - shaping systems that need to be reliable, usable, and commercially sound.
+                I help teams reduce delivery drag, expose waste, and turn complex operational tooling into systems that stay reliable, usable, and commercially sensible.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                 <Link to={SERVICES_DIRECTORY_ROUTE} className="primary-button gap-2">
-                  Explore service paths
+                  See service fit
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <a href="#projects" className="soft-link inline-flex items-center justify-center px-2 py-3">
-                  Review recent work
+                  Review delivery proof
                 </a>
               </div>
 
@@ -76,10 +76,10 @@ function Hero() {
               <div className="metric-card p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Positioning</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                  Architecture decisions tied to delivery reality.
+                  Delivery decisions tied to real operating constraints.
                 </h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  The work spans platform foundations, cost-sensitive design, and operating models that need to stay clear under pressure.
+                  The work sits between platform engineering, cost control, and operational tooling, where the answer has to make sense for engineers and the business at the same time.
                 </p>
               </div>
 
@@ -99,7 +99,7 @@ function Hero() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Delivery strengths</p>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400">
-                  The work leans toward environments where architecture, operations, and commercial pressure all matter at the same time.
+                  Best suited to environments where reliability, operator clarity, and commercial pressure all matter at once.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2.5">

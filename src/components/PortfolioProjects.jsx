@@ -32,11 +32,11 @@ function PortfolioProjects() {
         <div className="terminal-content">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <span className="section-chip">Proof of delivery</span>
-              <h3 className="section-title text-3xl sm:text-4xl">Selected delivery examples</h3>
+              <span className="section-chip">Selected work</span>
+              <h3 className="section-title text-3xl sm:text-4xl">Delivery examples under real constraints</h3>
             </div>
             <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-              Delivery examples that support the service pages with practical experience across platform, cloud, data, and telecom operations.
+              A few representative examples across platform foundations, operational data, and telecom-grade tooling where the work had to ship, not just sound good.
             </p>
           </div>
 
@@ -69,7 +69,7 @@ function PortfolioProjects() {
 
           <div className="border-t border-white/10 pt-5">
             <p className="text-sm leading-7 text-gray-400">
-              <span className="font-semibold text-gray-300">Note:</span> Detailed case studies are available on request for deeper architecture, automation, and delivery details.
+              <span className="font-semibold text-gray-300">Note:</span> Deeper case-study detail is available on request when you want the architecture tradeoffs, implementation shape, and delivery context behind the headline.
             </p>
           </div>
         </div>

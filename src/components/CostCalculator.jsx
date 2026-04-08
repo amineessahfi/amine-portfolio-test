@@ -133,7 +133,7 @@ function CostCalculator() {
           <div className="space-y-3">
             <h3 className="text-2xl font-semibold text-white">AWS Cost Optimization Calculator</h3>
             <p className="max-w-2xl text-sm leading-7 text-gray-400 sm:text-base">
-              Model the upside first, then use the discuss route to turn the estimate into a targeted infrastructure review.
+              Model the upside first, then use the project brief to turn the estimate into a targeted infrastructure review.
             </p>
           </div>
 
@@ -248,7 +248,7 @@ function CostCalculator() {
           {/* CTA */}
             <div className="rounded-2xl border border-primary-800 bg-primary-900/20 p-5">
               <p className="text-sm leading-7 text-gray-300">
-                <span className="font-semibold">If the estimate feels real,</span> use the platform&apos;s discuss route and I&apos;ll turn it into a sharper savings plan with the right technical starting point.
+                <span className="font-semibold">If the estimate feels real,</span> send the cost brief and I&apos;ll turn it into a sharper savings plan with the right technical starting point.
               </p>
               <Link
                 to={createDiscussUrl('cloud-cost-optimization')}
