@@ -1,0 +1,207 @@
+export const responsePromise =
+  'I reply within 2 business days with either a fit verdict, a few clarifying questions, or a proposed first step.'
+
+export const timelineOptions = [
+  'As soon as possible',
+  'Within 2-4 weeks',
+  'Within 1-3 months',
+  '3+ months out',
+  'Still exploring',
+]
+
+export const budgetRangeOptions = [
+  'Under $10k',
+  '$10k-$25k',
+  '$25k-$50k',
+  '$50k-$100k',
+  '$100k+',
+  'Need guidance',
+]
+
+const generalBriefFields = [
+  'Problem / pressure point:',
+  'Current stack or environment:',
+  'What good looks like in the first phase:',
+  'Anything time-sensitive:',
+]
+
+const platformBriefFields = [
+  'Main platform bottleneck or delivery friction:',
+  'Current platform stack and team shape:',
+  'Where onboarding, release flow, or runtime consistency is breaking down:',
+  'What a better first phase should improve:',
+  'Anything time-sensitive:',
+]
+
+const costReviewBriefFields = [
+  'Approximate monthly cloud spend or scale:',
+  'Biggest suspected waste areas:',
+  'Constraints that limit cost changes:',
+  'Desired savings target or budget pressure:',
+  'Anything time-sensitive:',
+]
+
+const dataPlatformBriefFields = [
+  'Main data reliability or orchestration problem:',
+  'Current pipeline stack and data volume:',
+  'Where failures, lag, or visibility gaps show up:',
+  'What the first phase should improve:',
+  'Anything time-sensitive:',
+]
+
+const telcoToolingBriefFields = [
+  'Main telecom workflow or operations bottleneck:',
+  'Systems involved (SIM, OTA, provisioning, device operations, etc.):',
+  'Where manual work or operational risk is highest:',
+  'What the first phase should improve:',
+  'Anything time-sensitive:',
+]
+
+const sandboxBriefFields = [
+  'What visitors should be able to try:',
+  'What must stay protected or off-limits:',
+  'Where the experience should live:',
+  'What the sandbox needs to prove or convert into:',
+  'Anything time-sensitive:',
+]
+
+const workflowBriefFields = [
+  'What starts the workflow:',
+  'Systems, teams, or integrations involved:',
+  'Where approvals or human checkpoints are required:',
+  'What outcome the automation must protect:',
+  'Anything time-sensitive:',
+]
+
+const generalNextSteps = [
+  'I review the problem, the constraints, and whether the work is a strong fit.',
+  'You get a recommendation on the best starting shape: audit, design pass, implementation sprint, or staged engagement.',
+  'If the fit is real, we move into a concrete next step instead of an open-ended discovery loop.',
+]
+
+export const discussTopicPresets = {
+  general: {
+    optionLabel: 'General project fit',
+    eyebrow: 'Project fit',
+    title: 'Send the version of the problem that actually matters.',
+    intro:
+      'You do not need a polished brief. A short note with the bottleneck, the current environment, and the outcome you need is enough to make the next step useful.',
+    emailSubject: 'Project conversation',
+    emailIntro: 'I would like to discuss a delivery problem.',
+    emailPrompts: generalBriefFields,
+    responseSteps: generalNextSteps,
+  },
+  'platform-engineering': {
+    optionLabel: 'Platform engineering',
+    eyebrow: 'Platform fit',
+    title: 'Turn platform friction into a cleaner delivery system.',
+    intro:
+      'If the problem is release drag, inconsistent service foundations, or a weak internal developer experience, send the current constraints and what a better operating model needs to improve first.',
+    emailSubject: 'Platform engineering discussion',
+    emailIntro: 'I would like to discuss platform engineering or internal developer platform work.',
+    emailPrompts: platformBriefFields,
+    responseSteps: [
+      'We identify where platform friction is slowing teams down or creating operational inconsistency.',
+      'I recommend the highest-leverage starting shape: assessment, paved-road design, or hands-on implementation sprint.',
+      'You get a practical first phase tied to delivery speed, release safety, and team adoption.',
+    ],
+  },
+  'cloud-cost-optimization': {
+    optionLabel: 'Cloud cost optimization',
+    eyebrow: 'Cost review fit',
+    title: 'Turn the savings signal into a real efficiency plan.',
+    intro:
+      'If the model feels directionally right, send the rough spend profile, the budget pressure, and the areas most likely leaking money.',
+    emailSubject: 'Cloud cost review discussion',
+    emailIntro: 'I would like to discuss a cloud cost-efficiency review.',
+    emailPrompts: costReviewBriefFields,
+    responseSteps: [
+      'We identify where the biggest savings signal is likely real versus noisy.',
+      'I recommend the fastest high-leverage review scope and where execution support matters most.',
+      'You get a concrete starting plan instead of a generic cost-optimization checklist.',
+    ],
+  },
+  'data-platforms': {
+    optionLabel: 'Data platforms and pipelines',
+    eyebrow: 'Data platform fit',
+    title: 'Turn fragmented data work into reliable operating pipelines.',
+    intro:
+      'If the problem is brittle orchestration, slow recovery, or too many one-off data jobs, send the stack, the data movement pattern, and what reliability needs to improve first.',
+    emailSubject: 'Data platform discussion',
+    emailIntro: 'I would like to discuss data platform or pipeline engineering work.',
+    emailPrompts: dataPlatformBriefFields,
+    responseSteps: [
+      'We identify where orchestration, visibility, or runtime reliability is breaking down.',
+      'I recommend the right starting shape: architecture pass, pipeline stabilization sprint, or staged platform buildout.',
+      'You get a first phase that improves reliability, operating clarity, and handoff quality.',
+    ],
+  },
+  'telco-tooling': {
+    optionLabel: 'Telco tooling',
+    eyebrow: 'Telco tooling fit',
+    title: 'Turn telecom operations into tooling that can scale cleanly.',
+    intro:
+      'If the problem sits around SIM lifecycle, OTA workflows, device operations, or operator tooling, send the stack, the manual bottlenecks, and where reliability matters most.',
+    emailSubject: 'Telco tooling discussion',
+    emailIntro: 'I would like to discuss telecom tooling or operator workflow work.',
+    emailPrompts: telcoToolingBriefFields,
+    responseSteps: [
+      'We identify where telecom workflows are too manual, fragile, or hard to scale.',
+      'I recommend the best first phase for process cleanup, tooling redesign, or implementation support.',
+      'You get a concrete operating path that improves reliability and reduces manual overhead.',
+    ],
+  },
+  'live-terminal-sandbox': {
+    optionLabel: 'Live sandbox',
+    eyebrow: 'Sandbox fit',
+    title: 'Turn the live sandbox pattern into a real product surface.',
+    intro:
+      'If the live shell is the proof point you want, send the visitor action, the guardrails that must hold, and what the experience needs to convert into.',
+    emailSubject: 'Sandbox-led platform discussion',
+    emailIntro: 'I would like to discuss a live sandbox or ephemeral demo environment.',
+    emailPrompts: sandboxBriefFields,
+    responseSteps: [
+      'We clarify the allowed user actions, risk boundaries, and runtime controls.',
+      'I recommend the right launch flow and implementation shape for the sandbox experience.',
+      'You get a concrete next step for prototype, hardening, or production rollout.',
+    ],
+  },
+  'workflow-composer': {
+    optionLabel: 'Workflow automation',
+    eyebrow: 'Workflow fit',
+    title: 'Turn the workflow pattern into an implementation plan.',
+    intro:
+      'If the workflow demo looks close to the operating problem, send the trigger, the systems involved, and where human approvals or fallback steps must stay in the loop.',
+    emailSubject: 'Workflow automation discussion',
+    emailIntro: 'I would like to discuss a workflow automation or orchestration build.',
+    emailPrompts: workflowBriefFields,
+    responseSteps: [
+      'We map the operating sequence, risk points, and where human intervention still matters.',
+      'I recommend the right starting shape: workflow design, prototype, or constrained production build.',
+      'You get a clear delivery path for orchestration, guardrails, and rollout.',
+    ],
+  },
+}
+
+export const discussTopicOptions = [
+  { value: 'general', label: discussTopicPresets.general.optionLabel },
+  { value: 'platform-engineering', label: discussTopicPresets['platform-engineering'].optionLabel },
+  { value: 'cloud-cost-optimization', label: discussTopicPresets['cloud-cost-optimization'].optionLabel },
+  { value: 'data-platforms', label: discussTopicPresets['data-platforms'].optionLabel },
+  { value: 'telco-tooling', label: discussTopicPresets['telco-tooling'].optionLabel },
+  { value: 'live-terminal-sandbox', label: discussTopicPresets['live-terminal-sandbox'].optionLabel },
+  { value: 'workflow-composer', label: discussTopicPresets['workflow-composer'].optionLabel },
+]
+
+const topicAliases = {
+  'aws-cost-optimization': 'cloud-cost-optimization',
+}
+
+export function normalizeDiscussTopic(topic = 'general') {
+  const normalizedTopic = topicAliases[topic] || topic
+  return discussTopicPresets[normalizedTopic] ? normalizedTopic : 'general'
+}
+
+export function getDiscussTopicPreset(topic = 'general') {
+  return discussTopicPresets[normalizeDiscussTopic(topic)]
+}

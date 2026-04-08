@@ -30,7 +30,7 @@ function ServiceDetailPage() {
       ? { label: 'Open the savings model', to: COST_REVIEW_ROUTE }
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
-        : { label: 'Open the project fit page', to: discussUrl }
+        : { label: 'Start the project brief', to: discussUrl }
   const secondaryCta = isSandboxService || isCostService || isWorkflowService
     ? {
         label: isWorkflowService

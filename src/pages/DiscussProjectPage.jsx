@@ -1,120 +1,40 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { FaArrowRight, FaEnvelope, FaLinkedin } from 'react-icons/fa'
-import { LINKEDIN_URL, createDiscussEmailUrl } from '../constants/links'
+import { FaArrowRight, FaCheckCircle, FaEnvelope, FaLinkedin } from 'react-icons/fa'
+import {
+  LINKEDIN_URL,
+  createDiscussEmailUrl,
+  createLeadSubmissionEmailUrl,
+} from '../constants/links'
 import {
   COST_REVIEW_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
+  createServiceRoute,
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
+import {
+  budgetRangeOptions,
+  discussTopicOptions,
+  getDiscussTopicPreset,
+  normalizeDiscussTopic,
+  responsePromise,
+  timelineOptions,
+} from '../data/discussTopics'
 
-const generalBriefFields = [
-  'Problem / pressure point:',
-  'Current stack or environment:',
-  'What good looks like in the first phase:',
-  'Anything time-sensitive:',
-]
-
-const sandboxBriefFields = [
-  'What visitors should be able to try:',
-  'What must stay protected or off-limits:',
-  'Where the experience should live:',
-  'What the sandbox needs to prove or convert into:',
-  'Anything time-sensitive:',
-]
-
-const costReviewBriefFields = [
-  'Approximate monthly cloud spend or scale:',
-  'Biggest suspected waste areas:',
-  'Constraints that limit cost changes:',
-  'Desired savings target or budget pressure:',
-  'Anything time-sensitive:',
-]
-
-const workflowBriefFields = [
-  'What starts the workflow:',
-  'Systems, teams, or integrations involved:',
-  'Where approvals or human checkpoints are required:',
-  'What outcome the automation must protect:',
-  'Anything time-sensitive:',
-]
-
-const generalNextSteps = [
-  'I review the problem, the constraints, and whether the work is a strong fit.',
-  'You get a recommendation on the best starting shape: audit, design pass, implementation sprint, or staged engagement.',
-  'If the fit is real, we move into a concrete next step instead of an open-ended discovery loop.',
-]
-
-const costReviewPreset = {
-  eyebrow: 'Cost review fit',
-  title: 'Turn the savings signal into a real efficiency plan.',
-  intro:
-    'If the model feels directionally right, send the rough spend profile, the budget pressure, and the areas most likely leaking money.',
-  emailSubject: 'Cloud cost review discussion',
-  emailIntro: 'I would like to discuss a cloud cost-efficiency review.',
-  emailPrompts: costReviewBriefFields,
-  primaryLabel: 'Email the cost brief',
-  secondaryLabel: 'Reopen the savings model',
-  secondaryTo: COST_REVIEW_ROUTE,
-  responseSteps: [
-    'We identify where the biggest savings signal is likely real versus noisy.',
-    'I recommend the fastest high-leverage review scope and where execution support matters most.',
-    'You get a concrete starting plan instead of a generic cost-optimization checklist.',
-  ],
-}
-
-const topicPresets = {
-  general: {
-    eyebrow: 'Project fit',
-    title: 'Send the version of the problem that actually matters.',
-    intro:
-      'You do not need a polished brief. A short note with the bottleneck, the current environment, and the outcome you need is enough to make the next step useful.',
-    emailSubject: 'Project conversation',
-    emailIntro: 'I would like to discuss a delivery problem.',
-    emailPrompts: generalBriefFields,
-    primaryLabel: 'Email the project brief',
-    secondaryLabel: 'Browse service paths',
-    secondaryTo: SERVICES_DIRECTORY_ROUTE,
-    responseSteps: generalNextSteps,
-  },
-  'live-terminal-sandbox': {
-    eyebrow: 'Sandbox fit',
-    title: 'Turn the live sandbox pattern into a real product surface.',
-    intro:
-      'If the live shell is the proof point you want, send the visitor action, the guardrails that must hold, and what the experience needs to convert into.',
-    emailSubject: 'Sandbox-led platform discussion',
-    emailIntro: 'I would like to discuss a live sandbox or ephemeral demo environment.',
-    emailPrompts: sandboxBriefFields,
-    primaryLabel: 'Email the sandbox brief',
-    secondaryLabel: 'Reopen the live sandbox',
-    secondaryTo: LIVE_SANDBOX_ROUTE,
-    responseSteps: [
-      'We clarify the allowed user actions, risk boundaries, and runtime controls.',
-      'I recommend the right launch flow and implementation shape for the sandbox experience.',
-      'You get a concrete next step for prototype, hardening, or production rollout.',
-    ],
-  },
-  'cloud-cost-optimization': costReviewPreset,
-  'aws-cost-optimization': costReviewPreset,
-  'workflow-composer': {
-    eyebrow: 'Workflow fit',
-    title: 'Turn the workflow pattern into an implementation plan.',
-    intro:
-      'If the workflow demo looks close to the operating problem, send the trigger, the systems involved, and where human approvals or fallback steps must stay in the loop.',
-    emailSubject: 'Workflow automation discussion',
-    emailIntro: 'I would like to discuss a workflow automation or orchestration build.',
-    emailPrompts: workflowBriefFields,
-    primaryLabel: 'Email the workflow brief',
-    secondaryLabel: 'Reopen the workflow demo',
-    secondaryTo: WORKFLOW_COMPOSER_ROUTE,
-    responseSteps: [
-      'We map the operating sequence, risk points, and where human intervention still matters.',
-      'I recommend the right starting shape: workflow design, prototype, or constrained production build.',
-      'You get a clear delivery path for orchestration, guardrails, and rollout.',
-    ],
-  },
+const defaultFormState = {
+  name: '',
+  workEmail: '',
+  company: '',
+  role: '',
+  timeline: '',
+  budgetRange: '',
+  problem: '',
+  currentEnvironment: '',
+  desiredOutcome: '',
+  timeSensitivity: '',
+  website: '',
 }
 
 const whatToBring = [
@@ -123,25 +43,185 @@ const whatToBring = [
   'The outcome you need in the first phase, not just the long-term ambition',
 ]
 
+const topicActions = {
+  general: {
+    label: 'Browse service paths',
+    to: SERVICES_DIRECTORY_ROUTE,
+  },
+  'platform-engineering': {
+    label: 'Review platform engineering',
+    to: createServiceRoute('platform-engineering'),
+  },
+  'cloud-cost-optimization': {
+    label: 'Reopen the savings model',
+    to: COST_REVIEW_ROUTE,
+  },
+  'data-platforms': {
+    label: 'Review data platform service',
+    to: createServiceRoute('data-platforms'),
+  },
+  'telco-tooling': {
+    label: 'Review telco tooling',
+    to: createServiceRoute('telco-tooling'),
+  },
+  'live-terminal-sandbox': {
+    label: 'Reopen the live sandbox',
+    to: LIVE_SANDBOX_ROUTE,
+  },
+  'workflow-composer': {
+    label: 'Reopen the workflow demo',
+    to: WORKFLOW_COMPOSER_ROUTE,
+  },
+}
+
 function DiscussProjectPage() {
-  const [searchParams] = useSearchParams()
-  const topic = searchParams.get('topic') || 'general'
-  const preset = topicPresets[topic] || topicPresets.general
-  const relatedService = getServiceBySlug(topic)
-  const emailHref = createDiscussEmailUrl({
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedTopic = normalizeDiscussTopic(searchParams.get('topic') || 'general')
+  const preset = getDiscussTopicPreset(selectedTopic)
+  const relatedService = getServiceBySlug(selectedTopic)
+  const [formState, setFormState] = useState(defaultFormState)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [submitState, setSubmitState] = useState({
+    type: 'idle',
+    message: '',
+    fallbackUrl: '',
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const secondaryAction = topicActions[selectedTopic] || topicActions.general
+  const fitSignals = relatedService?.bestFor || whatToBring
+  const nextStepSignals = preset.responseSteps
+  const directEmailHref = createDiscussEmailUrl({
     subject: preset.emailSubject,
     intro: preset.emailIntro,
     prompts: preset.emailPrompts,
   })
-  const fitSignals = relatedService?.bestFor || whatToBring
-  const nextStepSignals = preset.responseSteps || generalNextSteps
+
+  const buildFallbackUrl = () =>
+    createLeadSubmissionEmailUrl({
+      subject: preset.emailSubject,
+      intro: preset.emailIntro,
+      topicLabel: preset.optionLabel,
+      name: formState.name,
+      workEmail: formState.workEmail,
+      company: formState.company,
+      role: formState.role,
+      timeline: formState.timeline,
+      budgetRange: formState.budgetRange,
+      problem: formState.problem,
+      currentEnvironment: formState.currentEnvironment,
+      desiredOutcome: formState.desiredOutcome,
+      timeSensitivity: formState.timeSensitivity,
+      pageUrl: typeof window !== 'undefined' ? window.location.href : '',
+    })
+
+  const handleTopicChange = (event) => {
+    const nextTopic = normalizeDiscussTopic(event.target.value)
+    const nextSearchParams = new URLSearchParams(searchParams)
+
+    if (nextTopic === 'general') {
+      nextSearchParams.delete('topic')
+    } else {
+      nextSearchParams.set('topic', nextTopic)
+    }
+
+    setSearchParams(nextSearchParams)
+    setSubmitState({
+      type: 'idle',
+      message: '',
+      fallbackUrl: '',
+    })
+  }
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target
+
+    setFormState((current) => ({
+      ...current,
+      [name]: value,
+    }))
+
+    if (fieldErrors[name]) {
+      setFieldErrors((current) => ({
+        ...current,
+        [name]: '',
+      }))
+    }
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+
+    setIsSubmitting(true)
+    setSubmitState({
+      type: 'idle',
+      message: '',
+      fallbackUrl: '',
+    })
+    setFieldErrors({})
+
+    const payload = {
+      ...formState,
+      topic: selectedTopic,
+      pageUrl: window.location.href,
+    }
+
+    try {
+      const response = await fetch('/api/discuss', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        const fallbackUrl = data.mailtoUrl || buildFallbackUrl()
+
+        setFieldErrors(data.fieldErrors || {})
+        setSubmitState({
+          type: 'error',
+          message: data.error || 'The structured brief could not be delivered right now.',
+          fallbackUrl,
+        })
+        return
+      }
+
+      if (data.mode === 'mailto') {
+        setSubmitState({
+          type: 'fallback',
+          message: data.message || 'Your prefilled email fallback is ready.',
+          fallbackUrl: data.mailtoUrl,
+        })
+        window.location.href = data.mailtoUrl
+        return
+      }
+
+      setFormState(defaultFormState)
+      setSubmitState({
+        type: 'success',
+        message: data.message || responsePromise,
+        fallbackUrl: '',
+      })
+    } catch {
+      setSubmitState({
+        type: 'error',
+        message: 'The structured brief could not be delivered right now.',
+        fallbackUrl: buildFallbackUrl(),
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <>
       <section className="page-hero">
         <div className="mx-auto max-w-7xl">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
+            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.02fr)_minmax(22rem,0.98fr)] xl:items-start">
               <div className="relative z-10">
                 <span className="section-chip">{preset.eyebrow}</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
@@ -150,14 +230,21 @@ function DiscussProjectPage() {
                 <p className="section-copy max-w-3xl text-base sm:text-lg">{preset.intro}</p>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                  <a href={emailHref} className="primary-button gap-2">
-                    <FaEnvelope className="text-xs" />
-                    {preset.primaryLabel}
+                  <a href="#project-brief-form" className="primary-button gap-2">
+                    Complete the project brief
+                    <FaArrowRight className="text-xs" />
                   </a>
-                  <Link to={preset.secondaryTo} className="secondary-button gap-2">
-                    {preset.secondaryLabel}
+                  <Link to={secondaryAction.to} className="secondary-button gap-2">
+                    {secondaryAction.label}
                     <FaArrowRight className="text-xs" />
                   </Link>
+                  <a
+                    href={directEmailHref}
+                    className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3"
+                  >
+                    <FaEnvelope className="mr-2 text-xs" />
+                    Prefer direct email
+                  </a>
                   <a
                     href={LINKEDIN_URL}
                     target="_blank"
@@ -168,21 +255,260 @@ function DiscussProjectPage() {
                     Connect on LinkedIn
                   </a>
                 </div>
+
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  <div className="metric-card p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Response promise</p>
+                    <p className="mt-3 text-sm leading-7 text-gray-300">{responsePromise}</p>
+                  </div>
+                  <div className="metric-card p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Best use of this page</p>
+                    <p className="mt-3 text-sm leading-7 text-gray-300">
+                      Send enough context once so the reply can move straight into fit, scope, and the right first engagement.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div className="relative z-10 metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Best first email</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Send enough context to get a useful answer.</h2>
+              <div id="project-brief-form" className="relative z-10 metric-card scroll-mt-28 p-6 sm:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Structured brief</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">Send the project context once.</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  A short note is enough. These prompts make it easier to reply with fit, scope, and the right first engagement instead of a generic discovery reply.
+                  This form delivers the brief directly when email delivery is configured and falls back to a prefilled email when needed.
                 </p>
-                <div className="mt-6 space-y-3">
-                  {preset.emailPrompts.map((item) => (
-                    <div key={item} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-gray-300">
-                      {item}
+
+                <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    name="website"
+                    value={formState.website}
+                    onChange={handleInputChange}
+                    tabIndex="-1"
+                    autoComplete="off"
+                    className="hidden"
+                  />
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className="form-label" htmlFor="topic">
+                        Service focus
+                      </label>
+                      <select
+                        id="topic"
+                        name="topic"
+                        value={selectedTopic}
+                        onChange={handleTopicChange}
+                        className="form-select"
+                      >
+                        {discussTopicOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-                  ))}
-                </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="name">
+                        Name
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formState.name}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="Your name"
+                      />
+                      {fieldErrors.name ? <p className="mt-2 text-sm text-red-300">{fieldErrors.name}</p> : null}
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="workEmail">
+                        Work email
+                      </label>
+                      <input
+                        id="workEmail"
+                        name="workEmail"
+                        type="email"
+                        value={formState.workEmail}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="name@company.com"
+                      />
+                      {fieldErrors.workEmail ? <p className="mt-2 text-sm text-red-300">{fieldErrors.workEmail}</p> : null}
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="company">
+                        Company
+                      </label>
+                      <input
+                        id="company"
+                        name="company"
+                        type="text"
+                        value={formState.company}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="Company name"
+                      />
+                      {fieldErrors.company ? <p className="mt-2 text-sm text-red-300">{fieldErrors.company}</p> : null}
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="role">
+                        Role
+                      </label>
+                      <input
+                        id="role"
+                        name="role"
+                        type="text"
+                        value={formState.role}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="CTO, Head of Platform, Product Lead..."
+                      />
+                      {fieldErrors.role ? <p className="mt-2 text-sm text-red-300">{fieldErrors.role}</p> : null}
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="timeline">
+                        Timeline
+                      </label>
+                      <select
+                        id="timeline"
+                        name="timeline"
+                        value={formState.timeline}
+                        onChange={handleInputChange}
+                        className="form-select"
+                      >
+                        <option value="">Select a timeline</option>
+                        {timelineOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {fieldErrors.timeline ? <p className="mt-2 text-sm text-red-300">{fieldErrors.timeline}</p> : null}
+                    </div>
+
+                    <div>
+                      <label className="form-label" htmlFor="budgetRange">
+                        Budget range
+                      </label>
+                      <select
+                        id="budgetRange"
+                        name="budgetRange"
+                        value={formState.budgetRange}
+                        onChange={handleInputChange}
+                        className="form-select"
+                      >
+                        <option value="">Select a range</option>
+                        {budgetRangeOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {fieldErrors.budgetRange ? <p className="mt-2 text-sm text-red-300">{fieldErrors.budgetRange}</p> : null}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="form-label" htmlFor="problem">
+                      Problem / pressure point
+                    </label>
+                    <textarea
+                      id="problem"
+                      name="problem"
+                      value={formState.problem}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="What is causing the drag, spend, or operational pain right now?"
+                    />
+                    {fieldErrors.problem ? <p className="mt-2 text-sm text-red-300">{fieldErrors.problem}</p> : null}
+                  </div>
+
+                  <div>
+                    <label className="form-label" htmlFor="currentEnvironment">
+                      Current stack or environment
+                    </label>
+                    <textarea
+                      id="currentEnvironment"
+                      name="currentEnvironment"
+                      value={formState.currentEnvironment}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="Share the stack, operating model, or environment that matters most here."
+                    />
+                    {fieldErrors.currentEnvironment ? <p className="mt-2 text-sm text-red-300">{fieldErrors.currentEnvironment}</p> : null}
+                  </div>
+
+                  <div>
+                    <label className="form-label" htmlFor="desiredOutcome">
+                      Desired outcome for the first phase
+                    </label>
+                    <textarea
+                      id="desiredOutcome"
+                      name="desiredOutcome"
+                      value={formState.desiredOutcome}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="What should be clearer, safer, faster, or cheaper after the first phase?"
+                    />
+                    {fieldErrors.desiredOutcome ? <p className="mt-2 text-sm text-red-300">{fieldErrors.desiredOutcome}</p> : null}
+                  </div>
+
+                  <div>
+                    <label className="form-label" htmlFor="timeSensitivity">
+                      Anything time-sensitive
+                    </label>
+                    <textarea
+                      id="timeSensitivity"
+                      name="timeSensitivity"
+                      value={formState.timeSensitivity}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="Deadlines, board pressure, launch timing, staffing constraints..."
+                    />
+                  </div>
+
+                  {submitState.type !== 'idle' ? (
+                    <div
+                      className={`rounded-[1.35rem] border px-4 py-4 text-sm leading-7 ${
+                        submitState.type === 'success'
+                          ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-100'
+                          : submitState.type === 'fallback'
+                            ? 'border-amber-500/20 bg-amber-500/10 text-amber-100'
+                            : 'border-rose-500/20 bg-rose-500/10 text-rose-100'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {submitState.type === 'success' ? <FaCheckCircle className="mt-1 text-xs" /> : <FaEnvelope className="mt-1 text-xs" />}
+                        <div className="space-y-3">
+                          <p>{submitState.message}</p>
+                          {submitState.fallbackUrl ? (
+                            <a href={submitState.fallbackUrl} className="soft-link inline-flex items-center gap-2 text-current">
+                              Open the prefilled email fallback
+                              <FaArrowRight className="text-xs" />
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                    <button type="submit" disabled={isSubmitting} className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70">
+                      {isSubmitting ? 'Sending brief...' : 'Send project brief'}
+                    </button>
+                    <a href={buildFallbackUrl()} className="secondary-button gap-2">
+                      Use email fallback
+                    </a>
+                    <span className="text-sm text-gray-400">{responsePromise}</span>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -239,12 +565,11 @@ function DiscussProjectPage() {
               </ol>
 
               <div className="rounded-[1.35rem] border border-primary-500/20 bg-primary-500/10 px-4 py-4 text-sm leading-7 text-primary-100">
-                The goal is a decision and a first delivery shape, not a vague "let's keep in touch" loop.
+                The goal is a decision and a first delivery shape, not a vague "let&apos;s keep in touch" loop.
               </div>
             </div>
           </div>
         </section>
-
       </main>
     </>
   )

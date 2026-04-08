@@ -1,25 +1,33 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
+import { createDiscussUrl } from '../constants/routes'
 
 function PortfolioProjects() {
   const projects = [
     {
-      title: "Semtech OTA Platform",
-      description: "Internal developer platform for over-the-air updates across IoT devices.",
-      tech: ["Kubernetes", "AWS", "Terraform", "Go"],
-      metrics: "Reduced deployment time by 70%"
+      title: 'Semtech OTA Platform',
+      description: 'Internal developer platform for over-the-air updates across IoT devices.',
+      tech: ['Kubernetes', 'AWS', 'Terraform', 'Go'],
+      metrics: 'Reduced deployment time by 70%',
+      topic: 'platform-engineering',
+      ctaLabel: 'Discuss similar platform work',
     },
     {
-      title: "Data Insight Tools",
-      description: "Real-time data pipeline and visualization platform for telco metrics.",
-      tech: ["Python", "Apache Airflow", "PostgreSQL", "React"],
-      metrics: "Processed 2TB+ daily data"
+      title: 'Data Insight Tools',
+      description: 'Real-time data pipeline and visualization platform for telco metrics.',
+      tech: ['Python', 'Apache Airflow', 'PostgreSQL', 'React'],
+      metrics: 'Processed 2TB+ daily data',
+      topic: 'data-platforms',
+      ctaLabel: 'Discuss similar data work',
     },
     {
-      title: "SIM Tooling Platform",
-      description: "Management platform for SIM card provisioning and lifecycle.",
-      tech: ["Docker", "Node.js", "MongoDB", "Redis"],
-      metrics: "Managed 500k+ SIM cards"
-    }
+      title: 'SIM Tooling Platform',
+      description: 'Management platform for SIM card provisioning and lifecycle.',
+      tech: ['Docker', 'Node.js', 'MongoDB', 'Redis'],
+      metrics: 'Managed 500k+ SIM cards',
+      topic: 'telco-tooling',
+      ctaLabel: 'Discuss similar telecom tooling',
+    },
   ]
 
   return (
@@ -62,6 +70,12 @@ function PortfolioProjects() {
 
                 <div className="mt-6 border-t border-white/10 pt-4 text-sm text-primary-200">
                   <span className="font-semibold text-white">Impact:</span> {project.metrics}
+                </div>
+
+                <div className="mt-5">
+                  <Link to={createDiscussUrl(project.topic)} className="secondary-button !rounded-xl !px-4 !py-2.5">
+                    {project.ctaLabel}
+                  </Link>
                 </div>
               </article>
             ))}

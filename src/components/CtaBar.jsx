@@ -4,10 +4,14 @@ import { FaArrowRight, FaTerminal } from 'react-icons/fa'
 import {
   GITHUB_URL,
   LINKEDIN_URL,
-  RESUME_REQUEST_URL,
-  createDiscussEmailUrl,
 } from '../constants/links'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
+import {
+  COST_REVIEW_ROUTE,
+  LIVE_SANDBOX_ROUTE,
+  SERVICES_DIRECTORY_ROUTE,
+  WORKFLOW_COMPOSER_ROUTE,
+  createDiscussUrl,
+} from '../constants/routes'
 
 function CtaBar() {
   return (
@@ -27,13 +31,13 @@ function CtaBar() {
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Best handoff</p>
               <h4 className="mt-4 text-2xl font-semibold text-white">Move from proof into a scoped conversation.</h4>
               <p className="mt-4 text-sm leading-8 text-gray-400">
-                Use the discuss flow to package the pressure point, what has already been tried, and what a useful first engagement should actually achieve.
+                Use the structured brief to package the pressure point, the current environment, and the first outcome you need so the reply can move straight into fit and scope.
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row xl:flex-col">
                 <Link to={createDiscussUrl()} className="primary-button gap-2">
                   <FaArrowRight />
-                  Start the project brief
+                  Complete the project brief
                 </Link>
                 <Link to={LIVE_SANDBOX_ROUTE} className="secondary-button gap-2">
                   <FaTerminal />
@@ -62,14 +66,14 @@ function CtaBar() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
-          <a href={createDiscussEmailUrl()} className="soft-link">
-            Email the brief
-          </a>
+          <Link to={createDiscussUrl()} className="soft-link">
+            Structured brief
+          </Link>
+          <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link">
+            Browse services
+          </Link>
           <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
             Code profile
-          </a>
-          <a href={RESUME_REQUEST_URL} className="soft-link">
-            Request resume
           </a>
           <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
             Professional profile
