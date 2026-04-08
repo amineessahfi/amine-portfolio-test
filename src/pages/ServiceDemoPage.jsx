@@ -67,9 +67,9 @@ function ServiceDemoPage() {
         }
       : {
           eyebrow: 'Workflow proof',
-          title: 'Shape the flow, then open the restricted live studio.',
+          title: 'Shape the flow, then use the restricted live studio in-page.',
           intro:
-            'Use the preview builder to pressure-test triggers, branches, and approvals before stepping into the real constrained n8n studio.',
+            'Use the preview builder to pressure-test triggers, branches, and approvals before loading the real constrained n8n studio inside the website.',
           notes: [
             'See whether the orchestration pattern is clear enough before you touch the live editor.',
             'Use the restricted studio when you want to validate the real surface under safe limits.',
