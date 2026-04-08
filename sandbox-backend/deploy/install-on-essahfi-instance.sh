@@ -9,7 +9,7 @@ REMOTE_DIR="/opt/essahfi-terminal-sandbox"
 ssh "$REMOTE_HOST" "sudo mkdir -p '$REMOTE_DIR' && sudo chown ubuntu:ubuntu '$REMOTE_DIR'"
 rsync -az --delete "$BACKEND_ROOT/" "$REMOTE_HOST:$REMOTE_DIR/"
 
-ssh "$REMOTE_HOST" "
+ssh "$REMOTE_HOST" <<EOF
   set -euo pipefail
   cd '$REMOTE_DIR'
   python3 -m venv .venv
@@ -22,6 +22,18 @@ ssh "$REMOTE_HOST" "
 from pathlib import Path
 import secrets
 from urllib.parse import urlparse
+
+DEFAULT_ALLOWED_ORIGIN_PATTERNS = [
+    'https://amine-portfolio-test.vercel.app',
+    'https://amine-portfolio-test-8ggn.vercel.app',
+    'https://amine-portfolio-test-cfi3.vercel.app',
+    'https://amineessahfi.xyz',
+    'https://*.amineessahfi.xyz',
+    'https://aessahfi.xyz',
+    'https://www.aessahfi.xyz',
+    'http://localhost:*',
+    'http://127.0.0.1:*',
+]
 
 env_file = Path('/etc/essahfi-terminal-sandbox.env')
 env_values = {}
@@ -47,8 +59,15 @@ public_origin = (
 env_values.setdefault('WORKFLOW_STUDIO_ENABLED', 'true')
 env_values.setdefault('WORKFLOW_STUDIO_PATH', '/workflow-studio/')
 env_values.setdefault('WORKFLOW_STUDIO_URL', f'{public_origin}/workflow-studio/')
+env_values.setdefault('ALLOWED_ORIGIN_PATTERNS', ','.join(DEFAULT_ALLOWED_ORIGIN_PATTERNS))
 env_values.setdefault('N8N_DEMO_BASIC_AUTH_USER', 'studio')
 env_values.setdefault('N8N_DEMO_BASIC_AUTH_PASSWORD', secrets.token_urlsafe(24))
+allowed_origin_patterns = [
+    pattern.strip()
+    for pattern in env_values['ALLOWED_ORIGIN_PATTERNS'].split(',')
+    if pattern.strip()
+]
+env_values.pop('N8N_CONTENT_SECURITY_POLICY', None)
 
 env_file.write_text('\n'.join(f'{key}={value}' for key, value in env_values.items()) + '\n')
 env_file.chmod(0o600)
@@ -81,7 +100,15 @@ basic_credentials = '{}:{}'.format(
     env_values.get('N8N_DEMO_BASIC_AUTH_PASSWORD', ''),
 )
 auth_header = b64encode(basic_credentials.encode('utf-8')).decode('ascii')
-workflow_studio_block = f'''    redir /workflow-studio /workflow-studio/ 308\n    handle_path /workflow-studio/* {{\n        forward_auth 127.0.0.1:3020 {{\n            uri /auth/studio-access\n        }}\n        reverse_proxy 127.0.0.1:5679 {{\n            header_up Authorization \"Basic {auth_header}\"\n            header_up Host {{host}}\n            header_up X-Real-IP {{remote_host}}\n            header_up X-Forwarded-For {{remote_host}}\n            header_up X-Forwarded-Host {{host}}\n            header_up X-Forwarded-Proto {{scheme}}\n        }}\n    }}\n\n'''
+allowed_origin_patterns = [
+    pattern.strip()
+    for pattern in env_values.get('ALLOWED_ORIGIN_PATTERNS', '').split(',')
+    if pattern.strip()
+]
+frame_ancestors = "'self'"
+if allowed_origin_patterns:
+    frame_ancestors = '%s %s' % (frame_ancestors, ' '.join(allowed_origin_patterns))
+workflow_studio_block = '''    redir /workflow-studio /workflow-studio/ 308\n    handle_path /workflow-studio/* {\n        forward_auth 127.0.0.1:3020 {\n            uri /auth/studio-access\n        }\n        reverse_proxy 127.0.0.1:5679 {\n            header_up Authorization "Basic %s"\n            header_up Host {host}\n            header_up X-Real-IP {remote_host}\n            header_up X-Forwarded-For {remote_host}\n            header_up X-Forwarded-Host {host}\n            header_up X-Forwarded-Proto {scheme}\n            header_down -X-Frame-Options\n            header_down Content-Security-Policy "frame-ancestors %s"\n        }\n    }\n\n''' % (auth_header, frame_ancestors)
 
 if 'handle_path /sandbox-api/*' not in content:
     marker = '    reverse_proxy 127.0.0.1:5678 {\n'
@@ -107,6 +134,6 @@ PY
   sudo systemctl enable terminal-sandbox.service
   sudo systemctl restart terminal-sandbox.service
   sudo systemctl reload caddy
-"
+EOF
 
 echo "Sandbox backend deployed to $REMOTE_HOST"
