@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { EMAIL_URL, GITHUB_URL, LINKEDIN_URL } from '../constants/links'
+import { LIVE_SANDBOX_ARCHITECTURE_ROUTE } from '../constants/routes'
 
 function SiteFooter() {
   return (
@@ -25,8 +26,8 @@ function SiteFooter() {
               <a href={EMAIL_URL} className="soft-link">
                 Email
               </a>
-              <Link to="/architecture" className="soft-link">
-                Architecture
+              <Link to={LIVE_SANDBOX_ARCHITECTURE_ROUTE} className="soft-link">
+                Sandbox architecture
               </Link>
             </div>
           </div>

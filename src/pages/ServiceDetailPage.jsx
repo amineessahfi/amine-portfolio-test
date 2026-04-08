@@ -25,11 +25,11 @@ function ServiceDetailPage() {
   const isWorkflowService = service.slug === 'workflow-composer'
   const discussUrl = createDiscussUrl(service.slug)
   const primaryCta = isSandboxService
-    ? { label: 'Open the dedicated live demo', to: LIVE_SANDBOX_ROUTE }
+    ? { label: 'Open the live sandbox', to: LIVE_SANDBOX_ROUTE }
     : isCostService
-      ? { label: 'Open the dedicated review demo', to: COST_REVIEW_ROUTE }
+      ? { label: 'Open the savings model', to: COST_REVIEW_ROUTE }
       : isWorkflowService
-        ? { label: 'Open the dedicated workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
+        ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
         : { label: 'Open the project fit page', to: discussUrl }
   const secondaryCta = isSandboxService || isCostService || isWorkflowService
     ? {
@@ -37,58 +37,70 @@ function ServiceDetailPage() {
           ? 'Discuss the workflow build'
           : isCostService
             ? 'Plan the cost review'
-            : 'Discuss this demo flow',
+            : 'Discuss the sandbox build',
         to: discussUrl,
       }
     : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
   const demoPanel = isSandboxService
     ? {
-        eyebrow: 'Dedicated demo page',
-        title: 'The live shell now sits on its own route',
+        eyebrow: 'Hands-on proof',
+        title: 'Open the live sandbox when you want to judge the product moment itself',
         description:
-          'The service page explains fit and delivery. The terminal, access panel, and guardrails live on a separate page so the demo can stay focused.',
+          'The demo lets you test launch clarity, access, guardrails, and the short-lived runtime in one pass before moving into scope.',
         highlights: [
-          'Launch directly into the browser shell from a dedicated route.',
-          'Keep sign-in, access policy, and runtime controls together in one place.',
-          'Move back into architecture or discussion only after the terminal has made its point.',
+          'Five-minute Linux session with bounded runtime controls.',
+          'Optional sign-in when you want identified repeat access.',
+          'Published sandbox architecture for teams that need to understand the system behind the experience.',
         ],
         primaryLabel: 'Open the live demo',
         primaryTo: LIVE_SANDBOX_ROUTE,
-        secondaryLabel: 'View architecture',
+        secondaryLabel: 'View sandbox architecture',
         secondaryTo: ARCHITECTURE_STACK_ROUTE,
+        supportingEyebrow: 'What the demo proves',
+        supportingTitle: 'It should feel trustworthy before it feels clever.',
+        supportingText:
+          'The value is in the combination of launch flow, runtime guardrails, and a clear explanation of how the system stays bounded.',
       }
     : isCostService
       ? {
-          eyebrow: 'Dedicated demo page',
-          title: 'The savings model now lives on its own route',
+          eyebrow: 'Interactive proof',
+          title: 'Open the savings model when you need a fast signal on efficiency',
           description:
-            'The service page stays about delivery scope and savings work itself. The scenario model now has its own page so it can be used without stacked service sections around it.',
+            'Use the calculator to pressure-test spend, likely savings, and the business case before turning the work into a focused cost review.',
           highlights: [
-            'Adjust the scenario inputs without the rest of the page competing for space.',
-            'Keep the estimate-to-discussion path sharper and easier to follow.',
-            'Return here when you want delivery context instead of just the model.',
+            'Adjust the scenario inputs against your current spend pressure.',
+            'See whether the likely savings are big enough to justify a real review.',
+            'Move into a cost conversation only after the estimate feels directionally right.',
           ],
           primaryLabel: 'Open the review demo',
           primaryTo: COST_REVIEW_ROUTE,
           secondaryLabel: 'Plan the cost review',
           secondaryTo: discussUrl,
+          supportingEyebrow: 'What the demo proves',
+          supportingTitle: 'The savings case should become legible quickly.',
+          supportingText:
+            'The model is meant to create a fast decision: keep exploring, or move into a real efficiency engagement with clearer priorities.',
         }
       : isWorkflowService
         ? {
-            eyebrow: 'Dedicated demo page',
-            title: 'The restricted live workflow studio now lives on its own route',
+            eyebrow: 'Interactive proof',
+            title: 'Open the workflow demo when orchestration design is the clearest proof point',
             description:
-              'The service page stays about automation architecture and delivery scope. The demo route now hands visitors into a restricted live n8n studio without exposing the rest of the personal environment.',
+              'Preview triggers, branches, approvals, and the restricted live studio so you can judge the operating pattern before building the real workflow surface.',
             highlights: [
-              'Authenticated launch into a dedicated demo instance instead of the personal workspace.',
-              'Manual-trigger-only node library with no saved credentials or community nodes.',
-              'Move into project scope only after the workflow shape feels right.',
+              'Template-led preview for triggers, branching, and human checkpoints.',
+              'Authenticated launch into the restricted live n8n studio.',
+              'A cleaner handoff into the discussion once the orchestration pattern feels right.',
             ],
             primaryLabel: 'Open the workflow demo',
             primaryTo: WORKFLOW_COMPOSER_ROUTE,
             secondaryLabel: 'Discuss the workflow build',
             secondaryTo: discussUrl,
+            supportingEyebrow: 'What the demo proves',
+            supportingTitle: 'The orchestration pattern should feel build-worthy.',
+            supportingText:
+              'The preview and live studio should make it obvious whether the workflow deserves implementation and where guardrails need to stay.',
           }
       : null
 
@@ -185,7 +197,7 @@ function ServiceDetailPage() {
         {demoPanel ? (
           <section className="terminal-window">
             <div className="terminal-header">
-              <div className="text-sm text-gray-400">demo — route</div>
+              <div className="text-sm text-gray-400">demo — proof</div>
             </div>
 
             <div className="terminal-content">
@@ -206,10 +218,10 @@ function ServiceDetailPage() {
                 </div>
 
                 <div className="metric-card p-6 sm:p-7">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why this changed</p>
-                  <h3 className="mt-4 text-2xl font-semibold text-white">The demo no longer has to fight the service page.</h3>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">{demoPanel.supportingEyebrow}</p>
+                  <h3 className="mt-4 text-2xl font-semibold text-white">{demoPanel.supportingTitle}</h3>
                   <p className="mt-4 text-sm leading-8 text-gray-400">
-                    Keep this page for delivery shape, fit, and outcomes. Use the demo page when you want the live experience itself without the rest of the service route crowding it.
+                    {demoPanel.supportingText}
                   </p>
 
                   <div className="mt-6 flex flex-col gap-3">

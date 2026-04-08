@@ -8,14 +8,12 @@ function SiteHeader() {
   const navItems = [
     { to: '/', label: 'Home', end: true },
     { to: '/services', label: 'Services' },
-    { to: '/architecture', label: 'Architecture' },
-    { to: LOGIN_ROUTE, label: authState.authenticated ? 'Account' : 'Login' },
   ]
   const authLabel = !authReady
-    ? 'Account'
+    ? 'Access'
     : authState.authenticated
       ? authState.user?.email || 'Account'
-      : 'Account'
+      : 'Access'
 
   return (
     <header className="sticky top-0 z-50 pt-4">
@@ -48,12 +46,18 @@ function SiteHeader() {
               ))}
             </nav>
 
-            <Link
+            <NavLink
               to={LOGIN_ROUTE}
-              className="hidden max-w-[15rem] items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-gray-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] lg:inline-flex"
+              className={({ isActive }) =>
+                `inline-flex w-full items-center justify-center rounded-full border px-4 py-2.5 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:w-auto sm:max-w-[15rem] sm:justify-start ${
+                  isActive
+                    ? 'border-white/20 bg-white/[0.1] text-white'
+                    : 'border-white/10 bg-white/[0.04] text-gray-200'
+                }`
+              }
             >
               <span className="truncate">{authLabel}</span>
-            </Link>
+            </NavLink>
           </div>
         </div>
       </div>

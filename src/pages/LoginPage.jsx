@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
+import { LIVE_SANDBOX_ROUTE, SERVICES_DIRECTORY_ROUTE, WORKFLOW_COMPOSER_ROUTE } from '../constants/routes'
 import { useSiteAuth } from '../context/SiteAuthContext'
 
 const accessBenefits = [
-  'One sign-in applies across the site instead of only one route.',
-  'Identified access is ready before you open the live shell demo.',
-  'The same session carries into follow-up flows when the fit is serious.',
+  'Use the same session across the live sandbox and restricted workflow studio.',
+  'Keep identified access ready before you launch a gated proof surface.',
+  'Treat sign-in as utility access, not the main event of the site.',
 ]
 
 const quickRoutes = [
@@ -17,13 +17,13 @@ const quickRoutes = [
   },
   {
     title: 'Open the live demo',
-    description: 'Jump into the focused terminal route when you want hands-on proof first.',
+    description: 'Jump into the sandbox when you want hands-on product proof first.',
     to: LIVE_SANDBOX_ROUTE,
   },
   {
-    title: 'Open the review demo',
-    description: 'Use the dedicated savings model route when cost pressure is the current problem.',
-    to: COST_REVIEW_ROUTE,
+    title: 'Open the workflow demo',
+    description: 'Use the workflow route when you want access to the restricted live studio.',
+    to: WORKFLOW_COMPOSER_ROUTE,
   },
 ]
 
@@ -50,11 +50,11 @@ function LoginPage() {
     ? 'Checking sign-in availability for this deployment.'
     : authState.authenticated
       ? authState.user?.email
-        ? `Signed in as ${authState.user.email}. The same access state now carries across the site.`
-        : 'Signed in. The same access state now carries across the site.'
+        ? `Signed in as ${authState.user.email}. The gated demos can use the same access state.`
+        : 'Signed in. The gated demos can use the same access state.'
       : signInUnavailable
         ? 'Google sign-in is not available right now.'
-        : 'Browsing stays open. Sign in when you want identified access to carry across the demo routes and the rest of the site.'
+        : 'Browsing stays open. Sign in only when you want identified access for the live sandbox or the restricted workflow studio.'
 
   useEffect(() => {
     const oauthState = consumeOauthResult()
@@ -95,16 +95,16 @@ function LoginPage() {
       <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
           <div className="relative z-10">
-            <span className="section-chip">Website access</span>
+            <span className="section-chip">Access</span>
             <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-              Sign in once. Keep the rest of the site calm.
+              Use sign-in only when a gated demo needs it.
             </h1>
             <p className="section-copy max-w-3xl text-base sm:text-lg">
-              Authentication is optional for browsing. When you do use it, the session now applies across the website instead of feeling like a detached utility page.
+              Authentication is optional for browsing. It exists to support the small part of the site that actually gates access, not to dominate the main navigation.
             </p>
 
             <div className="mt-8 metric-card p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Current status</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Access status</p>
               <h2 className="mt-4 text-2xl font-semibold text-white">{statusTitle}</h2>
               <p className="mt-4 text-sm leading-8 text-gray-300">{statusDescription}</p>
 
@@ -130,8 +130,8 @@ function LoginPage() {
                   </button>
                 )}
 
-                <Link to="/" className="secondary-button">
-                  Back home
+                <Link to={SERVICES_DIRECTORY_ROUTE} className="secondary-button">
+                  Browse services
                 </Link>
               </div>
             </div>
@@ -139,8 +139,8 @@ function LoginPage() {
 
           <div className="relative z-10 space-y-4">
             <div className="metric-card p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why sign in</p>
-              <h2 className="mt-4 text-2xl font-semibold text-white">One access state across the site.</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Why access exists</p>
+              <h2 className="mt-4 text-2xl font-semibold text-white">Useful when the proof surface is gated.</h2>
               <ul className="mt-5 space-y-3 text-sm leading-7 text-gray-300">
                 {accessBenefits.map((item) => (
                   <li key={item} className="flex gap-3">

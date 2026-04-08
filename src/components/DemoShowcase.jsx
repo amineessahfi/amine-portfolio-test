@@ -6,10 +6,10 @@ import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE } from '
 const demoPages = [
   {
     eyebrow: 'Live shell',
-    title: 'The terminal demo now has its own service page',
+    title: 'Test the live shell under real guardrails',
     description:
-      'Open the browser shell on a focused sub-route where the runtime, access, and safety controls are not colliding with the rest of the service layout.',
-    highlights: ['Five-minute hard expiry', 'Shared site auth at launch', 'Isolated runtime controls'],
+      'Open the browser shell when you want to judge launch clarity, access, and bounded runtime behavior in one pass.',
+    highlights: ['Five-minute hard expiry', 'Optional identified access', 'Published sandbox architecture'],
     to: LIVE_SANDBOX_ROUTE,
     cta: 'Open live demo',
     icon: FaTerminal,
@@ -19,10 +19,10 @@ const demoPages = [
   },
   {
     eyebrow: 'Cost review',
-    title: 'The savings model now runs on its own page',
+    title: 'Model the savings case before you scope the cleanup',
     description:
-      'Keep the calculator useful and the service route readable by giving the interactive review model a dedicated page under Services.',
-    highlights: ['Interactive scenario inputs', 'Cleaner estimate-to-discussion flow', 'Dedicated service context nearby'],
+      'Pressure-test the scenario inputs and see whether the likely efficiency gain is strong enough to justify a focused review.',
+    highlights: ['Interactive scenario inputs', 'Fast savings signal', 'Direct handoff into a cost discussion'],
     to: COST_REVIEW_ROUTE,
     cta: 'Open review demo',
     icon: FaChartLine,
@@ -32,10 +32,10 @@ const demoPages = [
   },
   {
     eyebrow: 'Workflow composer',
-    title: 'The automation composer now runs on its own page',
+    title: 'Preview the workflow shape, then open the live studio',
     description:
-      'Shape triggers, branches, approvals, and notifications on a focused workflow route instead of squeezing the builder into a long service page.',
-    highlights: ['Template-driven orchestration', 'Approvals and failure branches', 'Clear handoff into delivery scope'],
+      'Map triggers, branches, approvals, and the launch into the restricted editor when orchestration is the clearest proof point.',
+    highlights: ['Template-driven orchestration', 'Restricted live studio launch', 'Clear handoff into delivery scope'],
     to: WORKFLOW_COMPOSER_ROUTE,
     cta: 'Open workflow demo',
     icon: FaCodeBranch,
@@ -56,10 +56,10 @@ function DemoShowcase() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <span className="section-chip">Interactive demos</span>
-            <h2 className="section-title text-3xl sm:text-4xl">Each demo now lives on its own page under Services</h2>
+            <h2 className="section-title text-3xl sm:text-4xl">Open the strongest proof point first</h2>
           </div>
           <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-            The homepage now previews the demos instead of trying to hold them. Open the dedicated route you want and evaluate the proof point there.
+            The homepage previews the interactive work. Go straight to the demo that matches the bottleneck you want to evaluate.
           </p>
         </div>
 
@@ -79,7 +79,7 @@ function DemoShowcase() {
                   </div>
                   <span className="skill-badge !px-3 !py-2 text-gray-100">
                     <Icon className={demo.iconClassName} />
-                    Demo page
+                    Proof point
                   </span>
                 </div>
 

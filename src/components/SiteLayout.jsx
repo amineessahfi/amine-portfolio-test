@@ -6,12 +6,9 @@ import CtaBar from './CtaBar'
 
 function SiteLayout() {
   const location = useLocation()
-  const isServiceDetailRoute = /^\/services\/[^/]+$/.test(location.pathname)
   const showGlobalCta =
     location.pathname === '/' ||
-    location.pathname === '/architecture' ||
-    location.pathname === '/services' ||
-    isServiceDetailRoute
+    location.pathname === '/services'
 
   useEffect(() => {
     const hash = decodeURIComponent(location.hash.replace('#', ''))

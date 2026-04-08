@@ -25,7 +25,7 @@ const stackFlow = [
   {
     label: '01',
     title: 'Visitor browser',
-    text: 'The user lands on the sandbox service page and launches a session from a browser-delivered terminal UI.',
+    text: 'The user lands on the sandbox demo page and launches a session from a browser-delivered terminal UI.',
   },
   {
     label: '02',
@@ -50,7 +50,7 @@ const stackFlow = [
 ]
 
 const requestFlow = [
-  'A visitor lands on the highlighted sandbox section and requests a session from the service page.',
+  'A visitor lands on the sandbox demo page and requests a session from the browser UI.',
   'The backend validates the browser origin, tracks complimentary anonymous usage, and checks per-visitor and total-capacity limits.',
   'A short-lived session token is issued and the browser upgrades to a WebSocket connection.',
   'The backend starts an isolated container and relays shell input/output between browser and runtime.',
@@ -92,34 +92,34 @@ function ArchitecturePage() {
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
                 <Link to={LIVE_SANDBOX_SERVICE_ROUTE} className="soft-link inline-flex items-center gap-2">
-                  Back to sandbox service
+                  Back to live sandbox service
                 </Link>
                 <div className="mt-6">
-                  <span className="section-chip">Architecture</span>
+                  <span className="section-chip">Sandbox architecture</span>
                   <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                    A cleaner view of the live sandbox
-                    <span className="gradient-text"> architecture</span>
+                    Live sandbox architecture,
+                    <span className="gradient-text"> from browser to bounded runtime</span>
                   </h1>
                   <p className="section-copy max-w-3xl text-base sm:text-lg">
-                    This page explains how the browser UI, public routing layer, backend session broker, and ephemeral Linux runtime fit together without exposing secrets or internal-only variables.
+                    This page sits under the sandbox service because it explains one proof surface in depth: how the browser UI, public routing layer, backend broker, and ephemeral runtime fit together without exposing secrets.
                   </p>
                 </div>
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Link to={LIVE_SANDBOX_ROUTE} className="primary-button">
-                    Open live demo
+                    Open sandbox demo
                   </Link>
                   <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button">
-                    Discuss this system
+                    Discuss the sandbox build
                   </Link>
                 </div>
               </div>
 
               <div className="relative z-10 metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Published scope</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Public-friendly system overview</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Published system view</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">Architecture for one delivery surface</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  It is detailed enough to explain the product and security model, but intentionally avoids secrets, internal values, and deployment-only implementation details.
+                  It is detailed enough to explain the product and security model behind the sandbox, but intentionally avoids secrets, internal values, and deployment-only implementation details.
                 </p>
 
                 <div className="mt-6 space-y-3">

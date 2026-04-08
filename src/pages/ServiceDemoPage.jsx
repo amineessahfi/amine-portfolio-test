@@ -27,57 +27,57 @@ function ServiceDemoPage() {
   const discussUrl = createDiscussUrl(service.slug)
   const demoCopy = isSandboxDemo
     ? {
-        eyebrow: 'Dedicated demo route',
-        title: 'Run the live shell without the service page getting in the way.',
+        eyebrow: 'Live sandbox',
+        title: 'Test the live shell under real operating guardrails.',
         intro:
-          'This page is for judging the interactive terminal itself. The service page stays focused on delivery context; the shell, access, and guardrails stay focused here.',
+          'Launch a short-lived Linux shell, review the access flow, and judge whether the runtime feels trustworthy enough to use as a product proof point.',
         notes: [
-          'Use this route when the terminal is the thing you want to evaluate.',
-          'Use the service page when you want the delivery scope and fit around it.',
-          'Move into architecture or discussion only after the shell has proven its value.',
+          'Check how quickly the session becomes understandable to a first-time visitor.',
+          'Look at the guardrails, expiry, and access flow as part of the value, not just the terminal itself.',
+          'Use the sandbox architecture page when you want to inspect the control plane behind the experience.',
         ],
-        focusTitle: 'Why this lives separately',
+        focusTitle: 'What this should prove',
         focusText:
-          'The demo is easier to trust when the runtime, access policy, and session controls are not competing with a long service page.',
+          'The experience should make the runtime boundaries, launch flow, and product value feel credible in minutes.',
         primaryLabel: 'Back to service context',
         primaryTo: serviceRoute,
-        secondaryLabel: 'Discuss this demo',
+        secondaryLabel: 'Discuss the sandbox build',
         secondaryTo: discussUrl,
-        tertiaryLabel: 'View architecture',
+        tertiaryLabel: 'View sandbox architecture',
         tertiaryTo: ARCHITECTURE_STACK_ROUTE,
       }
     : isCostDemo
       ? {
-          eyebrow: 'Dedicated demo route',
-          title: 'Run the savings model on a page built just for the review.',
+          eyebrow: 'Cost model',
+          title: 'Model the savings pressure before you scope the cleanup.',
           intro:
-            'This page keeps the interactive model isolated so you can test the scenario cleanly. The service page stays responsible for delivery scope, fit, and the shape of the engagement.',
+            'Adjust the scenario inputs and see whether the savings case is strong enough to justify a targeted cost-efficiency engagement.',
           notes: [
-            'Use this route when you want to pressure-test the scenario inputs directly.',
-            'Use the service page when you want the surrounding implementation context.',
-            'Move into the discuss flow once the estimate feels close to the real spend pressure.',
+            'Test whether the likely savings are directionally meaningful for your current spend profile.',
+            'Check how easy it is to move from estimate to a concrete review conversation.',
+            'Use the service page when you want the implementation context around the cleanup work itself.',
           ],
-          focusTitle: 'Why this lives separately',
+          focusTitle: 'What this should prove',
           focusText:
-            'The review model works better when the controls and outputs are not stacked in the middle of a longer service route.',
+            'The model should make spend pressure and likely savings legible quickly enough to justify a real review.',
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
-          secondaryLabel: 'Plan the cost review',
+          secondaryLabel: 'Discuss the cost review',
           secondaryTo: discussUrl,
         }
       : {
-          eyebrow: 'Dedicated demo route',
-          title: 'Shape the workflow, then open the restricted live studio.',
+          eyebrow: 'Workflow proof',
+          title: 'Shape the flow, then open the restricted live studio.',
           intro:
-            'This page isolates the workflow thinking, then hands authenticated visitors into a restricted live n8n studio. The service page stays focused on delivery scope and operating fit.',
+            'Use the preview builder to pressure-test triggers, branches, and approvals before stepping into the real constrained n8n studio.',
           notes: [
-            'Use this route when you want a safe preview plus access to the actual live editor.',
-            'Use the service page when you want the implementation context around the automation layer.',
-            'Move into the discuss flow once the orchestration pattern feels close to the real operating problem.',
+            'See whether the orchestration pattern is clear enough before you touch the live editor.',
+            'Use the restricted studio when you want to validate the real surface under safe limits.',
+            'Move into the discussion once the workflow shape feels close to the operating problem you need solved.',
           ],
-          focusTitle: 'Why this lives separately',
+          focusTitle: 'What this should prove',
           focusText:
-            'Workflow design is easier to judge when the preview, access guardrails, and live studio launch are the primary focus instead of one section inside a longer page.',
+            'The preview should show whether the workflow deserves implementation, while the live studio confirms that the editor surface can stay safely constrained.',
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
           secondaryLabel: 'Discuss this workflow',
@@ -131,13 +131,13 @@ function ServiceDemoPage() {
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
           <div className="terminal-window">
             <div className="terminal-header">
-              <div className="text-sm text-gray-400">demo — purpose</div>
+              <div className="text-sm text-gray-400">demo — proof</div>
             </div>
 
             <div className="terminal-content">
               <div>
-                <span className="section-chip">How to use this page</span>
-                <h2 className="section-title text-3xl sm:text-4xl">A focused page for the working proof point</h2>
+                <span className="section-chip">What to test</span>
+                <h2 className="section-title text-3xl sm:text-4xl">Judge the proof point before you move into scope</h2>
               </div>
 
               <ol className="space-y-3">
@@ -154,7 +154,7 @@ function ServiceDemoPage() {
           </div>
 
           <div className="metric-card p-6 sm:p-7">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Route focus</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Proof focus</p>
             <h2 className="mt-4 text-2xl font-semibold text-white">{demoCopy.focusTitle}</h2>
             <p className="mt-4 text-sm leading-8 text-gray-400">{demoCopy.focusText}</p>
             <div className="mt-6 space-y-3">

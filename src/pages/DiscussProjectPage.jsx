@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { FaArrowRight, FaEnvelope, FaLinkedin } from 'react-icons/fa'
 import { LINKEDIN_URL, createDiscussEmailUrl } from '../constants/links'
 import {
-  ARCHITECTURE_STACK_ROUTE,
   COST_REVIEW_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
@@ -61,29 +60,6 @@ const whatToBring = [
   'The bottleneck, cost pressure, or delivery friction you want removed',
   'Enough stack context to understand the current architecture and team constraints',
   'What success should look like in the first few weeks of work',
-]
-
-const platformRoutes = [
-  {
-    title: 'Live sandbox',
-    description: 'Use the terminal demo when you want to feel the interactive product direction first.',
-    to: LIVE_SANDBOX_ROUTE,
-  },
-  {
-    title: 'Savings model demo',
-    description: 'Use the dedicated demo page when cost pressure is the fastest way into the conversation.',
-    to: COST_REVIEW_ROUTE,
-  },
-  {
-    title: 'Workflow composer demo',
-    description: 'Use the composer route when automation design, approvals, and branching logic are the clearest proof point.',
-    to: WORKFLOW_COMPOSER_ROUTE,
-  },
-  {
-    title: 'Architecture page',
-    description: 'Use the published system breakdown when you want to understand how the live demo is structured.',
-    to: ARCHITECTURE_STACK_ROUTE,
-  },
 ]
 
 function DiscussProjectPage() {
@@ -208,19 +184,6 @@ function DiscussProjectPage() {
           </div>
         </section>
 
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {platformRoutes.map((route) => (
-            <article key={route.title} className="metric-card card-hover p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Use the platform first</p>
-              <h3 className="mt-4 text-xl font-semibold text-white">{route.title}</h3>
-              <p className="mt-4 text-sm leading-7 text-gray-400">{route.description}</p>
-              <Link to={route.to} className="mt-6 inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary-200 transition-colors hover:text-white">
-                Open route
-                <FaArrowRight className="text-xs" />
-              </Link>
-            </article>
-          ))}
-        </section>
       </main>
     </>
   )
