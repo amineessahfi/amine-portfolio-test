@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaBolt, FaCheckCircle, FaCodeBranch, FaExclamationTriangle, FaRobot } from 'react-icons/fa'
+import { FaBolt, FaCheckCircle, FaCodeBranch, FaExclamationTriangle, FaExternalLinkAlt, FaRobot } from 'react-icons/fa'
 import { createDiscussUrl } from '../constants/routes'
+import { useSiteAuth } from '../context/SiteAuthContext'
 
 const templates = [
   {
@@ -105,19 +106,49 @@ const templates = [
 const notificationModes = [
   { id: 'slack', label: 'Slack only', systems: ['Slack'] },
   { id: 'slack-email', label: 'Slack + email', systems: ['Slack', 'Email'] },
-  { id: 'webhook', label: 'Webhook callback', systems: ['Webhook'] },
+  { id: 'ticket-log', label: 'Ticket log', systems: ['Backlog', 'Ops log'] },
 ]
 
-const nodeLibrary = ['Webhook', 'Condition', 'Approval', 'Transform', 'Notification', 'Writeback']
+const liveNodeLibrary = ['Manual Trigger', 'Set', 'If', 'Switch', 'Merge', 'Wait']
+const liveStudioGuardrails = [
+  'Authenticated launch only through the site-wide Google session.',
+  'Dedicated demo instance, separate from the personal n8n workspace.',
+  'Limited node library with no community nodes, credentials, or code execution.',
+  'Manual-trigger only so the demo does not expose public webhooks or schedules.',
+]
 
 function WorkflowComposerDemo() {
+  const {
+    authReady,
+    authState,
+    consumeOauthResult,
+    startSignIn,
+    syncAuthState,
+  } = useSiteAuth()
   const [selectedTemplateId, setSelectedTemplateId] = useState('incident-routing')
   const [approvalEnabled, setApprovalEnabled] = useState(true)
   const [failureBranchEnabled, setFailureBranchEnabled] = useState(true)
   const [notificationMode, setNotificationMode] = useState('slack-email')
+  const [notice, setNotice] = useState('')
+  const [error, setError] = useState('')
 
   const selectedTemplate = templates.find((template) => template.id === selectedTemplateId) || templates[0]
   const selectedNotification = notificationModes.find((mode) => mode.id === notificationMode) || notificationModes[1]
+  const workflowStudioUrl = authState.workflowStudioUrl || ''
+  const workflowStudioEnabled = authState.workflowStudioEnabled
+
+  useEffect(() => {
+    const oauthState = consumeOauthResult()
+
+    if (oauthState === 'success') {
+      setNotice('Sign-in complete. The live studio is ready.')
+      setError('')
+      void syncAuthState()
+    } else if (oauthState === 'error') {
+      setNotice('')
+      setError('Sign-in did not complete. Please try again.')
+    }
+  }, [consumeOauthResult, syncAuthState])
 
   const composerState = useMemo(() => {
     const mainNodes = [...selectedTemplate.steps]
@@ -133,8 +164,8 @@ function WorkflowComposerDemo() {
     mainNodes.push({
       title: 'Notify stakeholders',
       detail:
-        notificationMode === 'webhook'
-          ? 'Send the workflow outcome to the downstream system over a callback.'
+        notificationMode === 'ticket-log'
+          ? 'Write the result into the backlog and the operator log instead of pushing to a live endpoint.'
           : notificationMode === 'slack'
             ? 'Post the run result into the operating channel for immediate visibility.'
             : 'Notify the operating channel and send a short email summary to the owner.',
@@ -165,7 +196,7 @@ function WorkflowComposerDemo() {
       selectedTemplate.baseLatencySeconds +
       (approvalEnabled ? 12 : 0) +
       (failureBranchEnabled ? 8 : 0) +
-      (notificationMode === 'slack-email' ? 5 : 3)
+      (notificationMode === 'slack-email' ? 5 : notificationMode === 'slack' ? 3 : 4)
 
     return {
       mainNodes,
@@ -181,6 +212,24 @@ function WorkflowComposerDemo() {
     }
   }, [approvalEnabled, failureBranchEnabled, notificationMode, selectedNotification.systems, selectedTemplate])
 
+  const handleSignIn = () => {
+    const signInError = startSignIn(window.location.href)
+    if (signInError) {
+      setNotice('')
+      setError(signInError)
+    }
+  }
+
+  const handleLaunchStudio = () => {
+    if (!workflowStudioUrl) {
+      setNotice('')
+      setError('The live workflow studio is not configured right now.')
+      return
+    }
+
+    window.open(workflowStudioUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <section id="workflow-composer" className="scroll-mt-28">
       <div className="terminal-window card-hover">
@@ -192,8 +241,76 @@ function WorkflowComposerDemo() {
           <div className="space-y-3">
             <h3 className="text-2xl font-semibold text-white">Workflow composer demo</h3>
             <p className="max-w-3xl text-sm leading-7 text-gray-400 sm:text-base">
-              Shape an automation flow, add the human checkpoints you need, and see how the orchestration path changes before turning it into a scoped delivery conversation.
+              Shape an automation flow here, then open the restricted live studio when you want the real n8n editor instead of a mock surface.
             </p>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
+            <div className="metric-card p-6 sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Live studio</p>
+              <h4 className="mt-4 text-2xl font-semibold text-white">Actual n8n editor, limited on purpose.</h4>
+              <p className="mt-4 text-sm leading-8 text-gray-400">
+                The live studio opens on a dedicated demo instance with a constrained node library and no saved credentials. It launches in a separate tab because the full editor works better outside an embedded frame.
+              </p>
+
+              {notice ? <p className="mt-4 text-sm text-cyan-200">{notice}</p> : null}
+              {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {!authReady ? (
+                  <button type="button" disabled className="secondary-button opacity-70">
+                    Checking access
+                  </button>
+                ) : !workflowStudioEnabled ? (
+                  <button type="button" disabled className="secondary-button opacity-70">
+                    Live studio unavailable
+                  </button>
+                ) : authState.authenticated ? (
+                  <button type="button" onClick={handleLaunchStudio} className="primary-button gap-2">
+                    Open live n8n studio
+                    <FaExternalLinkAlt className="text-xs" />
+                  </button>
+                ) : authState.authConfigured ? (
+                  <button type="button" onClick={handleSignIn} className="primary-button">
+                    Sign in to unlock the live studio
+                  </button>
+                ) : (
+                  <button type="button" disabled className="secondary-button opacity-70">
+                    Sign-in unavailable
+                  </button>
+                )}
+
+                <Link to={createDiscussUrl('workflow-composer')} className="secondary-button">
+                  Discuss the workflow build
+                </Link>
+              </div>
+            </div>
+
+            <div className="terminal-window">
+              <div className="terminal-header">
+                <div className="text-sm text-gray-400">studio — guardrails</div>
+              </div>
+
+              <div className="terminal-content">
+                <div>
+                  <span className="section-chip">Why this is safe enough to show</span>
+                  <h4 className="section-title text-3xl sm:text-4xl">Restricted live access, not your personal editor.</h4>
+                </div>
+
+                <ul className="space-y-3 text-sm leading-7 text-gray-300">
+                  {liveStudioGuardrails.map((item) => (
+                    <li key={item} className="flex gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="rounded-[1.35rem] border border-violet-500/20 bg-violet-500/10 px-4 py-4 text-sm leading-7 text-violet-100">
+                  The live node palette is intentionally small: {liveNodeLibrary.join(', ')}.
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
@@ -302,7 +419,7 @@ function WorkflowComposerDemo() {
               <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
                 <p className="text-sm font-semibold text-white">Node library</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {nodeLibrary.map((node) => (
+                  {liveNodeLibrary.map((node) => (
                     <span key={node} className="skill-badge">
                       {node}
                     </span>
@@ -393,7 +510,7 @@ function WorkflowComposerDemo() {
 
               <div className="rounded-2xl border border-primary-500/20 bg-primary-500/10 p-5">
                 <p className="text-sm leading-7 text-gray-300">
-                  <span className="font-semibold">If this workflow shape feels close to the real problem,</span> use the discuss route and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
+                  <span className="font-semibold">If the preview feels close to the real problem,</span> open the restricted live studio for the real n8n editor, then use the discuss route and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
                 </p>
                 <Link
                   to={createDiscussUrl('workflow-composer')}

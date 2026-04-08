@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { SANDBOX_API_BASE } from '../constants/sandbox'
+import { SANDBOX_API_BASE, WORKFLOW_STUDIO_URL } from '../constants/sandbox'
 
 const defaultAuthState = {
   authenticated: false,
@@ -9,6 +9,8 @@ const defaultAuthState = {
   freeAnonymousSessions: 1,
   anonymousSessionsUsed: 0,
   user: null,
+  workflowStudioEnabled: false,
+  workflowStudioUrl: WORKFLOW_STUDIO_URL,
 }
 
 const SiteAuthContext = createContext(null)
@@ -22,6 +24,8 @@ function normalizeAuthState(payload = {}) {
     freeAnonymousSessions: payload.freeAnonymousSessions ?? 1,
     anonymousSessionsUsed: payload.anonymousSessionsUsed ?? 0,
     user: payload.user || null,
+    workflowStudioEnabled: Boolean(payload.workflowStudio?.enabled),
+    workflowStudioUrl: payload.workflowStudio?.url || WORKFLOW_STUDIO_URL,
   }
 }
 

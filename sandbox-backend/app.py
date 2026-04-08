@@ -18,9 +18,39 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from aiohttp import ClientSession, WSMsgType, web
 
+
+def env_flag(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def public_origin_from_url(value: str, fallback: str) -> str:
+    parsed = urlparse(value)
+    if parsed.scheme and parsed.netloc:
+        return f'{parsed.scheme}://{parsed.netloc}'.rstrip('/')
+    return fallback.rstrip('/')
+
+
+def normalize_public_path(value: str | None, default: str) -> str:
+    candidate = str(value or default).strip()
+    if not candidate:
+        candidate = default
+    if not candidate.startswith('/'):
+        candidate = f'/{candidate}'
+    if not candidate.endswith('/'):
+        candidate = f'{candidate}/'
+    return candidate
+
+
 PORT = int(os.getenv('PORT', '3020'))
 HOST = os.getenv('HOST', '127.0.0.1')
 PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'https://vm2.amineessahfi.xyz/sandbox-api').rstrip('/')
+PUBLIC_ORIGIN = public_origin_from_url(PUBLIC_BASE_URL, 'https://vm2.amineessahfi.xyz')
+WORKFLOW_STUDIO_PATH = normalize_public_path(os.getenv('WORKFLOW_STUDIO_PATH'), '/workflow-studio/')
+WORKFLOW_STUDIO_URL = os.getenv('WORKFLOW_STUDIO_URL', f'{PUBLIC_ORIGIN}{WORKFLOW_STUDIO_PATH}').rstrip('/') + '/'
+WORKFLOW_STUDIO_ENABLED = env_flag('WORKFLOW_STUDIO_ENABLED', True)
 SANDBOX_IMAGE = os.getenv('SANDBOX_IMAGE', 'essahfi-terminal-sandbox:latest')
 SESSION_SECONDS = int(os.getenv('SESSION_SECONDS', '300'))
 CONNECT_WINDOW_SECONDS = int(os.getenv('CONNECT_WINDOW_SECONDS', '60'))
@@ -599,6 +629,11 @@ async def auth_status(request: web.Request) -> web.Response:
             }
             if auth_identity
             else None,
+            'workflowStudio': {
+                'enabled': WORKFLOW_STUDIO_ENABLED,
+                'requiresAuth': True,
+                'url': WORKFLOW_STUDIO_URL if WORKFLOW_STUDIO_ENABLED else '',
+            },
         }
     )
 
@@ -738,6 +773,28 @@ async def logout(request: web.Request) -> web.Response:
         email=auth_identity.get('email') if auth_identity else None,
     )
 
+    return response
+
+
+async def workflow_studio_access(request: web.Request) -> web.Response:
+    if not WORKFLOW_STUDIO_ENABLED:
+        return web.json_response({'ok': False, 'error': 'Workflow studio is not configured.'}, status=503)
+
+    auth_identity = get_auth_identity(request)
+    if not auth_identity:
+        raise web.HTTPUnauthorized(text='Sign in is required for the workflow studio.')
+
+    response = web.json_response(
+        {
+            'ok': True,
+            'authenticated': True,
+            'user': {
+                'email': auth_identity.get('email'),
+                'name': auth_identity.get('name'),
+            },
+        }
+    )
+    response.headers['Cache-Control'] = 'no-store'
     return response
 
 
@@ -917,6 +974,7 @@ def create_app() -> web.Application:
             web.options('/sessions', create_session),
             web.get('/ws', websocket_handler),
             web.get('/auth/status', auth_status),
+            web.get('/auth/studio-access', workflow_studio_access),
             web.get('/auth/google/start', google_oauth_start),
             web.get('/auth/google/callback', google_oauth_callback),
             web.post('/auth/logout', logout),

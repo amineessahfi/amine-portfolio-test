@@ -67,17 +67,17 @@ function ServiceDemoPage() {
         }
       : {
           eyebrow: 'Dedicated demo route',
-          title: 'Shape the workflow on a page built for the composer.',
+          title: 'Shape the workflow, then open the restricted live studio.',
           intro:
-            'This page isolates the automation builder so triggers, branches, approvals, and notifications are easier to reason about. The service page stays focused on delivery scope and operating fit.',
+            'This page isolates the workflow thinking, then hands authenticated visitors into a restricted live n8n studio. The service page stays focused on delivery scope and operating fit.',
           notes: [
-            'Use this route when the workflow shape itself is what you want to evaluate.',
+            'Use this route when you want a safe preview plus access to the actual live editor.',
             'Use the service page when you want the implementation context around the automation layer.',
             'Move into the discuss flow once the orchestration pattern feels close to the real operating problem.',
           ],
           focusTitle: 'Why this lives separately',
           focusText:
-            'Workflow design is easier to judge when the canvas, control rail, and execution summary are the primary focus instead of one section inside a longer page.',
+            'Workflow design is easier to judge when the preview, access guardrails, and live studio launch are the primary focus instead of one section inside a longer page.',
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
           secondaryLabel: 'Discuss this workflow',

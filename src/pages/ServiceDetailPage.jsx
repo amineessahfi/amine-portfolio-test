@@ -77,12 +77,12 @@ function ServiceDetailPage() {
       : isWorkflowService
         ? {
             eyebrow: 'Dedicated demo page',
-            title: 'The workflow composer now lives on its own route',
+            title: 'The restricted live workflow studio now lives on its own route',
             description:
-              'The service page stays about automation architecture and delivery scope. The composer now has a separate page so visitors can shape the flow without the rest of the route competing for attention.',
+              'The service page stays about automation architecture and delivery scope. The demo route now hands visitors into a restricted live n8n studio without exposing the rest of the personal environment.',
             highlights: [
-              'Adjust templates, approvals, and branching logic on a focused canvas.',
-              'Keep the orchestration path readable instead of embedding it mid-page.',
+              'Authenticated launch into a dedicated demo instance instead of the personal workspace.',
+              'Manual-trigger-only node library with no saved credentials or community nodes.',
               'Move into project scope only after the workflow shape feels right.',
             ],
             primaryLabel: 'Open the workflow demo',
