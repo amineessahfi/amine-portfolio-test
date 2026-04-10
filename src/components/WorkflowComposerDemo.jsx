@@ -114,6 +114,7 @@ const liveNodeLibrary = ['Manual Trigger', 'Set', 'If', 'Switch', 'Merge', 'Wait
 const liveStudioGuardrails = [
   'Temporary five-minute guest session minted on demand and cut off when it expires.',
   'Dedicated demo instance, separate from the personal n8n workspace.',
+  'Workflow edits are disposable here and are not persisted for later sessions.',
   'Limited node library with no community nodes, credentials, or code execution.',
   'Manual-trigger only so the demo does not expose public webhooks or schedules.',
 ]

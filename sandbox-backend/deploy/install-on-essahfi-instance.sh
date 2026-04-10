@@ -152,7 +152,13 @@ try:
             owner_row[0],
         ),
     )
+    workflow_count = connection.execute(
+        "SELECT COUNT(*) FROM workflow_entity"
+    ).fetchone()[0]
+    connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute("DELETE FROM workflow_entity")
     connection.commit()
+    print(f'Deleted {workflow_count} persisted demo workflows')
 finally:
     connection.close()
 PY
@@ -187,7 +193,7 @@ allowed_origin_patterns = [
 frame_ancestors = "'self'"
 if allowed_origin_patterns:
     frame_ancestors = '%s %s' % (frame_ancestors, ' '.join(allowed_origin_patterns))
-workflow_studio_block = '''    redir /workflow-studio /workflow-studio/ 308\n    handle_path /workflow-studio/* {\n        forward_auth 127.0.0.1:3020 {\n            uri /auth/studio-access\n        }\n        reverse_proxy 127.0.0.1:5679 {\n            header_up Authorization "Basic %s"\n            header_up Host {host}\n            header_up X-Real-IP {remote_host}\n            header_up X-Forwarded-For {remote_host}\n            header_up X-Forwarded-Host {host}\n            header_up X-Forwarded-Proto {scheme}\n            header_down -X-Frame-Options\n            header_down Content-Security-Policy "frame-ancestors %s"\n        }\n    }\n\n''' % (auth_header, frame_ancestors)
+workflow_studio_block = '''    redir /workflow-studio /workflow-studio/ 308\n    handle_path /workflow-studio/* {\n        forward_auth 127.0.0.1:3020 {\n            uri /auth/studio-access\n        }\n        @workflow_persistence_write {\n            method POST PATCH PUT DELETE\n            path /rest/workflows /rest/workflows/*\n            not path_regexp workflow_run ^/rest/workflows/[^/]+/run$\n        }\n        respond @workflow_persistence_write "Workflow persistence is disabled in this demo." 403\n        reverse_proxy 127.0.0.1:5679 {\n            header_up Authorization "Basic %s"\n            header_up Host {host}\n            header_up X-Real-IP {remote_host}\n            header_up X-Forwarded-For {remote_host}\n            header_up X-Forwarded-Host {host}\n            header_up X-Forwarded-Proto {scheme}\n            header_down -X-Frame-Options\n            header_down Content-Security-Policy "frame-ancestors %s"\n        }\n    }\n\n''' % (auth_header, frame_ancestors)
 
 if 'handle_path /sandbox-api/*' not in content:
     marker = '    reverse_proxy 127.0.0.1:5678 {\n'

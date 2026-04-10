@@ -90,7 +90,7 @@ function ServiceDetailPage() {
               'Preview triggers, branches, approvals, and the restricted live studio so you can judge the operating pattern before building the real workflow surface.',
             highlights: [
               'Template-led preview for triggers, branching, and human checkpoints.',
-              'Temporary five-minute launch into the restricted live n8n studio.',
+              'Temporary five-minute launch into the restricted live n8n studio with no workflow persistence.',
               'A cleaner handoff into the discussion once the orchestration pattern feels right.',
             ],
             primaryLabel: 'Open the workflow demo',
