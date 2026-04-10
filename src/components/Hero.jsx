@@ -1,20 +1,20 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight } from 'react-icons/fa'
-import { SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
+import { SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 
-const expertisePillars = [
+const entryCards = [
   {
-    title: 'Platform systems',
-    description: 'Delivery foundations, paved roads, and runtime guardrails that let teams ship with less friction.',
+    title: 'Explore live proof',
+    description: 'Start from demos, traces, and system maps when you want technical trust before you ask for scope.',
   },
   {
-    title: 'Cost discipline',
-    description: 'Architecture and spend decisions that protect margin without making delivery slower.',
+    title: 'Scope the diagnostic',
+    description: 'Use the structured brief when the problem is real and you want a first delivery shape, not just a chat.',
   },
   {
-    title: 'Operational data',
-    description: 'Pipelines and workflow systems built for environments where unreliable operations get expensive fast.',
+    title: 'Shared thesis',
+    description: 'The common thread is diagnosing hidden failure, making change safer, and restoring enough trust to act.',
   },
 ]
 
@@ -40,26 +40,33 @@ function Hero() {
         <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
           <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
             <div className="relative z-10">
-              <span className="section-chip">Platform systems / cost discipline / data operations</span>
+              <span className="section-chip">Diagnose hidden failure / make change safer / restore operational trust</span>
               <p className="mt-6 text-sm font-semibold uppercase tracking-[0.32em] text-primary-200/90">
-                Engineering delivery for teams under real operational pressure
+                Complex operational systems under real pressure
               </p>
               <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4.4rem] lg:leading-[1.02]">
-                Platform, automation, and data systems that
-                <span className="gradient-text"> hold up in production.</span>
+                Diagnose the hidden failure in complex systems.
+                <span className="gradient-text"> Then make change safer.</span>
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                I help teams reduce delivery drag, expose waste, and turn complex operational tooling into systems that stay reliable, usable, and commercially sensible.
+                I help teams see where flows break, how change ripples, and where to intervene first across telco operations, event-driven software, and real-time data.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                <Link to={SERVICES_DIRECTORY_ROUTE} className="primary-button gap-2">
-                  See service fit
+                <a href="#home-proof" className="primary-button gap-2">
+                  Explore live proof
+                  <FaArrowRight className="text-xs" />
+                </a>
+                <Link to={createDiscussUrl('', { intent: 'scope' })} className="secondary-button gap-2">
+                  Scope the diagnostic
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <a href="#projects" className="soft-link inline-flex items-center justify-center px-2 py-3">
                   Review delivery proof
                 </a>
+                <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link inline-flex items-center justify-center px-2 py-3">
+                  Browse service fit
+                </Link>
               </div>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -76,18 +83,18 @@ function Hero() {
               <div className="metric-card p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Positioning</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                  Delivery decisions tied to real operating constraints.
+                  One brand, two ways in.
                 </h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  The work sits between platform engineering, cost control, and operational tooling, where the answer has to make sense for engineers and the business at the same time.
+                  Start from live proof when you need technical trust first. Start from the diagnostic when the problem is already real and the next step needs shape.
                 </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
-                {expertisePillars.map((pillar) => (
-                  <div key={pillar.title} className="metric-card p-5">
-                    <p className="text-sm font-semibold text-white">{pillar.title}</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-400">{pillar.description}</p>
+                {entryCards.map((card) => (
+                  <div key={card.title} className="metric-card p-5">
+                    <p className="text-sm font-semibold text-white">{card.title}</p>
+                    <p className="mt-3 text-sm leading-7 text-gray-400">{card.description}</p>
                   </div>
                 ))}
               </div>

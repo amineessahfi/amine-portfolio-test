@@ -16,8 +16,10 @@ import {
 import { getServiceBySlug } from '../data/services'
 import {
   budgetRangeOptions,
+  discussIntentPresets,
   discussTopicOptions,
   getDiscussTopicPreset,
+  normalizeDiscussIntent,
   normalizeDiscussTopic,
   responsePromise,
   timelineOptions,
@@ -37,10 +39,41 @@ const defaultFormState = {
   website: '',
 }
 
+const defaultSubmitState = {
+  type: 'idle',
+  message: '',
+  fallbackUrl: '',
+}
+
 const whatToBring = [
   'A concrete bottleneck that is costing time, money, or operational confidence',
   'Enough system context to explain where the current constraints come from',
   'The outcome you need in the first phase, not just the long-term ambition',
+]
+
+const exploreFitSignals = [
+  'The proof surface is close enough to the real problem to pressure-test something meaningful.',
+  'You can point to the handoff, failure, or blind spot that needs to become clearer.',
+  'You want a technical reply without jumping straight into a formal scoped engagement.',
+]
+
+const exploreEmailPrompts = [
+  'What part of the system or workflow do you want to inspect first:',
+  'What currently feels broken, risky, or unclear:',
+  'What would make the proof useful enough to keep going:',
+]
+
+const intentCards = [
+  {
+    value: 'explore',
+    title: discussIntentPresets.explore.optionLabel,
+    description: 'Start from the demo, trace, or system map when you want a lighter technical reply first.',
+  },
+  {
+    value: 'scope',
+    title: discussIntentPresets.scope.optionLabel,
+    description: 'Use the structured brief when the problem is real and you want fit, scope, and the first delivery shape.',
+  },
 ]
 
 const topicActions = {
@@ -77,30 +110,33 @@ const topicActions = {
 function DiscussProjectPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedTopic = normalizeDiscussTopic(searchParams.get('topic') || 'general')
+  const selectedIntent = normalizeDiscussIntent(searchParams.get('intent') || 'scope')
   const preset = getDiscussTopicPreset(selectedTopic)
+  const intentPreset = discussIntentPresets[selectedIntent]
+  const isExploreIntent = selectedIntent === 'explore'
   const relatedService = getServiceBySlug(selectedTopic)
   const [formState, setFormState] = useState(defaultFormState)
   const [fieldErrors, setFieldErrors] = useState({})
-  const [submitState, setSubmitState] = useState({
-    type: 'idle',
-    message: '',
-    fallbackUrl: '',
-  })
+  const [submitState, setSubmitState] = useState(defaultSubmitState)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const secondaryAction = topicActions[selectedTopic] || topicActions.general
-  const fitSignals = relatedService?.bestFor || whatToBring
-  const nextStepSignals = preset.responseSteps
+  const fitSignals = isExploreIntent ? exploreFitSignals : relatedService?.bestFor || whatToBring
+  const nextStepSignals = isExploreIntent ? intentPreset.responseSteps : preset.responseSteps
+  const discussIntro = isExploreIntent
+    ? `I would like to pressure-test whether the ${preset.optionLabel.toLowerCase()} proof path is the right starting point.`
+    : preset.emailIntro
   const directEmailHref = createDiscussEmailUrl({
-    subject: preset.emailSubject,
-    intro: preset.emailIntro,
-    prompts: preset.emailPrompts,
+    subject: isExploreIntent ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+    intro: discussIntro,
+    prompts: isExploreIntent ? exploreEmailPrompts : preset.emailPrompts,
   })
 
   const buildFallbackUrl = () =>
     createLeadSubmissionEmailUrl({
-      subject: preset.emailSubject,
-      intro: preset.emailIntro,
+      subject: isExploreIntent ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+      intro: discussIntro,
+      intentLabel: intentPreset.optionLabel,
       topicLabel: preset.optionLabel,
       name: formState.name,
       workEmail: formState.workEmail,
@@ -126,11 +162,23 @@ function DiscussProjectPage() {
     }
 
     setSearchParams(nextSearchParams)
-    setSubmitState({
-      type: 'idle',
-      message: '',
-      fallbackUrl: '',
-    })
+    setFieldErrors({})
+    setSubmitState(defaultSubmitState)
+  }
+
+  const handleIntentChange = (nextIntent) => {
+    const normalizedIntent = normalizeDiscussIntent(nextIntent)
+    const nextSearchParams = new URLSearchParams(searchParams)
+
+    if (normalizedIntent === 'scope') {
+      nextSearchParams.delete('intent')
+    } else {
+      nextSearchParams.set('intent', normalizedIntent)
+    }
+
+    setSearchParams(nextSearchParams)
+    setFieldErrors({})
+    setSubmitState(defaultSubmitState)
   }
 
   const handleInputChange = (event) => {
@@ -162,6 +210,7 @@ function DiscussProjectPage() {
 
     const payload = {
       ...formState,
+      intent: selectedIntent,
       topic: selectedTopic,
       pageUrl: window.location.href,
     }
@@ -216,6 +265,26 @@ function DiscussProjectPage() {
     }
   }
 
+  const pageTitle = isExploreIntent ? 'Start from the proof you want to pressure-test.' : preset.title
+  const pageIntro = isExploreIntent
+    ? 'If a demo, trace, or system map feels close to the real problem, use the lighter exploration path to explain what you want to inspect before you commit to a scoped engagement.'
+    : preset.intro
+  const bestUseText = intentPreset.summaryText
+  const problemLabel = isExploreIntent ? 'What do you want to inspect first?' : 'Problem / pressure point'
+  const problemPlaceholder = isExploreIntent
+    ? 'Which failure, handoff, or technical risk do you want the proof surface to make clearer?'
+    : 'What is causing the drag, spend, or operational pain right now?'
+  const currentEnvironmentLabel = isExploreIntent ? 'Current stack or environment (optional)' : 'Current stack or environment'
+  const currentEnvironmentPlaceholder = isExploreIntent
+    ? 'Share the systems, stack, or environment that make the proof relevant.'
+    : 'Share the stack, operating model, or environment that matters most here.'
+  const desiredOutcomeLabel = isExploreIntent ? 'What would make the proof useful? (optional)' : 'Desired outcome for the first phase'
+  const desiredOutcomePlaceholder = isExploreIntent
+    ? 'What should be clearer once you have the right trace, map, or proof surface?'
+    : 'What should be clearer, safer, faster, or cheaper after the first phase?'
+  const timeSensitivityLabel = isExploreIntent ? 'Anything time-sensitive (optional)' : 'Anything time-sensitive'
+  const successButtonLabel = isExploreIntent ? 'Send exploration note' : intentPreset.submitLabel
+
   return (
     <>
       <section className="page-hero">
@@ -223,15 +292,18 @@ function DiscussProjectPage() {
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.02fr)_minmax(22rem,0.98fr)] xl:items-start">
               <div className="relative z-10">
-                <span className="section-chip">{preset.eyebrow}</span>
+                <span className="section-chip">{intentPreset.eyebrow}</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  {preset.title}
+                  {pageTitle}
                 </h1>
-                <p className="section-copy max-w-3xl text-base sm:text-lg">{preset.intro}</p>
+                <p className="section-copy max-w-3xl text-base sm:text-lg">{pageIntro}</p>
+                <p className="mt-4 text-sm leading-7 text-primary-100">
+                  Current focus: <span className="font-semibold text-white">{preset.optionLabel}</span>
+                </p>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                   <a href="#project-brief-form" className="primary-button gap-2">
-                    Complete the project brief
+                    {intentPreset.submitLabel}
                     <FaArrowRight className="text-xs" />
                   </a>
                   <Link to={secondaryAction.to} className="secondary-button gap-2">
@@ -257,24 +329,44 @@ function DiscussProjectPage() {
                 </div>
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {intentCards.map((card) => {
+                    const isActive = card.value === selectedIntent
+
+                    return (
+                      <button
+                        key={card.value}
+                        type="button"
+                        onClick={() => handleIntentChange(card.value)}
+                        className={`rounded-[1.5rem] border p-5 text-left transition ${
+                          isActive
+                            ? 'border-primary-500/30 bg-primary-500/10'
+                            : 'border-white/10 bg-white/[0.03] hover:border-primary-500/20 hover:bg-white/[0.05]'
+                        }`}
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{card.title}</p>
+                        <p className="mt-3 text-sm leading-7 text-gray-300">{card.description}</p>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="metric-card p-5">
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Response promise</p>
                     <p className="mt-3 text-sm leading-7 text-gray-300">{responsePromise}</p>
                   </div>
                   <div className="metric-card p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Best use of this page</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-300">
-                      Send enough context once so the reply can move straight into fit, scope, and the right first engagement.
-                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Best use of this path</p>
+                    <p className="mt-3 text-sm leading-7 text-gray-300">{bestUseText}</p>
                   </div>
                 </div>
               </div>
 
               <div id="project-brief-form" className="relative z-10 metric-card scroll-mt-28 p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Structured brief</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Send the project context once.</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">{intentPreset.formEyebrow}</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">{intentPreset.formTitle}</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  This form delivers the brief directly when email delivery is configured and falls back to a prefilled email when needed.
+                  {intentPreset.formIntro} Direct delivery still uses the API when configured and falls back to a prefilled email when needed.
                 </p>
 
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -342,7 +434,7 @@ function DiscussProjectPage() {
 
                     <div>
                       <label className="form-label" htmlFor="company">
-                        Company
+                        {isExploreIntent ? 'Company (optional)' : 'Company'}
                       </label>
                       <input
                         id="company"
@@ -358,7 +450,7 @@ function DiscussProjectPage() {
 
                     <div>
                       <label className="form-label" htmlFor="role">
-                        Role
+                        {isExploreIntent ? 'Role (optional)' : 'Role'}
                       </label>
                       <input
                         id="role"
@@ -372,52 +464,56 @@ function DiscussProjectPage() {
                       {fieldErrors.role ? <p className="mt-2 text-sm text-red-300">{fieldErrors.role}</p> : null}
                     </div>
 
-                    <div>
-                      <label className="form-label" htmlFor="timeline">
-                        Timeline
-                      </label>
-                      <select
-                        id="timeline"
-                        name="timeline"
-                        value={formState.timeline}
-                        onChange={handleInputChange}
-                        className="form-select"
-                      >
-                        <option value="">Select a timeline</option>
-                        {timelineOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                      {fieldErrors.timeline ? <p className="mt-2 text-sm text-red-300">{fieldErrors.timeline}</p> : null}
-                    </div>
+                    {!isExploreIntent ? (
+                      <>
+                        <div>
+                          <label className="form-label" htmlFor="timeline">
+                            Timeline
+                          </label>
+                          <select
+                            id="timeline"
+                            name="timeline"
+                            value={formState.timeline}
+                            onChange={handleInputChange}
+                            className="form-select"
+                          >
+                            <option value="">Select a timeline</option>
+                            {timelineOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                          {fieldErrors.timeline ? <p className="mt-2 text-sm text-red-300">{fieldErrors.timeline}</p> : null}
+                        </div>
 
-                    <div>
-                      <label className="form-label" htmlFor="budgetRange">
-                        Budget range
-                      </label>
-                      <select
-                        id="budgetRange"
-                        name="budgetRange"
-                        value={formState.budgetRange}
-                        onChange={handleInputChange}
-                        className="form-select"
-                      >
-                        <option value="">Select a range</option>
-                        {budgetRangeOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                      {fieldErrors.budgetRange ? <p className="mt-2 text-sm text-red-300">{fieldErrors.budgetRange}</p> : null}
-                    </div>
+                        <div>
+                          <label className="form-label" htmlFor="budgetRange">
+                            Budget range
+                          </label>
+                          <select
+                            id="budgetRange"
+                            name="budgetRange"
+                            value={formState.budgetRange}
+                            onChange={handleInputChange}
+                            className="form-select"
+                          >
+                            <option value="">Select a range</option>
+                            {budgetRangeOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                          {fieldErrors.budgetRange ? <p className="mt-2 text-sm text-red-300">{fieldErrors.budgetRange}</p> : null}
+                        </div>
+                      </>
+                    ) : null}
                   </div>
 
                   <div>
                     <label className="form-label" htmlFor="problem">
-                      Problem / pressure point
+                      {problemLabel}
                     </label>
                     <textarea
                       id="problem"
@@ -425,14 +521,14 @@ function DiscussProjectPage() {
                       value={formState.problem}
                       onChange={handleInputChange}
                       className="form-textarea"
-                      placeholder="What is causing the drag, spend, or operational pain right now?"
+                      placeholder={problemPlaceholder}
                     />
                     {fieldErrors.problem ? <p className="mt-2 text-sm text-red-300">{fieldErrors.problem}</p> : null}
                   </div>
 
                   <div>
                     <label className="form-label" htmlFor="currentEnvironment">
-                      Current stack or environment
+                      {currentEnvironmentLabel}
                     </label>
                     <textarea
                       id="currentEnvironment"
@@ -440,14 +536,14 @@ function DiscussProjectPage() {
                       value={formState.currentEnvironment}
                       onChange={handleInputChange}
                       className="form-textarea"
-                      placeholder="Share the stack, operating model, or environment that matters most here."
+                      placeholder={currentEnvironmentPlaceholder}
                     />
                     {fieldErrors.currentEnvironment ? <p className="mt-2 text-sm text-red-300">{fieldErrors.currentEnvironment}</p> : null}
                   </div>
 
                   <div>
                     <label className="form-label" htmlFor="desiredOutcome">
-                      Desired outcome for the first phase
+                      {desiredOutcomeLabel}
                     </label>
                     <textarea
                       id="desiredOutcome"
@@ -455,14 +551,14 @@ function DiscussProjectPage() {
                       value={formState.desiredOutcome}
                       onChange={handleInputChange}
                       className="form-textarea"
-                      placeholder="What should be clearer, safer, faster, or cheaper after the first phase?"
+                      placeholder={desiredOutcomePlaceholder}
                     />
                     {fieldErrors.desiredOutcome ? <p className="mt-2 text-sm text-red-300">{fieldErrors.desiredOutcome}</p> : null}
                   </div>
 
                   <div>
                     <label className="form-label" htmlFor="timeSensitivity">
-                      Anything time-sensitive
+                      {timeSensitivityLabel}
                     </label>
                     <textarea
                       id="timeSensitivity"
@@ -501,7 +597,7 @@ function DiscussProjectPage() {
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                     <button type="submit" disabled={isSubmitting} className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70">
-                      {isSubmitting ? 'Sending brief...' : 'Send project brief'}
+                      {isSubmitting ? (isExploreIntent ? 'Sending note...' : 'Sending brief...') : successButtonLabel}
                     </button>
                     <a href={buildFallbackUrl()} className="secondary-button gap-2">
                       Use email fallback
@@ -527,7 +623,9 @@ function DiscussProjectPage() {
                 <span className="section-chip">Best starting context</span>
                 <h2 className="section-title text-3xl sm:text-4xl">What makes this a strong fit</h2>
                 <p className="section-copy">
-                  Share the part of the problem that is burning time, budget, or operator confidence right now.
+                  {isExploreIntent
+                    ? 'Share the part of the system, proof surface, or technical risk you want to make clearer first.'
+                    : 'Share the part of the problem that is burning time, budget, or operator confidence right now.'}
                 </p>
               </div>
 
@@ -565,7 +663,9 @@ function DiscussProjectPage() {
               </ol>
 
               <div className="rounded-[1.35rem] border border-primary-500/20 bg-primary-500/10 px-4 py-4 text-sm leading-7 text-primary-100">
-                The goal is a decision and a first delivery shape, not a vague "let&apos;s keep in touch" loop.
+                {isExploreIntent
+                  ? 'The goal is a useful technical next step and a stronger fit read, not premature scoping.'
+                  : 'The goal is a decision and a first delivery shape, not a vague "let&apos;s keep in touch" loop.'}
               </div>
             </div>
           </div>

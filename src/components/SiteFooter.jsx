@@ -18,15 +18,18 @@ function SiteFooter() {
 
             <div className="w-full max-w-xl space-y-4">
               <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Ready to scope the work?</p>
-                <h3 className="mt-3 text-xl font-semibold text-white">Send the project brief first.</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Choose the handoff</p>
+                <h3 className="mt-3 text-xl font-semibold text-white">Start from proof or scope the work.</h3>
                 <p className="mt-3 text-sm leading-7 text-gray-400">
-                  The structured brief is the fastest handoff. It captures the context once, keeps the next step focused, and still preserves a direct-email fallback.
+                  Keep the demo lane light when you want technical trust first. Use the scoped brief when the problem is already concrete enough for a real engagement conversation.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-3">
-                  <Link to={createDiscussUrl()} className="primary-button !px-4 !py-2.5">
-                    Start project brief
+                  <Link to={createDiscussUrl('', { intent: 'explore' })} className="secondary-button !px-4 !py-2.5">
+                    Start from proof
+                  </Link>
+                  <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button !px-4 !py-2.5">
+                    Scope the work
                   </Link>
                   <Link to={LIVE_SANDBOX_ARCHITECTURE_ROUTE} className="secondary-button !px-4 !py-2.5">
                     Sandbox architecture

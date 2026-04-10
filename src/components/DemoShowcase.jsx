@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaChartLine, FaCodeBranch, FaTerminal } from 'react-icons/fa'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE } from '../constants/routes'
+import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const demoPages = [
   {
@@ -12,6 +12,8 @@ const demoPages = [
     highlights: ['Five-minute hard expiry', 'Optional identified access', 'Published sandbox architecture'],
     to: LIVE_SANDBOX_ROUTE,
     cta: 'Open live demo',
+    topic: 'live-terminal-sandbox',
+    discussionCta: 'Get the sandbox breakdown',
     icon: FaTerminal,
     dotClassName: 'bg-cyan-300',
     textClassName: 'text-cyan-200',
@@ -25,6 +27,8 @@ const demoPages = [
     highlights: ['Interactive scenario inputs', 'Fast savings signal', 'Direct handoff into a cost discussion'],
     to: COST_REVIEW_ROUTE,
     cta: 'Open review demo',
+    topic: 'cloud-cost-optimization',
+    discussionCta: 'Discuss the savings signal',
     icon: FaChartLine,
     dotClassName: 'bg-primary-300',
     textClassName: 'text-primary-200',
@@ -32,12 +36,14 @@ const demoPages = [
   },
   {
     eyebrow: 'Workflow composer',
-    title: 'Preview the workflow shape, then open the live studio',
+    title: 'Preview the workflow shape before you scope the build',
     description:
       'Map triggers, branches, approvals, and the launch into the restricted editor when orchestration design is the clearest proof point.',
     highlights: ['Template-driven orchestration', 'Restricted live studio launch', 'Clear handoff into delivery scope'],
     to: WORKFLOW_COMPOSER_ROUTE,
     cta: 'Open workflow demo',
+    topic: 'workflow-composer',
+    discussionCta: 'Talk through this workflow proof',
     icon: FaCodeBranch,
     dotClassName: 'bg-violet-300',
     textClassName: 'text-violet-200',
@@ -47,7 +53,7 @@ const demoPages = [
 
 function DemoShowcase() {
   return (
-    <section className="terminal-window">
+    <section id="home-proof" className="terminal-window scroll-mt-24">
       <div className="terminal-header">
         <div className="text-sm text-gray-400">demos - launchpad</div>
       </div>
@@ -56,10 +62,10 @@ function DemoShowcase() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="section-chip">Interactive demos</span>
-              <h2 className="section-title text-3xl sm:text-4xl">Open the proof that answers the biggest risk first</h2>
+              <h2 className="section-title text-3xl sm:text-4xl">Explore the proof before you scope the work</h2>
             </div>
             <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-              Each demo answers a different question quickly: can the runtime stay safe, is the savings case worth pursuing, or does the workflow deserve implementation?
+              Each surface answers a different technical risk quickly and gives you a lighter path into the conversation when you want the breakdown before a formal brief.
             </p>
           </div>
 
@@ -94,10 +100,13 @@ function DemoShowcase() {
                   ))}
                 </ul>
 
-                <div className="mt-7">
+                <div className="mt-7 flex flex-col items-start gap-3">
                   <Link to={demo.to} className="primary-button gap-2">
                     {demo.cta}
                     <FaArrowRight className="text-xs" />
+                  </Link>
+                  <Link to={createDiscussUrl(demo.topic, { intent: 'explore' })} className="soft-link">
+                    {demo.discussionCta}
                   </Link>
                 </div>
               </article>

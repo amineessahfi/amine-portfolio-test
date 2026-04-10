@@ -24,7 +24,7 @@ function ServiceDemoPage() {
   }
 
   const serviceRoute = createServiceRoute(service.slug)
-  const discussUrl = createDiscussUrl(service.slug)
+  const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
   const demoCopy = isSandboxDemo
     ? {
         eyebrow: 'Live sandbox',

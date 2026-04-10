@@ -18,6 +18,41 @@ export const budgetRangeOptions = [
   'Need guidance',
 ]
 
+export const discussIntentPresets = {
+  scope: {
+    optionLabel: 'Scope a real engagement',
+    eyebrow: 'Scoped engagement',
+    formEyebrow: 'Structured brief',
+    formTitle: 'Send the project context once.',
+    formIntro: 'This path captures the commercial and operating context needed for a scoped reply.',
+    submitLabel: 'Send scoped brief',
+    summaryText:
+      'Use this when the problem is real enough that you want a fit verdict, a first delivery shape, and the right next step.',
+    responseSteps: [
+      'I review the problem, the constraints, and whether the work is a strong fit.',
+      'You get a recommendation on the best starting shape: diagnostic sprint, redesign blueprint, or implementation track.',
+      'If the fit is real, we move straight into a concrete next step instead of a vague discovery loop.',
+    ],
+    requiredFields: ['name', 'workEmail', 'company', 'role', 'timeline', 'budgetRange', 'problem', 'currentEnvironment', 'desiredOutcome'],
+  },
+  explore: {
+    optionLabel: 'Start from proof',
+    eyebrow: 'Explore from proof',
+    formEyebrow: 'Exploration note',
+    formTitle: 'Send the question you want to pressure-test.',
+    formIntro: 'Keep it light. Share the system, the part you want to inspect, and what would make the proof useful.',
+    submitLabel: 'Send exploration note',
+    summaryText:
+      'Use this when you want a lighter technical reply focused on proof, fit, and whether the problem deserves formal scoping.',
+    responseSteps: [
+      'I reply with the strongest proof path, a fit read, or a few clarifying questions.',
+      'You get a recommendation on whether to inspect a live proof surface, review a system map, or move into a scoped conversation.',
+      'If the problem is real enough, we can turn the exploration into a formal diagnostic brief.',
+    ],
+    requiredFields: ['name', 'workEmail', 'problem'],
+  },
+}
+
 const generalBriefFields = [
   'Problem / pressure point:',
   'Current stack or environment:',
@@ -195,6 +230,10 @@ export const discussTopicOptions = [
 
 const topicAliases = {
   'aws-cost-optimization': 'cloud-cost-optimization',
+}
+
+export function normalizeDiscussIntent(intent = 'scope') {
+  return discussIntentPresets[intent] ? intent : 'scope'
 }
 
 export function normalizeDiscussTopic(topic = 'general') {

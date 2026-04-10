@@ -23,7 +23,7 @@ function ServiceDetailPage() {
   const isCostService = service.slug === 'cloud-cost-optimization'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const isWorkflowService = service.slug === 'workflow-composer'
-  const discussUrl = createDiscussUrl(service.slug)
+  const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
   const primaryCta = isSandboxService
     ? { label: 'Open the live sandbox', to: LIVE_SANDBOX_ROUTE }
     : isCostService

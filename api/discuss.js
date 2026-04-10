@@ -3,7 +3,9 @@ import {
   createLeadSubmissionEmailUrl,
 } from '../src/constants/links.js'
 import {
+  discussIntentPresets,
   getDiscussTopicPreset,
+  normalizeDiscussIntent,
   normalizeDiscussTopic,
   responsePromise,
 } from '../src/data/discussTopics.js'
@@ -33,14 +35,21 @@ function parseRequestBody(body) {
 }
 
 function normalizeLeadPayload(body = {}) {
+  const intent = normalizeDiscussIntent(sanitizeField(body.intent, 40))
+  const intentPreset = discussIntentPresets[intent]
   const topic = normalizeDiscussTopic(sanitizeField(body.topic, 120))
   const preset = getDiscussTopicPreset(topic)
 
   return {
+    intent,
+    intentLabel: intentPreset.optionLabel,
     topic,
     topicLabel: preset.optionLabel,
-    subject: preset.emailSubject,
-    intro: preset.emailIntro,
+    subject: intent === 'explore' ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+    intro:
+      intent === 'explore'
+        ? `I would like to pressure-test whether the ${preset.optionLabel.toLowerCase()} proof path is the right starting point.`
+        : preset.emailIntro,
     name: sanitizeField(body.name, 120),
     workEmail: sanitizeField(body.workEmail, 160).toLowerCase(),
     company: sanitizeField(body.company, 160),
@@ -58,42 +67,43 @@ function normalizeLeadPayload(body = {}) {
 
 function validateLeadPayload(lead) {
   const errors = {}
+  const requiredFields = new Set(discussIntentPresets[lead.intent]?.requiredFields || discussIntentPresets.scope.requiredFields)
 
-  if (!lead.name) {
+  if (requiredFields.has('name') && !lead.name) {
     errors.name = 'Name is required.'
   }
 
-  if (!lead.workEmail) {
+  if (requiredFields.has('workEmail') && !lead.workEmail) {
     errors.workEmail = 'Work email is required.'
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.workEmail)) {
     errors.workEmail = 'Enter a valid email address.'
   }
 
-  if (!lead.company) {
+  if (requiredFields.has('company') && !lead.company) {
     errors.company = 'Company is required.'
   }
 
-  if (!lead.role) {
+  if (requiredFields.has('role') && !lead.role) {
     errors.role = 'Role is required.'
   }
 
-  if (!lead.timeline) {
+  if (requiredFields.has('timeline') && !lead.timeline) {
     errors.timeline = 'Timeline is required.'
   }
 
-  if (!lead.budgetRange) {
+  if (requiredFields.has('budgetRange') && !lead.budgetRange) {
     errors.budgetRange = 'Budget range is required.'
   }
 
-  if (!lead.problem) {
+  if (requiredFields.has('problem') && !lead.problem) {
     errors.problem = 'Problem / pressure point is required.'
   }
 
-  if (!lead.currentEnvironment) {
+  if (requiredFields.has('currentEnvironment') && !lead.currentEnvironment) {
     errors.currentEnvironment = 'Current stack or environment is required.'
   }
 
-  if (!lead.desiredOutcome) {
+  if (requiredFields.has('desiredOutcome') && !lead.desiredOutcome) {
     errors.desiredOutcome = 'Desired outcome is required.'
   }
 
@@ -104,6 +114,7 @@ function formatLeadEmailText(lead) {
   return [
     `New portfolio lead: ${lead.topicLabel}`,
     '',
+    `Intent: ${lead.intentLabel}`,
     `Name: ${lead.name}`,
     `Work email: ${lead.workEmail}`,
     `Company: ${lead.company}`,
@@ -146,6 +157,7 @@ function formatLeadEmailHtml(lead) {
       <h2 style="margin-bottom: 12px;">New portfolio lead: ${escape(lead.topicLabel)}</h2>
       <p style="margin: 0 0 16px;">Reply promise shown on the site: ${escape(responsePromise)}</p>
       <table style="border-collapse: collapse; margin-bottom: 20px;">
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Intent</strong></td><td>${escape(lead.intentLabel)}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Name</strong></td><td>${escape(lead.name)}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Work email</strong></td><td>${escape(lead.workEmail)}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Company</strong></td><td>${escape(lead.company)}</td></tr>
@@ -178,13 +190,14 @@ async function sendLeadEmail(lead, recipient) {
   if (!resendApiKey) {
     return {
       mode: 'mailto',
-      mailtoUrl: createLeadSubmissionEmailUrl({
-        recipient,
-        subject: lead.subject,
-        intro: lead.intro,
-        topicLabel: lead.topicLabel,
-        name: lead.name,
-        workEmail: lead.workEmail,
+        mailtoUrl: createLeadSubmissionEmailUrl({
+          recipient,
+          subject: lead.subject,
+          intro: lead.intro,
+          intentLabel: lead.intentLabel,
+          topicLabel: lead.topicLabel,
+          name: lead.name,
+          workEmail: lead.workEmail,
         company: lead.company,
         role: lead.role,
         timeline: lead.timeline,
@@ -304,6 +317,7 @@ export default async function handler(req, res) {
         recipient,
         subject: lead.subject,
         intro: lead.intro,
+        intentLabel: lead.intentLabel,
         topicLabel: lead.topicLabel,
         name: lead.name,
         workEmail: lead.workEmail,

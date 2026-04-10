@@ -29,6 +29,18 @@ export function createServiceArchitectureRoute(serviceSlug, hash = '') {
   return hash ? `${architectureRoute}#${hash}` : architectureRoute
 }
 
-export function createDiscussUrl(topic = '') {
-  return topic ? `/discuss?topic=${encodeURIComponent(topic)}` : '/discuss'
+export function createDiscussUrl(topic = '', options = {}) {
+  const normalizedOptions = typeof options === 'string' ? { intent: options } : options
+  const params = new URLSearchParams()
+
+  if (topic) {
+    params.set('topic', topic)
+  }
+
+  if (normalizedOptions.intent && normalizedOptions.intent !== 'scope') {
+    params.set('intent', normalizedOptions.intent)
+  }
+
+  const query = params.toString()
+  return query ? `/discuss?${query}` : '/discuss'
 }

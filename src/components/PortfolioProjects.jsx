@@ -10,7 +10,7 @@ function PortfolioProjects() {
       tech: ['Kubernetes', 'AWS', 'Terraform', 'Go'],
       metrics: 'Reduced deployment time by 70%',
       topic: 'platform-engineering',
-      ctaLabel: 'Discuss similar platform work',
+      ctaLabel: 'Scope similar platform work',
     },
     {
       title: 'Data Insight Tools',
@@ -18,7 +18,7 @@ function PortfolioProjects() {
       tech: ['Python', 'Apache Airflow', 'PostgreSQL', 'React'],
       metrics: 'Processed 2TB+ daily data',
       topic: 'data-platforms',
-      ctaLabel: 'Discuss similar data work',
+      ctaLabel: 'Scope similar data work',
     },
     {
       title: 'SIM Tooling Platform',
@@ -26,7 +26,7 @@ function PortfolioProjects() {
       tech: ['Docker', 'Node.js', 'MongoDB', 'Redis'],
       metrics: 'Managed 500k+ SIM cards',
       topic: 'telco-tooling',
-      ctaLabel: 'Discuss similar telecom tooling',
+      ctaLabel: 'Scope similar telecom tooling',
     },
   ]
 
@@ -73,7 +73,7 @@ function PortfolioProjects() {
                 </div>
 
                 <div className="mt-5">
-                  <Link to={createDiscussUrl(project.topic)} className="secondary-button !rounded-xl !px-4 !py-2.5">
+                  <Link to={createDiscussUrl(project.topic, { intent: 'scope' })} className="secondary-button !rounded-xl !px-4 !py-2.5">
                     {project.ctaLabel}
                   </Link>
                 </div>

@@ -12,8 +12,8 @@ function HomePage() {
       <main className="page-shell lg:gap-12">
         <ServicesOverview
           eyebrow="Service lines"
-          title="Start with the service that matches the pressure point"
-          intro="Use the homepage to orient quickly, then move into the service page with the closest fit once the bottleneck is clear."
+          title="When the problem is real, move into the service that matches it"
+          intro="Use live proof when you want technical trust first. Use the service page when you already need a diagnostic, redesign, or implementation path."
           showDirectoryLink
         />
 
