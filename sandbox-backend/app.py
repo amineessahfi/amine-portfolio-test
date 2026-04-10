@@ -16,7 +16,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from aiohttp import ClientSession, WSMsgType, web
+from aiohttp import BasicAuth, ClientSession, WSMsgType, web
 
 
 def env_flag(name: str, default: bool = False) -> bool:
@@ -53,6 +53,7 @@ WORKFLOW_STUDIO_URL = os.getenv('WORKFLOW_STUDIO_URL', f'{PUBLIC_ORIGIN}{WORKFLO
 WORKFLOW_STUDIO_ENABLED = env_flag('WORKFLOW_STUDIO_ENABLED', True)
 SANDBOX_IMAGE = os.getenv('SANDBOX_IMAGE', 'essahfi-terminal-sandbox:latest')
 SESSION_SECONDS = int(os.getenv('SESSION_SECONDS', '300'))
+WORKFLOW_STUDIO_SESSION_SECONDS = int(os.getenv('WORKFLOW_STUDIO_SESSION_SECONDS', str(SESSION_SECONDS)))
 CONNECT_WINDOW_SECONDS = int(os.getenv('CONNECT_WINDOW_SECONDS', '60'))
 MAX_SESSIONS_PER_HOUR = int(os.getenv('MAX_SESSIONS_PER_HOUR', '3'))
 MAX_CONCURRENT_PER_IP = int(os.getenv('MAX_CONCURRENT_PER_IP', '1'))
@@ -60,8 +61,14 @@ MAX_GLOBAL_CONCURRENT = int(os.getenv('MAX_GLOBAL_CONCURRENT', '4'))
 FREE_ANONYMOUS_SESSIONS = int(os.getenv('FREE_ANONYMOUS_SESSIONS', '1'))
 VISITOR_COOKIE_NAME = os.getenv('VISITOR_COOKIE_NAME', 'sandbox_visitor')
 AUTH_COOKIE_NAME = os.getenv('AUTH_COOKIE_NAME', 'sandbox_auth')
+WORKFLOW_STUDIO_COOKIE_NAME = os.getenv('WORKFLOW_STUDIO_COOKIE_NAME', 'sandbox_studio')
 AUTH_COOKIE_MAX_AGE = int(os.getenv('AUTH_COOKIE_MAX_AGE', str(60 * 60 * 24 * 14)))
 AUTH_COOKIE_SECRET = os.getenv('AUTH_COOKIE_SECRET') or secrets.token_hex(32)
+N8N_DEMO_BASIC_AUTH_USER = os.getenv('N8N_DEMO_BASIC_AUTH_USER', 'studio').strip()
+N8N_DEMO_BASIC_AUTH_PASSWORD = os.getenv('N8N_DEMO_BASIC_AUTH_PASSWORD', '').strip()
+N8N_DEMO_LOGIN_EMAIL = os.getenv('N8N_DEMO_LOGIN_EMAIL', 'studio-demo@local.invalid').strip()
+N8N_DEMO_LOGIN_PASSWORD = os.getenv('N8N_DEMO_LOGIN_PASSWORD', '').strip()
+N8N_DEMO_LOGIN_URL = os.getenv('N8N_DEMO_LOGIN_URL', 'http://127.0.0.1:5679/rest/login').strip()
 GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID', '').strip()
 GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET', '').strip()
 GOOGLE_OAUTH_SCOPE = os.getenv('GOOGLE_OAUTH_SCOPE', 'openid email').strip()
@@ -358,7 +365,36 @@ def get_auth_identity(request: web.Request) -> dict | None:
     return payload
 
 
-def set_signed_cookie(response: web.StreamResponse, cookie_name: str, payload: dict, *, max_age: int) -> None:
+def get_workflow_studio_lease(request: web.Request, *, visitor_state: dict | None = None) -> dict | None:
+    payload = read_signed_payload(request.cookies.get(WORKFLOW_STUDIO_COOKIE_NAME))
+    if not payload:
+        return None
+
+    try:
+        expiry = int(payload.get('exp', 0))
+    except (TypeError, ValueError):
+        return None
+
+    if expiry <= int(time.time()):
+        return None
+
+    if payload.get('scope') != 'workflow_studio':
+        return None
+
+    if visitor_state and payload.get('visitor_id') != visitor_state.get('visitor_id'):
+        return None
+
+    return payload
+
+
+def set_signed_cookie(
+    response: web.StreamResponse,
+    cookie_name: str,
+    payload: dict,
+    *,
+    max_age: int,
+    path: str = '/',
+) -> None:
     response.set_cookie(
         cookie_name,
         sign_payload(payload),
@@ -366,7 +402,7 @@ def set_signed_cookie(response: web.StreamResponse, cookie_name: str, payload: d
         secure=True,
         httponly=True,
         samesite='None',
-        path='/',
+        path=path,
     )
 
 
@@ -378,14 +414,47 @@ def set_auth_cookie(response: web.StreamResponse, auth_identity: dict) -> None:
     set_signed_cookie(response, AUTH_COOKIE_NAME, auth_identity, max_age=AUTH_COOKIE_MAX_AGE)
 
 
-def clear_auth_cookie(response: web.StreamResponse) -> None:
+def build_workflow_studio_lease(visitor_state: dict) -> dict:
+    issued_at = int(time.time())
+    return {
+        'scope': 'workflow_studio',
+        'visitor_id': visitor_state['visitor_id'],
+        'iat': issued_at,
+        'exp': issued_at + WORKFLOW_STUDIO_SESSION_SECONDS,
+    }
+
+
+def set_workflow_studio_lease(
+    response: web.StreamResponse,
+    visitor_state: dict,
+    *,
+    lease: dict | None = None,
+) -> dict:
+    if lease is None:
+        lease = build_workflow_studio_lease(visitor_state)
+
+    set_signed_cookie(
+        response,
+        WORKFLOW_STUDIO_COOKIE_NAME,
+        lease,
+        max_age=WORKFLOW_STUDIO_SESSION_SECONDS,
+        path=WORKFLOW_STUDIO_PATH,
+    )
+    return lease
+
+
+def clear_cookie(response: web.StreamResponse, cookie_name: str, *, path: str = '/') -> None:
     response.del_cookie(
-        AUTH_COOKIE_NAME,
-        path='/',
+        cookie_name,
+        path=path,
         secure=True,
         httponly=True,
         samesite='None',
     )
+
+
+def clear_auth_cookie(response: web.StreamResponse) -> None:
+    clear_cookie(response, AUTH_COOKIE_NAME)
 
 
 def normalize_return_to(candidate: str | None) -> str:
@@ -614,6 +683,7 @@ async def health(request: web.Request) -> web.Response:
 async def auth_status(request: web.Request) -> web.Response:
     visitor_state, refresh_visitor_cookie = get_visitor_state(request)
     auth_identity = get_auth_identity(request)
+    workflow_studio_available = WORKFLOW_STUDIO_ENABLED and bool(N8N_DEMO_BASIC_AUTH_PASSWORD and N8N_DEMO_LOGIN_PASSWORD)
 
     response = web.json_response(
         {
@@ -630,9 +700,10 @@ async def auth_status(request: web.Request) -> web.Response:
             if auth_identity
             else None,
             'workflowStudio': {
-                'enabled': WORKFLOW_STUDIO_ENABLED,
-                'requiresAuth': True,
-                'url': WORKFLOW_STUDIO_URL if WORKFLOW_STUDIO_ENABLED else '',
+                'enabled': workflow_studio_available,
+                'requiresAuth': False,
+                'sessionSeconds': WORKFLOW_STUDIO_SESSION_SECONDS if workflow_studio_available else 0,
+                'url': WORKFLOW_STUDIO_URL if workflow_studio_available else '',
             },
         }
     )
@@ -780,20 +851,79 @@ async def workflow_studio_access(request: web.Request) -> web.Response:
     if not WORKFLOW_STUDIO_ENABLED:
         return web.json_response({'ok': False, 'error': 'Workflow studio is not configured.'}, status=503)
 
-    auth_identity = get_auth_identity(request)
-    if not auth_identity:
-        raise web.HTTPUnauthorized(text='Sign in is required for the workflow studio.')
+    origin = request.headers.get('Origin')
+    bootstrap_requested = request.query.get('bootstrap') == '1' or bool(origin and origin_allowed(origin, require_origin=True))
 
-    response = web.json_response(
-        {
-            'ok': True,
-            'authenticated': True,
-            'user': {
-                'email': auth_identity.get('email'),
-                'name': auth_identity.get('name'),
-            },
-        }
-    )
+    if bootstrap_requested:
+        if not origin_allowed(origin, require_origin=True):
+            return web.json_response({'ok': False, 'error': 'Origin not allowed.'}, status=403)
+
+        if not N8N_DEMO_BASIC_AUTH_PASSWORD or not N8N_DEMO_LOGIN_PASSWORD:
+            return web.json_response({'ok': False, 'error': 'Workflow studio guest access is not configured.'}, status=503)
+
+        visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+
+        async with ClientSession() as client_session:
+            async with client_session.post(
+                N8N_DEMO_LOGIN_URL,
+                auth=BasicAuth(N8N_DEMO_BASIC_AUTH_USER, N8N_DEMO_BASIC_AUTH_PASSWORD),
+                json={
+                    'emailOrLdapLoginId': N8N_DEMO_LOGIN_EMAIL,
+                    'password': N8N_DEMO_LOGIN_PASSWORD,
+                },
+            ) as login_response:
+                set_cookie_headers = login_response.headers.getall('Set-Cookie', [])
+
+                if login_response.status >= 400 or not set_cookie_headers:
+                    error_text = (await login_response.text()).strip()
+                    audit_log(
+                        'workflow_studio_bootstrap_failed',
+                        client_ip=get_client_ip(request),
+                        visitor_id=visitor_state['visitor_id'],
+                        status=login_response.status,
+                        reason=error_text[:200] or 'login_failed',
+                    )
+                    return web.json_response(
+                        {'ok': False, 'error': 'The live workflow studio could not start a temporary session.'},
+                        status=502,
+                    )
+
+        lease = build_workflow_studio_lease(visitor_state)
+        response = web.json_response(
+            {
+                'ok': True,
+                'mode': 'temporary',
+                'sessionSeconds': WORKFLOW_STUDIO_SESSION_SECONDS,
+                'expiresAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(lease['exp'])),
+            }
+        )
+        set_workflow_studio_lease(response, visitor_state, lease=lease)
+
+        for header_value in set_cookie_headers:
+            response.headers.add('Set-Cookie', header_value)
+
+        if refresh_visitor_cookie:
+            set_visitor_cookie(response, visitor_state)
+
+        response.headers['Cache-Control'] = 'no-store'
+
+        audit_log(
+            'workflow_studio_bootstrap_started',
+            client_ip=get_client_ip(request),
+            visitor_id=visitor_state['visitor_id'],
+            expires_at=lease['exp'],
+        )
+
+        return response
+
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    lease = get_workflow_studio_lease(request, visitor_state=visitor_state)
+    if not lease:
+        raise web.HTTPUnauthorized(text='Launch the workflow studio from the workflow demo to start a 5-minute guest session.')
+
+    response = web.Response(status=204)
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
     response.headers['Cache-Control'] = 'no-store'
     return response
 

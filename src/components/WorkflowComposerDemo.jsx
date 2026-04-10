@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaBolt, FaCheckCircle, FaCodeBranch, FaExclamationTriangle, FaRobot } from 'react-icons/fa'
 import { SANDBOX_API_BASE } from '../constants/sandbox'
@@ -112,20 +112,14 @@ const notificationModes = [
 
 const liveNodeLibrary = ['Manual Trigger', 'Set', 'If', 'Switch', 'Merge', 'Wait']
 const liveStudioGuardrails = [
-  'Authenticated launch only through the site-wide Google session.',
+  'Temporary five-minute guest session minted on demand and cut off when it expires.',
   'Dedicated demo instance, separate from the personal n8n workspace.',
   'Limited node library with no community nodes, credentials, or code execution.',
   'Manual-trigger only so the demo does not expose public webhooks or schedules.',
 ]
 
 function WorkflowComposerDemo() {
-  const {
-    authReady,
-    authState,
-    consumeOauthResult,
-    startSignIn,
-    syncAuthState,
-  } = useSiteAuth()
+  const { authReady, authState } = useSiteAuth()
   const [selectedTemplateId, setSelectedTemplateId] = useState('incident-routing')
   const [approvalEnabled, setApprovalEnabled] = useState(true)
   const [failureBranchEnabled, setFailureBranchEnabled] = useState(true)
@@ -140,26 +134,6 @@ function WorkflowComposerDemo() {
   const selectedNotification = notificationModes.find((mode) => mode.id === notificationMode) || notificationModes[1]
   const workflowStudioUrl = authState.workflowStudioUrl || ''
   const workflowStudioEnabled = authState.workflowStudioEnabled
-
-  useEffect(() => {
-    const oauthState = consumeOauthResult()
-
-    if (oauthState === 'success') {
-      setNotice('Sign-in complete. The live studio is ready below.')
-      setError('')
-      void (async () => {
-        const result = await syncAuthState()
-
-        if (result.ok) {
-          setStudioVisible(true)
-          setStudioFrameKey((current) => current + 1)
-        }
-      })()
-    } else if (oauthState === 'error') {
-      setNotice('')
-      setError('Sign-in did not complete. Please try again.')
-    }
-  }, [consumeOauthResult, syncAuthState])
 
   const composerState = useMemo(() => {
     const mainNodes = [...selectedTemplate.steps]
@@ -223,14 +197,6 @@ function WorkflowComposerDemo() {
     }
   }, [approvalEnabled, failureBranchEnabled, notificationMode, selectedNotification.systems, selectedTemplate])
 
-  const handleSignIn = () => {
-    const signInError = startSignIn(window.location.href)
-    if (signInError) {
-      setNotice('')
-      setError(signInError)
-    }
-  }
-
   const handleLaunchStudio = async () => {
     if (!workflowStudioUrl) {
       setNotice('')
@@ -242,23 +208,25 @@ function WorkflowComposerDemo() {
     setError('')
 
     try {
-      const response = await fetch(`${SANDBOX_API_BASE}/auth/studio-access`, {
+      const response = await fetch(`${SANDBOX_API_BASE}/auth/studio-access?bootstrap=1`, {
         credentials: 'include',
       })
+      const payload = await response.json().catch(() => null)
 
       if (!response.ok) {
         setNotice('')
         setError(
-          response.status === 401
-            ? 'Sign in again to load the embedded live studio.'
-            : 'The live workflow studio is not available right now.',
+          response.status === 403
+            ? 'The live workflow studio can only be launched from an approved site origin.'
+            : payload?.error || 'The live workflow studio could not start a temporary session right now.',
         )
         return
       }
 
       setStudioVisible(true)
       setStudioFrameKey((current) => current + 1)
-      setNotice('The live n8n studio is now embedded below.')
+      const leaseMinutes = payload?.sessionSeconds ? Math.max(1, Math.round(payload.sessionSeconds / 60)) : 5
+      setNotice(`Temporary studio access is live for ${leaseMinutes} minutes.`)
     } catch {
       setNotice('')
       setError('The live workflow studio could not be loaded right now.')
@@ -302,21 +270,13 @@ function WorkflowComposerDemo() {
                   <button type="button" disabled className="secondary-button opacity-70">
                     Live studio unavailable
                   </button>
-                ) : authState.authenticated ? (
+                ) : (
                   <button type="button" onClick={() => void handleLaunchStudio()} disabled={studioLoading} className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70">
                     {studioLoading
                       ? 'Loading embedded studio'
                       : studioVisible
                         ? 'Reload embedded n8n studio'
                         : 'Load embedded n8n studio'}
-                  </button>
-                ) : authState.authConfigured ? (
-                  <button type="button" onClick={handleSignIn} className="primary-button">
-                    Sign in to unlock the live studio
-                  </button>
-                ) : (
-                  <button type="button" disabled className="secondary-button opacity-70">
-                    Sign-in unavailable
                   </button>
                 )}
 
@@ -387,9 +347,7 @@ function WorkflowComposerDemo() {
                 </div>
               ) : (
                 <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] px-5 py-8 text-sm leading-8 text-gray-300">
-                  {authState.authenticated
-                    ? 'The real n8n editor will load here once you start the embedded studio.'
-                    : 'Sign in first if required, then load the embedded studio here instead of leaving the website.'}
+                  The real n8n editor will load here once you start a temporary studio session.
                 </div>
               )}
             </div>

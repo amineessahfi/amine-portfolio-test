@@ -59,9 +59,14 @@ public_origin = (
 env_values.setdefault('WORKFLOW_STUDIO_ENABLED', 'true')
 env_values.setdefault('WORKFLOW_STUDIO_PATH', '/workflow-studio/')
 env_values.setdefault('WORKFLOW_STUDIO_URL', f'{public_origin}/workflow-studio/')
+env_values.setdefault('WORKFLOW_STUDIO_SESSION_SECONDS', '300')
 env_values.setdefault('ALLOWED_ORIGIN_PATTERNS', ','.join(DEFAULT_ALLOWED_ORIGIN_PATTERNS))
 env_values.setdefault('N8N_DEMO_BASIC_AUTH_USER', 'studio')
 env_values.setdefault('N8N_DEMO_BASIC_AUTH_PASSWORD', secrets.token_urlsafe(24))
+env_values.setdefault('N8N_DEMO_LOGIN_EMAIL', 'studio-demo@local.invalid')
+env_values.setdefault('N8N_DEMO_LOGIN_PASSWORD', secrets.token_urlsafe(24))
+env_values.setdefault('N8N_DEMO_LOGIN_FIRST_NAME', 'Studio')
+env_values.setdefault('N8N_DEMO_LOGIN_LAST_NAME', 'Guest')
 allowed_origin_patterns = [
     pattern.strip()
     for pattern in env_values['ALLOWED_ORIGIN_PATTERNS'].split(',')
@@ -78,6 +83,80 @@ PY
   cp '$REMOTE_DIR/deploy/n8n-demo-compose.yml' /home/ubuntu/n8n-demo/docker-compose.yml
   cd /home/ubuntu/n8n-demo
   sudo docker compose --env-file /etc/essahfi-terminal-sandbox.env up -d
+  reset_ready=''
+  for attempt in \$(seq 1 30); do
+    if sudo docker exec n8n-demo n8n user-management:reset >/tmp/n8n-demo-reset.log 2>&1; then
+      reset_ready=1
+      break
+    fi
+    sleep 2
+  done
+  if [ -z "\$reset_ready" ]; then
+    cat /tmp/n8n-demo-reset.log >&2
+    exit 1
+  fi
+  sudo '$REMOTE_DIR/.venv/bin/python' - <<'PY'
+from pathlib import Path
+import sqlite3
+import time
+
+import bcrypt
+
+env_values = {}
+env_file = Path('/etc/essahfi-terminal-sandbox.env')
+if env_file.exists():
+    for line in env_file.read_text().splitlines():
+        if not line or line.lstrip().startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        env_values[key] = value
+
+db_path = Path('/home/ubuntu/n8n-demo/data/database.sqlite')
+deadline = time.time() + 60
+while not db_path.exists():
+    if time.time() >= deadline:
+        raise SystemExit('n8n demo database was not created in time')
+    time.sleep(1)
+
+connection = sqlite3.connect(db_path, timeout=30)
+try:
+    owner_row = connection.execute(
+        "SELECT id FROM user WHERE roleSlug = 'global:owner' ORDER BY createdAt LIMIT 1"
+    ).fetchone()
+    if not owner_row:
+        raise SystemExit('Could not find n8n demo owner after reset')
+
+    password_hash = bcrypt.hashpw(
+        env_values['N8N_DEMO_LOGIN_PASSWORD'].encode('utf-8'),
+        bcrypt.gensalt(rounds=10),
+    ).decode('utf-8')
+
+    connection.execute(
+        """
+        UPDATE user
+        SET email = ?,
+            firstName = ?,
+            lastName = ?,
+            password = ?,
+            disabled = 0,
+            settings = ?,
+            updatedAt = STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')
+        WHERE id = ?
+        """,
+        (
+            env_values['N8N_DEMO_LOGIN_EMAIL'],
+            env_values['N8N_DEMO_LOGIN_FIRST_NAME'],
+            env_values['N8N_DEMO_LOGIN_LAST_NAME'],
+            password_hash,
+            '{"userActivated":true}',
+            owner_row[0],
+        ),
+    )
+    connection.commit()
+finally:
+    connection.close()
+PY
+  sudo docker restart n8n-demo >/dev/null
   sudo python3 - <<'PY'
 from base64 import b64encode
 from pathlib import Path

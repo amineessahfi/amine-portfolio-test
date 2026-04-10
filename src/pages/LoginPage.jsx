@@ -4,7 +4,7 @@ import { LIVE_SANDBOX_ROUTE, SERVICES_DIRECTORY_ROUTE, WORKFLOW_COMPOSER_ROUTE }
 import { useSiteAuth } from '../context/SiteAuthContext'
 
 const accessBenefits = [
-  'Use the same session across the live sandbox and restricted workflow studio.',
+  'Use the same session across repeat live sandbox launches when you want identified access.',
   'Keep identified access ready before you launch a gated proof surface.',
   'Treat sign-in as utility access, not the main event of the site.',
 ]
@@ -22,7 +22,7 @@ const quickRoutes = [
   },
   {
     title: 'Open the workflow demo',
-    description: 'Use the workflow demo when you want access to the restricted live studio.',
+    description: 'Use the workflow demo when you want a temporary guest session in the restricted live studio.',
     to: WORKFLOW_COMPOSER_ROUTE,
   },
 ]
@@ -50,11 +50,11 @@ function LoginPage() {
     ? 'Checking sign-in availability for this deployment.'
     : authState.authenticated
       ? authState.user?.email
-        ? `Signed in as ${authState.user.email}. The gated demos can use the same access state.`
-        : 'Signed in. The gated demos can use the same access state.'
+        ? `Signed in as ${authState.user.email}. Repeat sandbox launches can use the same access state.`
+        : 'Signed in. Repeat sandbox launches can use the same access state.'
       : signInUnavailable
         ? 'Google sign-in is not available right now.'
-        : 'Browsing stays open. Sign in only when you want identified access for the live sandbox or the restricted workflow studio.'
+        : 'Browsing stays open. Sign in only when you want identified access for repeat live sandbox launches.'
 
   useEffect(() => {
     const oauthState = consumeOauthResult()
