@@ -852,7 +852,7 @@ async def workflow_studio_access(request: web.Request) -> web.Response:
         return web.json_response({'ok': False, 'error': 'Workflow studio is not configured.'}, status=503)
 
     origin = request.headers.get('Origin')
-    bootstrap_requested = request.query.get('bootstrap') == '1' or bool(origin and origin_allowed(origin, require_origin=True))
+    bootstrap_requested = request.query.get('bootstrap') == '1'
 
     if bootstrap_requested:
         if not origin_allowed(origin, require_origin=True):
