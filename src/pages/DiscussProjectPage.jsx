@@ -74,7 +74,7 @@ const intentCards = [
   {
     value: 'scope',
     title: discussIntentPresets.scope.optionLabel,
-    description: 'Use the guided funnel when the problem is real and you want fit, scope, and the first delivery shape.',
+    description: 'Use the guided path when the problem is real and you want fit, scope, and the first delivery shape.',
   },
 ]
 
@@ -123,7 +123,17 @@ const topicActions = {
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const funnelFieldOrder = ['problem', 'currentEnvironment', 'desiredOutcome', 'timeline', 'budgetRange', 'name', 'workEmail', 'company', 'role']
+const funnelFieldOrder = [
+  'problem',
+  'currentEnvironment',
+  'desiredOutcome',
+  'timeline',
+  'budgetRange',
+  'name',
+  'workEmail',
+  'company',
+  'role',
+]
 const fieldStepMap = {
   problem: 'problem',
   currentEnvironment: 'problem',
@@ -246,14 +256,16 @@ function DiscussProjectPage() {
     {
       id: 'path',
       label: '1. Path',
+      shortLabel: 'Path',
       eyebrow: 'Choose the lane',
       title: 'Set the motion, topic, and handoff first.',
-      description: 'This makes the reply start from the right angle before you describe the actual problem.',
-      summary: 'Choose the conversation lane, service focus, and handoff.',
+      description: 'Keep the first move simple: choose the route, the service focus, and the handoff before you describe the problem.',
+      teaser: 'Choose the lane, service focus, and handoff.',
     },
     {
       id: 'problem',
       label: '2. Pressure',
+      shortLabel: 'Pressure',
       eyebrow: isExploreIntent ? 'Name the proof gap' : 'Name the pressure point',
       title: isExploreIntent
         ? 'Describe the risk, failure, or handoff that needs pressure-testing.'
@@ -261,13 +273,12 @@ function DiscussProjectPage() {
       description: isExploreIntent
         ? 'A lighter note still works best when it points to the specific system friction you want to make clearer.'
         : 'A strong scoped reply starts from the real bottleneck and the environment it lives inside.',
-      summary: isExploreIntent
-        ? 'Show what needs pressure-testing in the proof path.'
-        : 'Show what is breaking and what stack it is breaking inside.',
+      teaser: isExploreIntent ? 'Show what needs pressure-testing.' : 'Show what is breaking and where it lives.',
     },
     {
       id: 'shape',
       label: '3. Outcome',
+      shortLabel: 'Outcome',
       eyebrow: isExploreIntent ? 'Make the proof useful' : 'Shape the first phase',
       title: isExploreIntent
         ? 'Say what would make the proof worth continuing.'
@@ -275,17 +286,16 @@ function DiscussProjectPage() {
       description: isExploreIntent
         ? 'This keeps the reply technical and useful without forcing premature scoping.'
         : 'This keeps the response grounded in a realistic first move instead of a vague future state.',
-      summary: isExploreIntent
-        ? 'Explain what the proof should unlock.'
-        : 'Explain what the first phase should accomplish and how urgent it is.',
+      teaser: isExploreIntent ? 'Explain what the proof should unlock.' : 'Shape the first phase and urgency.',
     },
     {
       id: 'contact',
-      label: '4. Reply path',
-      eyebrow: 'Send the funnel',
-      title: formTitle,
+      label: '4. All set',
+      shortLabel: 'All set',
+      eyebrow: 'Ready to send',
+      title: 'All set. Leave the reply path and send it.',
       description: `${formIntro} Direct delivery still uses the API when configured and falls back to a prefilled email when needed.`,
-      summary: 'Leave the best reply path, review the intake, and send it.',
+      teaser: 'Leave the reply path, review the intake, and send it.',
     },
   ]
 
@@ -298,6 +308,37 @@ function DiscussProjectPage() {
     shape: ['desiredOutcome', 'timeline', 'budgetRange'],
     contact: ['name', 'workEmail', 'company', 'role'],
   }
+  const pathSummary = [
+    intentPreset.optionLabel,
+    preset.optionLabel,
+    !isExploreIntent && isCloudFitTopic ? offerPreset.optionLabel : '',
+  ]
+    .filter(Boolean)
+    .join(' / ')
+
+  const finalReviewCards = [
+    {
+      label: 'Path',
+      value: pathSummary,
+    },
+    {
+      label: 'Pressure',
+      value: summarizeField(formState.problem, 'Add the bottleneck, risk, or proof gap you want the reply to address.'),
+    },
+    {
+      label: 'Outcome',
+      value: summarizeField(
+        formState.desiredOutcome,
+        isExploreIntent
+          ? 'Say what would make the proof useful enough to keep going.'
+          : 'Say what the first phase should improve or make safer.',
+      ),
+    },
+    {
+      label: 'Reply to',
+      value: summarizeField(formState.workEmail, 'Add the best work email for the reply.'),
+    },
+  ]
 
   const setErrorsForFields = (fields, nextErrors) => {
     setFieldErrors((current) => {
@@ -378,51 +419,6 @@ function DiscussProjectPage() {
     const firstFieldWithError = funnelFieldOrder.find((field) => errors[field])
     return firstFieldWithError ? fieldStepMap[firstFieldWithError] : 'contact'
   }
-
-  const validationSnapshot = validateFields(funnelFieldOrder)
-  const unresolvedValidationCount = Object.keys(validationSnapshot).length
-  const completedRequiredCount = Math.max(0, requiredFields.size - unresolvedValidationCount)
-
-  const pathSummary = [
-    intentPreset.optionLabel,
-    preset.optionLabel,
-    !isExploreIntent && isCloudFitTopic ? offerPreset.optionLabel : '',
-  ]
-    .filter(Boolean)
-    .join(' / ')
-
-  const liveSummaryCards = [
-    {
-      label: 'Path',
-      value: pathSummary,
-    },
-    {
-      label: 'Pressure',
-      value: summarizeField(formState.problem, 'Add the bottleneck, risk, or proof gap you want the reply to address.'),
-    },
-    {
-      label: 'Environment',
-      value: summarizeField(
-        formState.currentEnvironment,
-        isExploreIntent
-          ? 'Optional system context can stay light here.'
-          : 'Add the stack or environment that changes the answer.',
-      ),
-    },
-    {
-      label: 'Outcome',
-      value: summarizeField(
-        formState.desiredOutcome,
-        isExploreIntent
-          ? 'Say what would make the proof useful enough to continue.'
-          : 'Say what the first phase should improve or make safer.',
-      ),
-    },
-    {
-      label: 'Reply path',
-      value: summarizeField(formState.workEmail, 'Add the best work email for the reply.'),
-    },
-  ]
 
   const handleTopicChange = (event) => {
     const nextTopic = normalizeDiscussTopic(event.target.value)
@@ -569,7 +565,7 @@ function DiscussProjectPage() {
 
         setSubmitState({
           type: 'error',
-          message: data.error || 'The guided funnel could not be delivered right now.',
+          message: data.error || 'The guided path could not be delivered right now.',
           fallbackUrl,
         })
         return
@@ -595,7 +591,7 @@ function DiscussProjectPage() {
     } catch {
       setSubmitState({
         type: 'error',
-        message: 'The guided funnel could not be delivered right now.',
+        message: 'The guided path could not be delivered right now.',
         fallbackUrl: buildFallbackUrl(),
       })
     } finally {
@@ -608,90 +604,73 @@ function DiscussProjectPage() {
       <section className="page-hero">
         <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.02fr)_minmax(22rem,0.98fr)] xl:items-start">
+            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
                 <span className="section-chip">{intentPreset.eyebrow}</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
                   {pageTitle}
                 </h1>
                 <p className="section-copy max-w-3xl text-base sm:text-lg">{pageIntro}</p>
-                <p className="mt-4 text-sm leading-7 text-primary-100">
-                  Current focus: <span className="font-semibold text-white">{preset.optionLabel}</span>
-                </p>
-                {!isExploreIntent && isCloudFitTopic ? (
-                  <p className="mt-2 text-sm leading-7 text-primary-100">
-                    Selected handoff: <span className="font-semibold text-white">{offerPreset.optionLabel}</span>
-                  </p>
-                ) : null}
 
-                <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                  <a href="#contact-funnel" className="primary-button gap-2">
-                    Start the guided funnel
+                <div className="mt-5 flex flex-wrap gap-3 text-sm text-primary-100">
+                  <span>
+                    Focus: <span className="font-semibold text-white">{preset.optionLabel}</span>
+                  </span>
+                  {!isExploreIntent && isCloudFitTopic ? (
+                    <span>
+                      Handoff: <span className="font-semibold text-white">{offerPreset.optionLabel}</span>
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <a href="#contact-flow" className="primary-button gap-2">
+                    Start the left-to-right flow
                     <FaArrowRight className="text-xs" />
                   </a>
                   <Link to={secondaryAction.to} className="secondary-button gap-2">
                     {secondaryAction.label}
                     <FaArrowRight className="text-xs" />
                   </Link>
-                  <a
-                    href={directEmailHref}
-                    className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3"
-                  >
-                    <FaEnvelope className="mr-2 text-xs" />
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-300">
+                  <a href={directEmailHref} className="soft-link inline-flex items-center gap-2">
+                    <FaEnvelope className="text-xs" />
                     Prefer direct email
                   </a>
                   <a
                     href={LINKEDIN_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="soft-link inline-flex items-center justify-center rounded-full border border-white/10 px-5 py-3"
+                    className="soft-link inline-flex items-center gap-2"
                   >
-                    <FaLinkedin className="mr-2 text-xs" />
+                    <FaLinkedin className="text-xs" />
                     Connect on LinkedIn
                   </a>
                 </div>
               </div>
 
-              <div className="relative z-10 space-y-4">
-                <div className="terminal-window">
-                  <div className="terminal-header">
-                    <div className="text-sm text-gray-400">contact — guided funnel</div>
-                  </div>
+              <div className="relative z-10 metric-card p-6 sm:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">4-step contact flow</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">Left to right until all set.</h2>
+                <p className="mt-4 text-sm leading-8 text-gray-400">
+                  Keep the contact path narrow: choose the lane, name the pressure, shape the outcome, then finish at
+                  the reply step.
+                </p>
 
-                  <div className="terminal-content">
-                    <div>
-                      <span className="section-chip">Step-by-step intake</span>
-                      <h2 className="section-title text-3xl sm:text-4xl">Walk the contact path instead of filling one giant form.</h2>
-                      <p className="section-copy">
-                        The funnel keeps the conversation focused: choose the path, describe the pressure, shape the first phase, then leave the reply route.
-                      </p>
+                <div className="mt-6 space-y-3">
+                  {funnelSteps.map((step) => (
+                    <div key={step.id} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{step.label}</p>
+                      <p className="mt-2 text-sm leading-7 text-gray-300">{step.teaser}</p>
                     </div>
-
-                    <ol className="space-y-3">
-                      {funnelSteps.map((step, index) => (
-                        <li key={step.id} className="flex gap-4 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
-                            {index + 1}
-                          </span>
-                          <div>
-                            <p className="text-sm font-semibold text-white">{step.title}</p>
-                            <p className="mt-2 text-sm leading-7 text-gray-400">{step.summary}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="metric-card p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Response promise</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-300">{responsePromise}</p>
-                  </div>
-                  <div className="metric-card p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Best use of this path</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-300">{bestUseText}</p>
-                  </div>
+                <div className="mt-6 rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">Response promise</p>
+                  <p className="mt-2 text-sm leading-7 text-gray-300">{responsePromise}</p>
                 </div>
               </div>
             </div>
@@ -700,128 +679,59 @@ function DiscussProjectPage() {
       </section>
 
       <main className="page-shell">
-        <section id="contact-funnel" className="funnel-layout scroll-mt-28">
-          <aside className="funnel-sidebar">
-            <div className="metric-card p-6 sm:p-7">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Live progress</p>
-                  <h2 className="mt-3 text-2xl font-semibold text-white">
-                    {completedRequiredCount === requiredFields.size ? 'Ready to send.' : 'Build the reply one move at a time.'}
-                  </h2>
-                </div>
-                <span className="skill-badge !px-3 !py-1.5 !text-xs">
-                  {activeStepIndex + 1}/{funnelSteps.length}
-                </span>
+        <section id="contact-flow" className="terminal-window scroll-mt-28">
+          <div className="terminal-header">
+            <div className="text-sm text-gray-400">contact flow — left to right</div>
+          </div>
+
+          <div className="terminal-content">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary-200">{activeStepMeta.eyebrow}</p>
+                <h2 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">{activeStepMeta.title}</h2>
               </div>
-
-              <div className="mt-5 funnel-progress-track">
-                <div
-                  className="funnel-progress-bar"
-                  style={{ width: `${((activeStepIndex + 1) / funnelSteps.length) * 100}%` }}
-                />
-              </div>
-
-              <p className="mt-4 text-sm leading-7 text-gray-400">
-                {completedRequiredCount === requiredFields.size
-                  ? 'All required inputs are in place.'
-                  : `${completedRequiredCount}/${requiredFields.size} required inputs are currently in place.`}
-              </p>
-
-              <div className="mt-5 space-y-3">
-                {funnelSteps.map((step, index) => {
-                  const isActive = step.id === activeStep
-
-                  return (
-                    <button
-                      key={step.id}
-                      type="button"
-                      onClick={() => setActiveStep(step.id)}
-                      className={`flex w-full items-start justify-between gap-4 rounded-[1.35rem] border px-4 py-4 text-left transition ${
-                        isActive
-                          ? 'border-primary-500/30 bg-primary-500/10'
-                          : 'border-white/10 bg-white/[0.03] hover:border-primary-500/20 hover:bg-white/[0.05]'
-                      }`}
-                    >
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{step.label}</p>
-                        <p className="mt-2 text-sm font-semibold text-white">{step.title}</p>
-                      </div>
-                      <span className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">
-                        {index < activeStepIndex ? 'Done' : isActive ? 'Now' : 'Next'}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+              <p className="max-w-2xl text-sm leading-7 text-gray-400">{activeStepMeta.description}</p>
             </div>
 
-            <div className="terminal-window">
-              <div className="terminal-header">
-                <div className="text-sm text-gray-400">contact — live summary</div>
-              </div>
+            <div className="parallax-step-rail">
+              {funnelSteps.map((step, index) => {
+                const isActive = step.id === activeStep
 
-              <div className="terminal-content">
-                <div>
-                  <span className="section-chip">What the reply will be built from</span>
-                  <h2 className="section-title text-3xl sm:text-4xl">Live summary of the funnel</h2>
-                </div>
-
-                <div className="space-y-3">
-                  {liveSummaryCards.map((item) => (
-                    <div key={item.label} className="rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{item.label}</p>
-                      <p className="mt-3 text-sm leading-7 text-gray-300">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => setActiveStep(step.id)}
+                    className={`parallax-step-button ${isActive ? 'parallax-step-button-active' : ''}`}
+                  >
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{step.label}</span>
+                    <span className="mt-2 block text-sm font-semibold text-white">{step.shortLabel}</span>
+                    <span className="mt-2 block text-sm leading-7 text-gray-400">
+                      {index < activeStepIndex ? 'Set' : isActive ? 'Current step' : 'Still ahead'}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
 
-            <div className="metric-card p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Fallbacks and exits</p>
-              <div className="mt-4 flex flex-col gap-3">
-                <Link to={secondaryAction.to} className="secondary-button gap-2">
-                  {secondaryAction.label}
-                </Link>
-                <a href={directEmailHref} className="secondary-button gap-2">
-                  <FaEnvelope className="text-xs" />
-                  Prefer direct email
-                </a>
-                <a
-                  href={LINKEDIN_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="secondary-button gap-2"
-                >
-                  <FaLinkedin className="text-xs" />
-                  Connect on LinkedIn
-                </a>
-              </div>
+            <div className="parallax-progress-track">
+              <div
+                className="parallax-progress-bar"
+                style={{ width: `${((activeStepIndex + 1) / funnelSteps.length) * 100}%` }}
+              />
             </div>
-          </aside>
 
-          <div className="funnel-card-stack">
-            <div className="funnel-card-layer" />
-            <div className="funnel-card-layer funnel-card-layer-secondary" />
+            <div className="parallax-flow-shell" style={{ '--parallax-index': activeStepIndex }}>
+              <div className="parallax-flow-layer" />
+              <div className="parallax-flow-layer parallax-flow-layer-secondary" />
 
-            <div className="terminal-window funnel-step-card">
-              <div className="terminal-header">
-                <div className="text-sm text-gray-400">contact funnel — {activeStepMeta.label.toLowerCase()}</div>
-              </div>
-
-              <div className="terminal-content">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary-200">{activeStepMeta.eyebrow}</p>
-                    <h2 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">{activeStepMeta.title}</h2>
-                  </div>
-                  <p className="max-w-2xl text-sm leading-7 text-gray-400">{activeStepMeta.description}</p>
-                </div>
-
-                {activeStep === 'path' ? (
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-                    <div className="space-y-6">
+              <div
+                className="parallax-flow-track"
+                style={{ transform: `translateX(-${activeStepIndex * 100}%)` }}
+              >
+                <section className="parallax-flow-slide">
+                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+                    <div className="space-y-5">
                       <div>
                         <p className="form-label">Conversation motion</p>
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -909,21 +819,18 @@ function DiscussProjectPage() {
                       </div>
 
                       <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">What this unlocks</p>
-                        <div className="mt-4 space-y-3">
-                          {nextStepSignals.slice(0, 2).map((item) => (
-                            <div key={item} className="rounded-[1.2rem] border border-white/10 bg-dark-900/40 px-4 py-3 text-sm leading-7 text-gray-300">
-                              {item}
-                            </div>
-                          ))}
-                        </div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Why this first step matters</p>
+                        <p className="mt-4 text-sm leading-7 text-gray-300">
+                          Once the lane and topic are right, every later question gets narrower and cleaner. This is the
+                          step that keeps the whole flow from feeling noisy.
+                        </p>
                       </div>
                     </div>
                   </div>
-                ) : null}
+                </section>
 
-                {activeStep === 'problem' ? (
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
+                <section className="parallax-flow-slide">
+                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
                         <label className="form-label" htmlFor="problem">
@@ -957,7 +864,7 @@ function DiscussProjectPage() {
                         ) : null}
                       </div>
 
-                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <button type="button" onClick={moveToPreviousStep} className="secondary-button gap-2">
                           Back to path
                         </button>
@@ -983,15 +890,15 @@ function DiscussProjectPage() {
 
                       <div className="rounded-[1.6rem] border border-violet-500/20 bg-violet-500/10 p-5 sm:p-6 text-sm leading-7 text-violet-100">
                         {isExploreIntent
-                          ? 'Keep this step light if you want. What matters most is naming the proof gap, the risk, or the handoff you want to make clearer.'
-                          : 'The stronger this step is, the less likely the reply turns into a vague discovery call. Describe the real bottleneck and the current environment behind it.'}
+                          ? 'Keep it light if you want. The only job of this step is to make the proof gap legible.'
+                          : 'This is the part that keeps the reply from drifting into abstraction. Name the actual bottleneck and the environment it lives inside.'}
                       </div>
                     </div>
                   </div>
-                ) : null}
+                </section>
 
-                {activeStep === 'shape' ? (
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+                <section className="parallax-flow-slide">
+                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
                         <label className="form-label" htmlFor="desiredOutcome">
@@ -1058,7 +965,7 @@ function DiscussProjectPage() {
                         </div>
                       ) : (
                         <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 text-sm leading-7 text-gray-300">
-                          This step stays intentionally light on the exploration path. If you already know the urgency, use the time-sensitive note below. If not, keep going.
+                          The explore path stays lighter here. If the urgency is real, use the time-sensitive note below.
                         </div>
                       )}
 
@@ -1076,12 +983,12 @@ function DiscussProjectPage() {
                         />
                       </div>
 
-                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <button type="button" onClick={moveToPreviousStep} className="secondary-button gap-2">
                           Back to pressure
                         </button>
                         <button type="button" onClick={() => moveToNextStep('shape')} className="primary-button gap-2">
-                          Continue to the reply path
+                          Continue to all set
                           <FaArrowRight className="text-xs" />
                         </button>
                       </div>
@@ -1102,24 +1009,18 @@ function DiscussProjectPage() {
                         </ol>
                       </div>
 
-                      {!isExploreIntent && isCloudFitTopic ? (
-                        <div className="rounded-[1.6rem] border border-cyan-500/20 bg-cyan-500/10 p-5 sm:p-6 text-sm leading-7 text-cyan-100">
-                          The current cloud-fit handoff is set to <span className="font-semibold text-white">{offerPreset.optionLabel}</span>. Keep it if the shortlist already feels right, or go back to the first step and change it before you send.
-                        </div>
-                      ) : (
-                        <div className="rounded-[1.6rem] border border-primary-500/20 bg-primary-500/10 p-5 sm:p-6 text-sm leading-7 text-primary-100">
-                          {isExploreIntent
-                            ? 'The goal here is a useful technical reply and a stronger fit read, not premature scoping.'
-                            : 'The goal here is a first delivery shape that matches the pressure and the current constraints, not a vague “let’s talk sometime” reply.'}
-                        </div>
-                      )}
+                      <div className="rounded-[1.6rem] border border-primary-500/20 bg-primary-500/10 p-5 sm:p-6 text-sm leading-7 text-primary-100">
+                        {isExploreIntent
+                          ? 'This step is about making the proof useful enough to continue, not forcing full scoping too early.'
+                          : 'This step is about turning the problem into a believable first move with real timing and commercial context.'}
+                      </div>
                     </div>
                   </div>
-                ) : null}
+                </section>
 
-                {activeStep === 'contact' ? (
-                  <form className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]" onSubmit={handleSubmit}>
-                    <div className="space-y-4">
+                <section className="parallax-flow-slide">
+                  <div className="grid gap-6 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-start">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                       <input
                         type="text"
                         name="website"
@@ -1223,7 +1124,7 @@ function DiscussProjectPage() {
                         </div>
                       ) : null}
 
-                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                         <button type="button" onClick={moveToPreviousStep} className="secondary-button gap-2">
                           Back to outcome
                         </button>
@@ -1232,109 +1133,59 @@ function DiscussProjectPage() {
                           disabled={isSubmitting}
                           className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                          {isSubmitting ? (isExploreIntent ? 'Sending request...' : 'Sending funnel...') : successButtonLabel}
+                          {isSubmitting ? 'Sending request...' : successButtonLabel}
                           <FaArrowRight className="text-xs" />
                         </button>
                         <a href={buildFallbackUrl()} className="secondary-button gap-2">
                           Use email fallback
                         </a>
                       </div>
-                    </div>
+                    </form>
 
                     <div className="space-y-4">
-                      <div className="terminal-window">
-                        <div className="terminal-header">
-                          <div className="text-sm text-gray-400">contact — final review</div>
-                        </div>
+                      <div className="metric-card p-6 sm:p-7">
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Final review</p>
+                        <h3 className="mt-4 text-2xl font-semibold text-white">{formTitle}</h3>
 
-                        <div className="terminal-content">
-                          <div>
-                            <span className="section-chip">Final review</span>
-                            <h3 className="section-title text-3xl sm:text-4xl">What gets sent if you finish here</h3>
-                          </div>
-
-                          <div className="space-y-3">
-                            {liveSummaryCards.map((item) => (
-                              <div key={item.label} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{item.label}</p>
-                                <p className="mt-3 text-sm leading-7 text-gray-300">{item.value}</p>
-                              </div>
-                            ))}
-                          </div>
+                        <div className="mt-5 space-y-3">
+                          {finalReviewCards.map((item) => (
+                            <div key={item.label} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{item.label}</p>
+                              <p className="mt-3 text-sm leading-7 text-gray-300">{item.value}</p>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
                       <div className="rounded-[1.6rem] border border-primary-500/20 bg-primary-500/10 p-5 sm:p-6 text-sm leading-7 text-primary-100">
-                        <p className="font-semibold text-white">Reply promise</p>
+                        <p className="font-semibold text-white">Response promise</p>
                         <p className="mt-3">{responsePromise}</p>
-                        <p className="mt-3">
-                          {isExploreIntent
-                            ? 'This stays lightweight: enough detail for a technical fit read, a proof recommendation, or a few clarifying questions.'
-                            : 'This should be enough detail for a fit verdict, a first delivery shape, and a concrete next step if the work is real.'}
-                        </p>
+                      </div>
+
+                      <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Need a different exit?</p>
+                        <div className="mt-4 flex flex-col gap-3">
+                          <Link to={secondaryAction.to} className="secondary-button gap-2">
+                            {secondaryAction.label}
+                          </Link>
+                          <a href={directEmailHref} className="secondary-button gap-2">
+                            <FaEnvelope className="text-xs" />
+                            Prefer direct email
+                          </a>
+                          <a
+                            href={LINKEDIN_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="secondary-button gap-2"
+                          >
+                            <FaLinkedin className="text-xs" />
+                            Connect on LinkedIn
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  </form>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-          <div id="discuss-fit" className="terminal-window scroll-mt-28">
-            <div className="terminal-header">
-              <div className="text-sm text-gray-400">discuss — fit signals</div>
-            </div>
-
-            <div className="terminal-content">
-              <div>
-                <span className="section-chip">Best starting context</span>
-                <h2 className="section-title text-3xl sm:text-4xl">What makes this a strong fit</h2>
-                <p className="section-copy">
-                  {isExploreIntent
-                    ? 'Share the part of the system, proof surface, or technical risk you want to make clearer first.'
-                    : 'Share the part of the problem that is burning time, budget, or operator confidence right now.'}
-                </p>
-              </div>
-
-              <ul className="space-y-3 text-sm leading-7 text-gray-300">
-                {fitSignals.map((item) => (
-                  <li key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div id="discuss-next-step" className="terminal-window scroll-mt-28">
-            <div className="terminal-header">
-              <div className="text-sm text-gray-400">discuss — next step</div>
-            </div>
-
-            <div className="terminal-content">
-              <div>
-                <span className="section-chip">Conversation flow</span>
-                <h2 className="section-title text-3xl sm:text-4xl">What you should get back</h2>
-              </div>
-
-              <ol className="space-y-3">
-                {nextStepSignals.map((item, index) => (
-                  <li key={item} className="flex gap-4 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
-                      {index + 1}
-                    </span>
-                    <span className="text-sm leading-7 text-gray-300">{item}</span>
-                  </li>
-                ))}
-              </ol>
-
-              <div className="rounded-[1.35rem] border border-primary-500/20 bg-primary-500/10 px-4 py-4 text-sm leading-7 text-primary-100">
-                {isExploreIntent
-                  ? 'The goal is a useful technical next step and a stronger fit read, not premature scoping.'
-                  : 'The goal is a decision and a first delivery shape, not a vague "let&apos;s keep in touch" loop.'}
+                  </div>
+                </section>
               </div>
             </div>
           </div>

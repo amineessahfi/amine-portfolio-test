@@ -100,55 +100,106 @@
     color: #fff;
   }
 
-  .funnel-layout {
-    @apply grid gap-6 xl:grid-cols-[minmax(18rem,0.88fr)_minmax(0,1.12fr)] xl:items-start;
+  .parallax-step-rail {
+    @apply flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none];
   }
 
-  .funnel-sidebar {
-    @apply space-y-4;
+  .parallax-step-rail::-webkit-scrollbar {
+    display: none;
   }
 
-  .funnel-card-stack {
-    position: relative;
-    isolation: isolate;
-    padding-bottom: 1.75rem;
+  .parallax-step-button {
+    flex: 0 0 min(12rem, 70vw);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 1.4rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 1rem 1rem 1.05rem;
+    text-align: left;
+    transition:
+      transform 0.28s ease,
+      border-color 0.28s ease,
+      background-color 0.28s ease;
   }
 
-  .funnel-card-layer {
-    position: absolute;
-    inset: 1rem 1rem 0 1rem;
-    border: 1px solid rgba(148, 163, 184, 0.12);
-    border-radius: 1.75rem;
-    background: linear-gradient(180deg, rgba(10, 14, 28, 0.48), rgba(6, 10, 22, 0.28));
-    transform: translateY(1.1rem) scale(0.985);
-    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.28);
-    pointer-events: none;
-    z-index: -1;
+  .parallax-step-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(96, 165, 250, 0.24);
+    background: rgba(255, 255, 255, 0.06);
   }
 
-  .funnel-card-layer-secondary {
-    inset: 2.2rem 2.2rem -0.4rem 2.2rem;
-    opacity: 0.56;
-    transform: translateY(2.25rem) scale(0.97);
-    z-index: -2;
+  .parallax-step-button-active {
+    border-color: rgba(96, 165, 250, 0.34);
+    background: rgba(37, 99, 235, 0.14);
+    box-shadow: 0 18px 42px rgba(37, 99, 235, 0.16);
   }
 
-  .funnel-step-card {
-    min-height: 38rem;
-  }
-
-  .funnel-progress-track {
+  .parallax-progress-track {
     height: 0.4rem;
     border-radius: 9999px;
     background: rgba(255, 255, 255, 0.08);
     overflow: hidden;
   }
 
-  .funnel-progress-bar {
+  .parallax-progress-bar {
     height: 100%;
     border-radius: 9999px;
     background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #22d3ee 100%);
     box-shadow: 0 0 24px rgba(56, 189, 248, 0.32);
+  }
+
+  .parallax-flow-shell {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 1.9rem;
+    background: linear-gradient(180deg, rgba(8, 12, 26, 0.66), rgba(6, 10, 22, 0.5));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 30px 90px rgba(2, 6, 23, 0.3);
+  }
+
+  .parallax-flow-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 32%),
+      radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.1), transparent 28%);
+    pointer-events: none;
+  }
+
+  .parallax-flow-layer {
+    position: absolute;
+    inset: 1rem 1rem 0 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 1.6rem;
+    background: linear-gradient(180deg, rgba(10, 14, 28, 0.38), rgba(6, 10, 22, 0.22));
+    transform: translate3d(calc(var(--parallax-index, 0) * -1rem), 1rem, 0) scale(0.99);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.22);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .parallax-flow-layer-secondary {
+    inset: 2rem 2rem -0.25rem 2rem;
+    opacity: 0.48;
+    transform: translate3d(calc(var(--parallax-index, 0) * -1.7rem), 2rem, 0) scale(0.975);
+    z-index: -2;
+  }
+
+  .parallax-flow-track {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .parallax-flow-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    padding: 0.25rem;
   }
 
   .hero-shell {
@@ -374,6 +425,14 @@
       flex-basis: min(24rem, 36vw);
     }
 
+    .parallax-step-button {
+      flex: 1 1 0;
+    }
+
+    .parallax-flow-slide {
+      min-height: 34rem;
+    }
+
     .panel-scroll-y {
       max-height: min(46rem, 78vh);
       overflow-y: auto;
@@ -387,14 +446,4 @@
     }
   }
 
-  @media (min-width: 1280px) {
-    .funnel-sidebar {
-      position: sticky;
-      top: 6.5rem;
-    }
-
-    .funnel-step-card {
-      min-height: min(44rem, calc(100vh - 8rem));
-    }
-  }
 }
