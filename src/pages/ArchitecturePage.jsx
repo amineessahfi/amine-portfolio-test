@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import SectionScroller from '../components/SectionScroller'
 import { LIVE_SANDBOX_ROUTE, LIVE_SANDBOX_SERVICE_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const architectureLayers = [
@@ -83,6 +84,13 @@ const headlineStats = [
   { label: 'Runtime', value: 'Ephemeral Docker shell' },
 ]
 
+const sectionScrollerItems = [
+  { id: 'stack-flow', label: 'Stack flow' },
+  { id: 'request-lifecycle', label: 'Lifecycle' },
+  { id: 'guardrail-summary', label: 'Guardrails' },
+  { id: 'architecture-layers', label: 'Layers' },
+]
+
 function ArchitecturePage() {
   return (
     <>
@@ -144,6 +152,8 @@ function ArchitecturePage() {
         </div>
       </section>
 
+      <SectionScroller items={sectionScrollerItems} label="Browse the sandbox architecture" />
+
       <main className="page-shell">
         <section id="stack-flow" className="grid scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           <div className="terminal-window">
@@ -160,7 +170,7 @@ function ArchitecturePage() {
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="panel-scroll-soft space-y-4">
                 {stackFlow.map((item, index) => (
                   <div key={item.title} className="relative">
                     <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 shadow-[0_18px_60px_rgba(2,6,23,0.28)]">
@@ -184,7 +194,7 @@ function ArchitecturePage() {
           </div>
 
           <div className="space-y-6">
-            <div className="terminal-window">
+            <div id="request-lifecycle" className="terminal-window scroll-mt-28">
               <div className="terminal-header">
                 <div className="text-sm text-gray-400">architecture - request lifecycle</div>
               </div>
@@ -195,7 +205,7 @@ function ArchitecturePage() {
                   <h2 className="section-title text-3xl sm:text-4xl">From click to container cleanup</h2>
                 </div>
 
-                <ol className="space-y-3">
+                <ol className="panel-scroll-soft space-y-3">
                   {requestFlow.map((step, index) => (
                     <li key={step} className="flex gap-4 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
@@ -208,7 +218,7 @@ function ArchitecturePage() {
               </div>
             </div>
 
-            <div className="terminal-window">
+            <div id="guardrail-summary" className="terminal-window scroll-mt-28">
               <div className="terminal-header">
                 <div className="text-sm text-gray-400">architecture - boundaries</div>
               </div>
@@ -219,7 +229,7 @@ function ArchitecturePage() {
                   <h2 className="section-title text-3xl sm:text-4xl">Controls that keep the sandbox bounded</h2>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="panel-scroll-soft flex flex-wrap gap-3">
                   {guardrails.map((item) => (
                     <div key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-gray-200">
                       {item}
@@ -231,7 +241,7 @@ function ArchitecturePage() {
           </div>
         </section>
 
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <section id="architecture-layers" className="grid scroll-mt-28 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {architectureLayers.map((layer) => (
             <article key={layer.title} className="metric-card card-hover p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Layer</p>

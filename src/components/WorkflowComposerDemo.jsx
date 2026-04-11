@@ -303,7 +303,7 @@ function WorkflowComposerDemo() {
                   <h4 className="section-title text-3xl sm:text-4xl">Restricted live access, not your personal editor.</h4>
                 </div>
 
-                <ul className="space-y-3 text-sm leading-7 text-gray-300">
+                <ul className="panel-scroll-soft space-y-3 text-sm leading-7 text-gray-300">
                   {liveStudioGuardrails.map((item) => (
                     <li key={item} className="flex gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
                       <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
@@ -341,7 +341,7 @@ function WorkflowComposerDemo() {
                     key={studioFrameKey}
                     src={workflowStudioUrl}
                     title="Embedded live n8n studio"
-                    className="h-[70rem] w-full border-0 bg-white"
+                    className="h-[70vh] min-h-[30rem] max-h-[48rem] w-full border-0 bg-white"
                     loading="lazy"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
@@ -355,7 +355,7 @@ function WorkflowComposerDemo() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
-            <div className="space-y-4">
+            <div className="panel-scroll-y space-y-4">
               <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-white">
                   <FaRobot className="text-primary-300" />
@@ -502,7 +502,7 @@ function WorkflowComposerDemo() {
 
                 <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_15rem]">
                   <div className="rounded-[1.5rem] border border-white/10 bg-[#050816]/80 p-4 sm:p-5">
-                    <div className="space-y-4">
+                    <div className="panel-scroll-soft space-y-4">
                       {composerState.mainNodes.map((node, index) => (
                         <div key={`${node.title}-${index}`} className="relative flex gap-4 pl-2">
                           {index < composerState.mainNodes.length - 1 ? (

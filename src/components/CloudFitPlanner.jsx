@@ -94,7 +94,7 @@ function CloudFitPlanner() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
-            <div className="space-y-5 rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+            <div className="panel-scroll-y space-y-5 rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary-200">1. Capture the workload</p>
                 <h4 className="mt-3 text-xl font-semibold text-white">Shape the scenario first.</h4>
@@ -257,7 +257,7 @@ function CloudFitPlanner() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="panel-scroll-y space-y-4">
               <div className="metric-card p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">2. Recommended stack</p>
                 <h4 className="mt-4 text-2xl font-semibold text-white">{recommended.provider}</h4>
@@ -324,40 +324,41 @@ function CloudFitPlanner() {
               </p>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-4">
+            <div className="content-scroller">
               {plan.recommendations.map((recommendation) => (
-                <article
-                  key={recommendation.id}
-                  className={`rounded-[1.4rem] border p-5 ${
-                    recommendation.verdict === 'Recommended'
-                      ? 'border-primary-500/30 bg-primary-500/10'
-                      : 'border-white/10 bg-white/[0.03]'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">
-                        {recommendation.verdict}
-                      </p>
-                      <h5 className="mt-3 text-lg font-semibold text-white">{recommendation.provider}</h5>
+                <div key={recommendation.id} className="content-scroller-card">
+                  <article
+                    className={`h-full rounded-[1.4rem] border p-5 ${
+                      recommendation.verdict === 'Recommended'
+                        ? 'border-primary-500/30 bg-primary-500/10'
+                        : 'border-white/10 bg-white/[0.03]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">
+                          {recommendation.verdict}
+                        </p>
+                        <h5 className="mt-3 text-lg font-semibold text-white">{recommendation.provider}</h5>
+                      </div>
+                      <span className="skill-badge !px-3 !py-1.5 !text-xs">{recommendation.fitScore}/100</span>
                     </div>
-                    <span className="skill-badge !px-3 !py-1.5 !text-xs">{recommendation.fitScore}/100</span>
-                  </div>
 
-                  <p className="mt-3 text-sm leading-7 text-gray-400">{recommendation.stackTitle}</p>
+                    <p className="mt-3 text-sm leading-7 text-gray-400">{recommendation.stackTitle}</p>
 
-                  <div className="mt-4 grid gap-3">
-                    <div className="rounded-[1rem] border border-white/10 bg-dark-900/40 px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Monthly estimate</p>
-                      <p className="mt-2 text-lg font-semibold text-white">${recommendation.monthlyEstimate.toLocaleString()}</p>
+                    <div className="mt-4 grid gap-3">
+                      <div className="rounded-[1rem] border border-white/10 bg-dark-900/40 px-4 py-3">
+                        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Monthly estimate</p>
+                        <p className="mt-2 text-lg font-semibold text-white">${recommendation.monthlyEstimate.toLocaleString()}</p>
+                      </div>
+                      <div className="rounded-[1rem] border border-white/10 bg-dark-900/40 px-4 py-3">
+                        <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Ops and resilience</p>
+                        <p className="mt-2 text-sm font-medium text-white">{recommendation.opsLabel}</p>
+                        <p className="mt-1 text-xs text-gray-500">{recommendation.resilienceLabel}</p>
+                      </div>
                     </div>
-                    <div className="rounded-[1rem] border border-white/10 bg-dark-900/40 px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Ops and resilience</p>
-                      <p className="mt-2 text-sm font-medium text-white">{recommendation.opsLabel}</p>
-                      <p className="mt-1 text-xs text-gray-500">{recommendation.resilienceLabel}</p>
-                    </div>
-                  </div>
-                </article>
+                  </article>
+                </div>
               ))}
             </div>
           </div>
@@ -384,41 +385,43 @@ function CloudFitPlanner() {
                   <span>Monthly</span>
                 </div>
 
-                {recommended.serviceRows.map((row) => (
-                  <div
-                    key={row.category}
-                    className="grid gap-2 border-t border-white/10 px-4 py-4 md:grid-cols-[0.9fr_1.35fr_1.1fr_0.7fr_0.65fr] md:items-start"
-                  >
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Service</p>
-                      <p className="text-sm font-semibold text-white">{row.category}</p>
+                <div className="panel-scroll-soft">
+                  {recommended.serviceRows.map((row) => (
+                    <div
+                      key={row.category}
+                      className="grid gap-2 border-t border-white/10 px-4 py-4 md:grid-cols-[0.9fr_1.35fr_1.1fr_0.7fr_0.65fr] md:items-start"
+                    >
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Service</p>
+                        <p className="text-sm font-semibold text-white">{row.category}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Selection</p>
+                        <p className="text-sm leading-7 text-gray-300">{row.selection}</p>
+                        <p className="mt-2 text-xs leading-6 text-gray-500">{row.reason}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Control</p>
+                        <p className="text-sm leading-7 text-gray-300">{row.control}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Portability</p>
+                        <p className="text-sm leading-7 text-gray-300">{row.portability}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Monthly</p>
+                        <p className="text-sm font-semibold text-white">${row.monthly.toLocaleString()}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Selection</p>
-                      <p className="text-sm leading-7 text-gray-300">{row.selection}</p>
-                      <p className="mt-2 text-xs leading-6 text-gray-500">{row.reason}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Control</p>
-                      <p className="text-sm leading-7 text-gray-300">{row.control}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Portability</p>
-                      <p className="text-sm leading-7 text-gray-300">{row.portability}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Monthly</p>
-                      <p className="text-sm font-semibold text-white">${row.monthly.toLocaleString()}</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
             <div className="metric-card p-6 sm:p-7">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Generated pack includes</p>
               <h4 className="mt-4 text-2xl font-semibold text-white">Artifacts that make the handoff real.</h4>
-              <div className="mt-6 space-y-3">
+              <div className="panel-scroll-soft mt-6 space-y-3">
                 {recommended.generatedFiles.map((file) => (
                   <div
                     key={file.path}
@@ -469,7 +472,7 @@ function CloudFitPlanner() {
                 ))}
               </div>
             ) : (
-              <pre className="mt-6 overflow-x-auto rounded-[1.35rem] border border-white/10 bg-[#040916]/90 p-5 text-xs leading-6 text-gray-200">
+              <pre className="panel-code-block mt-6 rounded-[1.35rem] border border-white/10 bg-[#040916]/90 p-5 text-xs leading-6 text-gray-200">
                 <code>{selectedPreview}</code>
               </pre>
             )}

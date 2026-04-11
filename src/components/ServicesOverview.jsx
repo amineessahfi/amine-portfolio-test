@@ -27,9 +27,11 @@ function ServicesOverview({
             <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">{intro}</p>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="content-scroller">
             {services.map((service) => (
-              <ServiceCard key={service.slug} service={service} />
+              <div key={service.slug} className="content-scroller-card">
+                <ServiceCard service={service} />
+              </div>
             ))}
           </div>
 

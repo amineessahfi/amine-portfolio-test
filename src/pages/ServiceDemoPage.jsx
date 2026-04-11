@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import CloudFitPlanner from '../components/CloudFitPlanner'
 import SandboxTerminal from '../components/SandboxTerminal'
+import SectionScroller from '../components/SectionScroller'
 import WorkflowComposerDemo from '../components/WorkflowComposerDemo'
 import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
@@ -25,6 +26,7 @@ function ServiceDemoPage() {
 
   const serviceRoute = createServiceRoute(service.slug)
   const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
+  const demoSectionId = isSandboxDemo ? 'live-sandbox' : isCloudFitDemo ? 'cloud-fit-model' : 'workflow-composer'
   const demoCopy = isSandboxDemo
     ? {
         eyebrow: 'Live sandbox',
@@ -83,6 +85,11 @@ function ServiceDemoPage() {
           secondaryLabel: 'Discuss this workflow',
           secondaryTo: discussUrl,
         }
+  const sectionScrollerItems = [
+    { id: 'demo-guide', label: 'What to test' },
+    { id: 'demo-focus', label: 'Proof focus' },
+    { id: demoSectionId, label: isSandboxDemo ? 'Live terminal' : isCloudFitDemo ? 'Cloud fit model' : 'Workflow studio' },
+  ]
 
   return (
     <>
@@ -127,9 +134,11 @@ function ServiceDemoPage() {
         </div>
       </section>
 
+      <SectionScroller items={sectionScrollerItems} label="Browse this demo page" />
+
       <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
-          <div className="terminal-window">
+          <div id="demo-guide" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">demo — proof</div>
             </div>
@@ -153,7 +162,7 @@ function ServiceDemoPage() {
             </div>
           </div>
 
-          <div className="metric-card p-6 sm:p-7">
+          <div id="demo-focus" className="metric-card scroll-mt-28 p-6 sm:p-7">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Proof focus</p>
             <h2 className="mt-4 text-2xl font-semibold text-white">{demoCopy.focusTitle}</h2>
             <p className="mt-4 text-sm leading-8 text-gray-400">{demoCopy.focusText}</p>

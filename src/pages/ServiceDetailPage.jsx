@@ -9,6 +9,7 @@ import {
   createDiscussUrl,
   createServiceRoute,
 } from '../constants/routes'
+import SectionScroller from '../components/SectionScroller'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
@@ -103,6 +104,12 @@ function ServiceDetailPage() {
               'The preview and live studio should make it obvious whether the workflow deserves implementation and where guardrails need to stay.',
           }
       : null
+  const sectionScrollerItems = [
+    { id: 'service-scope', label: 'Scope' },
+    { id: 'service-fit', label: 'Best fit' },
+    ...(demoPanel ? [{ id: 'service-proof', label: 'Proof' }] : []),
+    { id: 'service-outcomes', label: 'Outcomes' },
+  ]
 
   return (
     <>
@@ -147,9 +154,11 @@ function ServiceDetailPage() {
         </div>
       </section>
 
+      <SectionScroller items={sectionScrollerItems} label="Browse this service page" />
+
       <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div className="terminal-window">
+          <div id="service-scope" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">service — scope</div>
             </div>
@@ -171,7 +180,7 @@ function ServiceDetailPage() {
             </div>
           </div>
 
-          <div className="terminal-window">
+          <div id="service-fit" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">service — fit</div>
             </div>
@@ -195,7 +204,7 @@ function ServiceDetailPage() {
         </section>
 
         {demoPanel ? (
-          <section className="terminal-window">
+          <section id="service-proof" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">demo — proof</div>
             </div>
@@ -238,7 +247,7 @@ function ServiceDetailPage() {
           </section>
         ) : null}
 
-        <section className="terminal-window">
+        <section id="service-outcomes" className="terminal-window scroll-mt-28">
           <div className="terminal-header">
             <div className="text-sm text-gray-400">service — outcomes</div>
           </div>

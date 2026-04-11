@@ -1,4 +1,5 @@
 import React from 'react'
+import SectionScroller from '../components/SectionScroller'
 import ServicesOverview from '../components/ServicesOverview'
 
 const deliverySteps = [
@@ -30,6 +31,12 @@ const expectationPoints = [
   'A concrete diagnosis of the bottleneck',
   'A delivery shape matched to the team and the constraint',
   'Hands-on implementation when the work needs shipping, not just advice',
+]
+
+const sectionScrollerItems = [
+  { id: 'services-directory', label: 'Service directory' },
+  { id: 'service-delivery-model', label: 'Delivery model' },
+  { id: 'service-engagement-model', label: 'Engagement scope' },
 ]
 
 function ServicesPage() {
@@ -65,6 +72,8 @@ function ServicesPage() {
         </div>
       </section>
 
+      <SectionScroller items={sectionScrollerItems} label="Browse the service page" />
+
       <main className="page-shell">
         <ServicesOverview
           eyebrow="Offerings"
@@ -74,7 +83,7 @@ function ServicesPage() {
         />
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div className="terminal-window">
+          <div id="service-delivery-model" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">delivery — model</div>
             </div>
@@ -97,7 +106,7 @@ function ServicesPage() {
             </div>
           </div>
 
-          <div className="terminal-window">
+          <div id="service-engagement-model" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">engagement — notes</div>
             </div>

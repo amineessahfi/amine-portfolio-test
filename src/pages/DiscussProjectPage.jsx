@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { FaArrowRight, FaCheckCircle, FaEnvelope, FaLinkedin } from 'react-icons/fa'
+import SectionScroller from '../components/SectionScroller'
 import {
   LINKEDIN_URL,
   createDiscussEmailUrl,
@@ -340,6 +341,11 @@ function DiscussProjectPage() {
   const formTitle = !isExploreIntent && isCloudFitTopic ? offerPreset.formTitle : intentPreset.formTitle
   const formIntro = !isExploreIntent && isCloudFitTopic ? offerPreset.formIntro : intentPreset.formIntro
   const successButtonLabel = isExploreIntent ? 'Send exploration note' : !isExploreIntent && isCloudFitTopic ? offerPreset.submitLabel : intentPreset.submitLabel
+  const sectionScrollerItems = [
+    { id: 'project-brief-form', label: 'Brief form' },
+    { id: 'discuss-fit', label: 'Fit signals' },
+    { id: 'discuss-next-step', label: 'Next step' },
+  ]
 
   return (
     <>
@@ -450,7 +456,7 @@ function DiscussProjectPage() {
                 </div>
               </div>
 
-              <div id="project-brief-form" className="relative z-10 metric-card scroll-mt-28 p-6 sm:p-7">
+              <div id="project-brief-form" className="relative z-10 metric-card panel-scroll-y scroll-mt-28 p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">{intentPreset.formEyebrow}</p>
                 <h2 className="mt-4 text-2xl font-semibold text-white">{formTitle}</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
@@ -699,9 +705,11 @@ function DiscussProjectPage() {
         </div>
       </section>
 
+      <SectionScroller items={sectionScrollerItems} label="Browse the project brief" />
+
       <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
-          <div className="terminal-window">
+          <div id="discuss-fit" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">discuss — fit signals</div>
             </div>
@@ -728,7 +736,7 @@ function DiscussProjectPage() {
             </div>
           </div>
 
-          <div className="terminal-window">
+          <div id="discuss-next-step" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">discuss — next step</div>
             </div>
