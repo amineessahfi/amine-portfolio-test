@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import SiteHeader from './SiteHeader'
 import SiteFooter from './SiteFooter'
 import CtaBar from './CtaBar'
+import SiteChatbot from './SiteChatbot'
 
 function SiteLayout() {
   const location = useLocation()
@@ -56,6 +57,7 @@ function SiteLayout() {
           </div>
         ) : null}
         <SiteFooter />
+        <SiteChatbot />
       </div>
     </div>
   )
