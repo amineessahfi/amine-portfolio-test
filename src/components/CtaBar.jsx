@@ -51,9 +51,9 @@ function CtaBar() {
           <div className="metric-card p-6 sm:p-7">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Company / enterprise</p>
             <h4 className="mt-4 text-2xl font-semibold text-white">Scope the diagnostic when the problem is already real.</h4>
-            <p className="mt-4 text-sm leading-8 text-gray-400">
-              Use the structured brief when you need a fit verdict, a first delivery shape, and a faster move into diagnostics, redesign, or hands-on implementation.
-            </p>
+              <p className="mt-4 text-sm leading-8 text-gray-400">
+              Use the guided funnel when you need a fit verdict, a first delivery shape, and a faster move into diagnostics, redesign, or hands-on implementation.
+              </p>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
@@ -89,7 +89,7 @@ function CtaBar() {
             Proof-led note
           </Link>
           <Link to={createDiscussUrl('', { intent: 'scope' })} className="soft-link">
-            Scoped brief
+            Scoped funnel
           </Link>
           <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link">
             Browse services

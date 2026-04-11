@@ -318,7 +318,7 @@ export default async function handler(req, res) {
         ok: true,
         mode: 'mailto',
         mailtoUrl: delivery.mailtoUrl,
-        message: 'Direct delivery is still being configured. Your mail client can send the same structured brief right now.',
+        message: 'Direct delivery is still being configured. Your mail client can send the same guided intake right now.',
       })
       return
     }
@@ -331,7 +331,7 @@ export default async function handler(req, res) {
   } catch (error) {
     sendJson(res, 502, {
       ok: false,
-      error: 'Lead delivery failed. Use the email fallback below for the same brief.',
+      error: 'Lead delivery failed. Use the email fallback below for the same guided intake.',
       mailtoUrl: createLeadSubmissionEmailUrl({
         recipient,
         subject: lead.subject,

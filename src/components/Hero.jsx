@@ -10,7 +10,7 @@ const entryCards = [
   },
   {
     title: 'Scope the diagnostic',
-    description: 'Use the structured brief when the problem is real and you want a first delivery shape, not just a chat.',
+    description: 'Use the guided funnel when the problem is real and you want a first delivery shape, not just a chat.',
   },
   {
     title: 'Shared thesis',

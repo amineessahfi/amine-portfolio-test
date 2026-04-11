@@ -59,7 +59,7 @@ function buildRouteContext(pathname) {
       prompts: ['Help me choose a service', 'Compare cloud stack', 'Scope a project'],
       actions: [
         { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE },
-        { label: 'Start scoped brief', to: createDiscussUrl('', { intent: 'scope' }) },
+        { label: 'Start guided funnel', to: createDiscussUrl('', { intent: 'scope' }) },
       ],
     }
   }
@@ -71,7 +71,7 @@ function buildRouteContext(pathname) {
       prompts: ['Start from proof', 'Scope a real engagement', 'Help me choose the right topic'],
       actions: [
         { label: 'Proof-led note', to: createDiscussUrl('', { intent: 'explore' }) },
-        { label: 'Scoped brief', to: createDiscussUrl('', { intent: 'scope' }) },
+        { label: 'Scoped funnel', to: createDiscussUrl('', { intent: 'scope' }) },
       ],
     }
   }

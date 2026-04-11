@@ -30,7 +30,7 @@ function ServiceDetailPage() {
       ? { label: 'Open the cloud fit model', to: CLOUD_FIT_ROUTE }
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
-        : { label: 'Start the project brief', to: discussUrl }
+        : { label: 'Start the guided funnel', to: discussUrl }
   const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService
     ? {
         label: isWorkflowService

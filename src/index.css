@@ -100,6 +100,57 @@
     color: #fff;
   }
 
+  .funnel-layout {
+    @apply grid gap-6 xl:grid-cols-[minmax(18rem,0.88fr)_minmax(0,1.12fr)] xl:items-start;
+  }
+
+  .funnel-sidebar {
+    @apply space-y-4;
+  }
+
+  .funnel-card-stack {
+    position: relative;
+    isolation: isolate;
+    padding-bottom: 1.75rem;
+  }
+
+  .funnel-card-layer {
+    position: absolute;
+    inset: 1rem 1rem 0 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 1.75rem;
+    background: linear-gradient(180deg, rgba(10, 14, 28, 0.48), rgba(6, 10, 22, 0.28));
+    transform: translateY(1.1rem) scale(0.985);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.28);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .funnel-card-layer-secondary {
+    inset: 2.2rem 2.2rem -0.4rem 2.2rem;
+    opacity: 0.56;
+    transform: translateY(2.25rem) scale(0.97);
+    z-index: -2;
+  }
+
+  .funnel-step-card {
+    min-height: 38rem;
+  }
+
+  .funnel-progress-track {
+    height: 0.4rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+  }
+
+  .funnel-progress-bar {
+    height: 100%;
+    border-radius: 9999px;
+    background-image: linear-gradient(135deg, #2563eb 0%, #3b82f6 55%, #22d3ee 100%);
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.32);
+  }
+
   .hero-shell {
     position: relative;
     overflow: hidden;
@@ -333,6 +384,17 @@
       max-height: min(34rem, 70vh);
       overflow-y: auto;
       padding-right: 0.35rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .funnel-sidebar {
+      position: sticky;
+      top: 6.5rem;
+    }
+
+    .funnel-step-card {
+      min-height: min(44rem, calc(100vh - 8rem));
     }
   }
 }
