@@ -69,49 +69,47 @@ function DemoShowcase() {
             </p>
           </div>
 
-        <div className="content-scroller">
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {demoPages.map((demo) => {
             const Icon = demo.icon
 
             return (
-              <div key={demo.title} className="content-scroller-card">
-                <article className="metric-card card-hover flex h-full flex-col p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className={`inline-flex h-2.5 w-2.5 rounded-full ${demo.dotClassName}`} />
-                        <span className={`text-xs font-semibold uppercase tracking-[0.26em] ${demo.textClassName}`}>{demo.eyebrow}</span>
-                      </div>
-                      <h3 className="mt-4 text-2xl font-semibold text-white">{demo.title}</h3>
+              <article key={demo.title} className="metric-card card-hover flex h-full flex-col p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex h-2.5 w-2.5 rounded-full ${demo.dotClassName}`} />
+                      <span className={`text-xs font-semibold uppercase tracking-[0.26em] ${demo.textClassName}`}>{demo.eyebrow}</span>
                     </div>
-                    <span className="skill-badge !px-3 !py-2 text-gray-100">
-                      <Icon className={demo.iconClassName} />
-                      Proof point
-                    </span>
+                    <h3 className="mt-4 text-2xl font-semibold text-white">{demo.title}</h3>
                   </div>
+                  <span className="skill-badge !px-3 !py-2 text-gray-100">
+                    <Icon className={demo.iconClassName} />
+                    Proof point
+                  </span>
+                </div>
 
-                  <p className="mt-4 text-sm leading-8 text-gray-400">{demo.description}</p>
+                <p className="mt-4 text-sm leading-8 text-gray-400">{demo.description}</p>
 
-                  <ul className="mt-6 space-y-3 text-sm text-gray-300">
-                    {demo.highlights.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${demo.dotClassName}`} />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <ul className="mt-6 space-y-3 text-sm text-gray-300">
+                  {demo.highlights.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className={`mt-2 h-1.5 w-1.5 shrink-0 rounded-full ${demo.dotClassName}`} />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
 
-                  <div className="mt-7 flex flex-col items-start gap-3">
-                    <Link to={demo.to} className="primary-button gap-2">
-                      {demo.cta}
-                      <FaArrowRight className="text-xs" />
-                    </Link>
-                    <Link to={createDiscussUrl(demo.topic, { intent: 'explore' })} className="soft-link">
-                      {demo.discussionCta}
-                    </Link>
-                  </div>
-                </article>
-              </div>
+                <div className="mt-7 flex flex-col items-start gap-3">
+                  <Link to={demo.to} className="primary-button gap-2">
+                    {demo.cta}
+                    <FaArrowRight className="text-xs" />
+                  </Link>
+                  <Link to={createDiscussUrl(demo.topic, { intent: 'explore' })} className="soft-link">
+                    {demo.discussionCta}
+                  </Link>
+                </div>
+              </article>
             )
           })}
         </div>

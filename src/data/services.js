@@ -2,6 +2,9 @@ export const services = [
   {
     slug: 'platform-engineering',
     eyebrow: 'Service 01',
+    category: 'platform-data',
+    categoryLabel: 'Platform & data',
+    homepageFeatured: true,
     title: 'Platform Engineering & Internal Developer Platforms',
     summary:
       'Design the paved roads, deployment workflows, and operational guardrails that help product teams ship faster without increasing platform chaos.',
@@ -34,6 +37,9 @@ export const services = [
   {
     slug: 'cloud-fit-deployment',
     eyebrow: 'Service 02',
+    category: 'cloud-environments',
+    categoryLabel: 'Cloud & environments',
+    homepageFeatured: false,
     title: 'Cloud Fit, IaC & Deployment Packs',
     summary:
       'Choose the right provider stack for the workload, make the services listing explicit, and leave with a deploy-ready IaC pack or a one-time rollout.',
@@ -66,6 +72,9 @@ export const services = [
   {
     slug: 'data-platforms',
     eyebrow: 'Service 03',
+    category: 'platform-data',
+    categoryLabel: 'Platform & data',
+    homepageFeatured: true,
     title: 'Data Platform & Pipeline Engineering',
     summary:
       'Build reliable data pipelines, orchestration layers, and platform foundations that turn operational data into usable systems for decision-making.',
@@ -98,6 +107,9 @@ export const services = [
   {
     slug: 'telco-tooling',
     eyebrow: 'Service 04',
+    category: 'automation-ops',
+    categoryLabel: 'Automation & operations',
+    homepageFeatured: true,
     title: 'Telco Infrastructure & Device Operations Tooling',
     summary:
       'Design and improve telecom-facing operational systems around SIM lifecycle, OTA workflows, device management, and field-ready tooling.',
@@ -130,6 +142,9 @@ export const services = [
   {
     slug: 'live-terminal-sandbox',
     eyebrow: 'Service 05',
+    category: 'cloud-environments',
+    categoryLabel: 'Cloud & environments',
+    homepageFeatured: false,
     title: 'Live Linux Sandbox & Ephemeral Demo Environments',
     summary:
       'Offer visitors a real Linux shell in the browser for five minutes using isolated, time-limited containers that are safe enough for public demos and service-led discovery.',
@@ -162,6 +177,9 @@ export const services = [
   {
     slug: 'workflow-composer',
     eyebrow: 'Service 06',
+    category: 'automation-ops',
+    categoryLabel: 'Automation & operations',
+    homepageFeatured: false,
     title: 'Workflow Composer & Automation Orchestration',
     summary:
       'Design automation flows, operator approvals, and cross-system handoffs that turn messy internal sequences into reliable operating paths.',
@@ -191,6 +209,13 @@ export const services = [
       { label: 'Typical outcome', value: 'Cleaner internal operations' },
     ],
   },
+]
+
+export const serviceBrowseOptions = [
+  { value: 'all', label: 'All services' },
+  { value: 'platform-data', label: 'Platform & data' },
+  { value: 'cloud-environments', label: 'Cloud & environments' },
+  { value: 'automation-ops', label: 'Automation & operations' },
 ]
 
 export function getServiceBySlug(serviceSlug) {

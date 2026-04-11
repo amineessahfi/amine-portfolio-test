@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { FaArrowRight, FaCheckCircle, FaEnvelope, FaLinkedin } from 'react-icons/fa'
-import SectionScroller from '../components/SectionScroller'
 import {
   LINKEDIN_URL,
   createDiscussEmailUrl,
@@ -341,11 +340,6 @@ function DiscussProjectPage() {
   const formTitle = !isExploreIntent && isCloudFitTopic ? offerPreset.formTitle : intentPreset.formTitle
   const formIntro = !isExploreIntent && isCloudFitTopic ? offerPreset.formIntro : intentPreset.formIntro
   const successButtonLabel = isExploreIntent ? 'Send exploration note' : !isExploreIntent && isCloudFitTopic ? offerPreset.submitLabel : intentPreset.submitLabel
-  const sectionScrollerItems = [
-    { id: 'project-brief-form', label: 'Brief form' },
-    { id: 'discuss-fit', label: 'Fit signals' },
-    { id: 'discuss-next-step', label: 'Next step' },
-  ]
 
   return (
     <>
@@ -704,8 +698,6 @@ function DiscussProjectPage() {
           </div>
         </div>
       </section>
-
-      <SectionScroller items={sectionScrollerItems} label="Browse the project brief" />
 
       <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">

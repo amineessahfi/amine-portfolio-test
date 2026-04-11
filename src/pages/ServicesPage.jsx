@@ -1,5 +1,4 @@
 import React from 'react'
-import SectionScroller from '../components/SectionScroller'
 import ServicesOverview from '../components/ServicesOverview'
 
 const deliverySteps = [
@@ -31,12 +30,6 @@ const expectationPoints = [
   'A concrete diagnosis of the bottleneck',
   'A delivery shape matched to the team and the constraint',
   'Hands-on implementation when the work needs shipping, not just advice',
-]
-
-const sectionScrollerItems = [
-  { id: 'services-directory', label: 'Service directory' },
-  { id: 'service-delivery-model', label: 'Delivery model' },
-  { id: 'service-engagement-model', label: 'Engagement scope' },
 ]
 
 function ServicesPage() {
@@ -72,13 +65,12 @@ function ServicesPage() {
         </div>
       </section>
 
-      <SectionScroller items={sectionScrollerItems} label="Browse the service page" />
-
       <main className="page-shell">
         <ServicesOverview
           eyebrow="Offerings"
           title="Choose the service path that matches the problem you need solved"
-          intro="Start with the bottleneck that is costing the most time, money, or operator confidence right now."
+          intro="Filter by problem type first, then move into the service page that matches the pressure point you actually need to resolve."
+          enableFilters
           sectionId="services-directory"
         />
 

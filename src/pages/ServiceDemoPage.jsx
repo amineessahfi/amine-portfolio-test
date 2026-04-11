@@ -2,7 +2,6 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import CloudFitPlanner from '../components/CloudFitPlanner'
 import SandboxTerminal from '../components/SandboxTerminal'
-import SectionScroller from '../components/SectionScroller'
 import WorkflowComposerDemo from '../components/WorkflowComposerDemo'
 import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
@@ -26,7 +25,6 @@ function ServiceDemoPage() {
 
   const serviceRoute = createServiceRoute(service.slug)
   const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
-  const demoSectionId = isSandboxDemo ? 'live-sandbox' : isCloudFitDemo ? 'cloud-fit-model' : 'workflow-composer'
   const demoCopy = isSandboxDemo
     ? {
         eyebrow: 'Live sandbox',
@@ -85,12 +83,6 @@ function ServiceDemoPage() {
           secondaryLabel: 'Discuss this workflow',
           secondaryTo: discussUrl,
         }
-  const sectionScrollerItems = [
-    { id: 'demo-guide', label: 'What to test' },
-    { id: 'demo-focus', label: 'Proof focus' },
-    { id: demoSectionId, label: isSandboxDemo ? 'Live terminal' : isCloudFitDemo ? 'Cloud fit model' : 'Workflow studio' },
-  ]
-
   return (
     <>
       <section className="page-hero">
@@ -133,8 +125,6 @@ function ServiceDemoPage() {
           </div>
         </div>
       </section>
-
-      <SectionScroller items={sectionScrollerItems} label="Browse this demo page" />
 
       <main className="page-shell">
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">

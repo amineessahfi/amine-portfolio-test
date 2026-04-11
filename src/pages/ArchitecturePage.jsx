@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import SectionScroller from '../components/SectionScroller'
 import { LIVE_SANDBOX_ROUTE, LIVE_SANDBOX_SERVICE_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const architectureLayers = [
@@ -84,13 +83,6 @@ const headlineStats = [
   { label: 'Runtime', value: 'Ephemeral Docker shell' },
 ]
 
-const sectionScrollerItems = [
-  { id: 'stack-flow', label: 'Stack flow' },
-  { id: 'request-lifecycle', label: 'Lifecycle' },
-  { id: 'guardrail-summary', label: 'Guardrails' },
-  { id: 'architecture-layers', label: 'Layers' },
-]
-
 function ArchitecturePage() {
   return (
     <>
@@ -151,8 +143,6 @@ function ArchitecturePage() {
           </div>
         </div>
       </section>
-
-      <SectionScroller items={sectionScrollerItems} label="Browse the sandbox architecture" />
 
       <main className="page-shell">
         <section id="stack-flow" className="grid scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">

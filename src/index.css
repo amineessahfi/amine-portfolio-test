@@ -55,36 +55,6 @@
     @apply mx-auto flex w-full max-w-[92rem] flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8;
   }
 
-  .section-scroller-shell {
-    @apply mx-auto w-full max-w-[92rem] px-4 pb-6 sm:px-6 lg:px-8;
-  }
-
-  .section-scroller {
-    @apply grid gap-3 rounded-[1.5rem] border border-white/10 px-4 py-3 backdrop-blur-2xl;
-    background: rgba(5, 8, 22, 0.78);
-    box-shadow: 0 18px 50px rgba(2, 6, 23, 0.32);
-  }
-
-  .section-scroller-label {
-    @apply text-[11px] font-semibold uppercase tracking-[0.28em] text-primary-200;
-  }
-
-  .section-scroller-track {
-    @apply flex gap-2 overflow-x-auto [scrollbar-width:none];
-    scroll-snap-type: x proximity;
-  }
-
-  .section-scroller-link {
-    @apply inline-flex shrink-0 items-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-gray-200 transition;
-    scroll-snap-align: start;
-  }
-
-  .section-scroller-link:hover {
-    border-color: rgba(96, 165, 250, 0.28);
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-  }
-
   .content-scroller {
     @apply flex gap-5 overflow-x-auto pb-2 [scrollbar-width:none];
     scroll-snap-type: x proximity;
@@ -108,6 +78,26 @@
 
   .page-panel-compact {
     @apply mx-auto w-full max-w-3xl;
+  }
+
+  .segmented-control {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .segmented-button {
+    @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-gray-300 transition;
+  }
+
+  .segmented-button:hover {
+    border-color: rgba(96, 165, 250, 0.24);
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+  }
+
+  .segmented-button-active {
+    border-color: rgba(96, 165, 250, 0.34);
+    background: rgba(37, 99, 235, 0.16);
+    color: #fff;
   }
 
   .hero-shell {
@@ -298,7 +288,6 @@
     resize: vertical;
   }
 
-  .section-scroller-track::-webkit-scrollbar,
   .content-scroller::-webkit-scrollbar {
     display: none;
   }
@@ -330,11 +319,6 @@
   }
 
   @media (min-width: 1024px) {
-    .section-scroller {
-      grid-template-columns: auto 1fr;
-      align-items: center;
-    }
-
     .content-scroller-card {
       flex-basis: min(24rem, 36vw);
     }

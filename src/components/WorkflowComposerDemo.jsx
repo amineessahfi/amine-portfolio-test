@@ -119,12 +119,19 @@ const liveStudioGuardrails = [
   'Manual-trigger only so the demo does not expose public webhooks or schedules.',
 ]
 
+const workflowStages = [
+  { value: 'composer', label: '1. Compose flow', description: 'Shape the operating pattern and guardrails first.' },
+  { value: 'access', label: '2. Studio access', description: 'Understand the restricted live-editor model.' },
+  { value: 'studio', label: '3. Live editor', description: 'Load the embedded n8n surface only when you need it.' },
+]
+
 function WorkflowComposerDemo() {
   const { authReady, authState } = useSiteAuth()
   const [selectedTemplateId, setSelectedTemplateId] = useState('incident-routing')
   const [approvalEnabled, setApprovalEnabled] = useState(true)
   const [failureBranchEnabled, setFailureBranchEnabled] = useState(true)
   const [notificationMode, setNotificationMode] = useState('slack-email')
+  const [activeStage, setActiveStage] = useState('composer')
   const [studioVisible, setStudioVisible] = useState(false)
   const [studioFrameKey, setStudioFrameKey] = useState(0)
   const [studioLoading, setStudioLoading] = useState(false)
@@ -197,6 +204,7 @@ function WorkflowComposerDemo() {
         (approvalEnabled ? 4 : 0),
     }
   }, [approvalEnabled, failureBranchEnabled, notificationMode, selectedNotification.systems, selectedTemplate])
+  const activeStageMeta = workflowStages.find((stage) => stage.value === activeStage) || workflowStages[0]
 
   const handleLaunchStudio = async () => {
     if (!workflowStudioUrl) {
@@ -236,6 +244,42 @@ function WorkflowComposerDemo() {
     }
   }
 
+  const studioActions = (
+    <>
+      {!authReady ? (
+        <button type="button" disabled className="secondary-button opacity-70">
+          Checking access
+        </button>
+      ) : !workflowStudioEnabled ? (
+        <button type="button" disabled className="secondary-button opacity-70">
+          Live studio unavailable
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => void handleLaunchStudio()}
+          disabled={studioLoading}
+          className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {studioLoading
+            ? 'Loading embedded studio'
+            : studioVisible
+              ? 'Reload embedded n8n studio'
+              : 'Load embedded n8n studio'}
+        </button>
+      )}
+
+      <Link to={createDiscussUrl('workflow-composer')} className="secondary-button">
+        Discuss the workflow build
+      </Link>
+      {studioVisible ? (
+        <button type="button" onClick={() => setStudioVisible(false)} className="secondary-button">
+          Hide embedded studio
+        </button>
+      ) : null}
+    </>
+  )
+
   return (
     <section id="workflow-composer" className="scroll-mt-28">
       <div className="terminal-window card-hover">
@@ -251,317 +295,326 @@ function WorkflowComposerDemo() {
             </p>
           </div>
 
-          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
-            <div className="metric-card p-6 sm:p-7">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Live studio</p>
-              <h4 className="mt-4 text-2xl font-semibold text-white">Actual n8n editor, kept inside this page.</h4>
-              <p className="mt-4 text-sm leading-8 text-gray-400">
-                The live studio runs on a dedicated demo instance with a constrained node library and no saved credentials. It now stays embedded in the workflow page so the preview, guardrails, and real editor stay in one surface.
-              </p>
+          <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+            <div className="segmented-control">
+              {workflowStages.map((stage) => (
+                <button
+                  key={stage.value}
+                  type="button"
+                  onClick={() => setActiveStage(stage.value)}
+                  className={`segmented-button ${activeStage === stage.value ? 'segmented-button-active' : ''}`}
+                >
+                  {stage.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-sm leading-7 text-gray-400">{activeStageMeta.description}</p>
+          </div>
 
-              {notice ? <p className="mt-4 text-sm text-cyan-200">{notice}</p> : null}
-              {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
+          {activeStage === 'access' ? (
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
+              <div className="metric-card p-6 sm:p-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Live studio access</p>
+                <h4 className="mt-4 text-2xl font-semibold text-white">Actual n8n editor, kept inside this page.</h4>
+                <p className="mt-4 text-sm leading-8 text-gray-400">
+                  The live studio runs on a dedicated demo instance with a constrained node library and no saved credentials. Use this stage to understand the access boundary before you load the real editor.
+                </p>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                {!authReady ? (
-                  <button type="button" disabled className="secondary-button opacity-70">
-                    Checking access
-                  </button>
-                ) : !workflowStudioEnabled ? (
-                  <button type="button" disabled className="secondary-button opacity-70">
-                    Live studio unavailable
-                  </button>
-                ) : (
-                  <button type="button" onClick={() => void handleLaunchStudio()} disabled={studioLoading} className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70">
-                    {studioLoading
-                      ? 'Loading embedded studio'
-                      : studioVisible
-                        ? 'Reload embedded n8n studio'
-                        : 'Load embedded n8n studio'}
-                  </button>
-                )}
+                {notice ? <p className="mt-4 text-sm text-cyan-200">{notice}</p> : null}
+                {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
 
-                <Link to={createDiscussUrl('workflow-composer')} className="secondary-button">
-                  Discuss the workflow build
-                </Link>
-                {studioVisible ? (
-                  <button type="button" onClick={() => setStudioVisible(false)} className="secondary-button">
-                    Hide embedded studio
-                  </button>
-                ) : null}
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  {studioActions}
+                </div>
+              </div>
+
+              <div className="terminal-window">
+                <div className="terminal-header">
+                  <div className="text-sm text-gray-400">studio — guardrails</div>
+                </div>
+
+                <div className="terminal-content">
+                  <div>
+                    <span className="section-chip">Why this is safe enough to show</span>
+                    <h4 className="section-title text-3xl sm:text-4xl">Restricted live access, not your personal editor.</h4>
+                  </div>
+
+                  <ul className="panel-scroll-soft space-y-3 text-sm leading-7 text-gray-300">
+                    {liveStudioGuardrails.map((item) => (
+                      <li key={item} className="flex gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="rounded-[1.35rem] border border-violet-500/20 bg-violet-500/10 px-4 py-4 text-sm leading-7 text-violet-100">
+                    The live node palette is intentionally small: {liveNodeLibrary.join(', ')}.
+                  </div>
+                </div>
               </div>
             </div>
+          ) : null}
 
+          {activeStage === 'studio' ? (
             <div className="terminal-window">
               <div className="terminal-header">
-                <div className="text-sm text-gray-400">studio — guardrails</div>
+                <div className="text-sm text-gray-400">studio — embedded surface</div>
               </div>
 
               <div className="terminal-content">
-                <div>
-                  <span className="section-chip">Why this is safe enough to show</span>
-                  <h4 className="section-title text-3xl sm:text-4xl">Restricted live access, not your personal editor.</h4>
-                </div>
-
-                <ul className="panel-scroll-soft space-y-3 text-sm leading-7 text-gray-300">
-                  {liveStudioGuardrails.map((item) => (
-                    <li key={item} className="flex gap-3 rounded-[1.35rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="rounded-[1.35rem] border border-violet-500/20 bg-violet-500/10 px-4 py-4 text-sm leading-7 text-violet-100">
-                  The live node palette is intentionally small: {liveNodeLibrary.join(', ')}.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="terminal-window">
-            <div className="terminal-header">
-              <div className="text-sm text-gray-400">studio — embedded surface</div>
-            </div>
-
-            <div className="terminal-content">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <span className="section-chip">Integrated live editor</span>
-                  <h4 className="section-title text-3xl sm:text-4xl">Keep the n8n studio inside the workflow page.</h4>
-                </div>
-                <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-                  Load the real editor here when you want the template preview, safety context, and live n8n surface available together.
-                </p>
-              </div>
-
-              {studioVisible ? (
-                <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-white">
-                  <iframe
-                    key={studioFrameKey}
-                    src={workflowStudioUrl}
-                    title="Embedded live n8n studio"
-                    className="h-[70vh] min-h-[30rem] max-h-[48rem] w-full border-0 bg-white"
-                    loading="lazy"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
-                </div>
-              ) : (
-                <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] px-5 py-8 text-sm leading-8 text-gray-300">
-                  The real n8n editor will load here once you start a temporary studio session.
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
-            <div className="panel-scroll-y space-y-4">
-              <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <FaRobot className="text-primary-300" />
-                  Workflow templates
-                </div>
-                <div className="mt-4 space-y-3">
-                  {templates.map((template) => {
-                    const isSelected = template.id === selectedTemplateId
-
-                    return (
-                      <button
-                        key={template.id}
-                        type="button"
-                        onClick={() => setSelectedTemplateId(template.id)}
-                        className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                          isSelected
-                            ? 'border-primary-500/40 bg-primary-500/10'
-                            : 'border-white/10 bg-white/[0.03] hover:border-primary-500/20 hover:bg-white/[0.05]'
-                        }`}
-                      >
-                        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{template.eyebrow}</p>
-                        <p className="mt-3 text-sm font-semibold text-white">{template.title}</p>
-                        <p className="mt-2 text-sm leading-7 text-gray-400">{template.summary}</p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <FaCodeBranch className="text-cyan-300" />
-                  Guardrails
-                </div>
-                <div className="mt-4 space-y-3">
-                  <button
-                    type="button"
-                    onClick={() => setApprovalEnabled((value) => !value)}
-                    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition ${
-                      approvalEnabled
-                        ? 'border-amber-500/30 bg-amber-500/10'
-                        : 'border-white/10 bg-white/[0.03] hover:border-amber-500/20'
-                    }`}
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-white">Approval gate</p>
-                      <p className="mt-1 text-sm leading-7 text-gray-400">Hold sensitive runs until an operator confirms the next step.</p>
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">
-                      {approvalEnabled ? 'On' : 'Off'}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setFailureBranchEnabled((value) => !value)}
-                    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition ${
-                      failureBranchEnabled
-                        ? 'border-rose-500/30 bg-rose-500/10'
-                        : 'border-white/10 bg-white/[0.03] hover:border-rose-500/20'
-                    }`}
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-white">Failure branch</p>
-                      <p className="mt-1 text-sm leading-7 text-gray-400">Add a bounded retry path before handing unexpected cases to humans.</p>
-                    </div>
-                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-rose-200">
-                      {failureBranchEnabled ? 'On' : 'Off'}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white">
-                  <FaBolt className="text-violet-300" />
-                  Output mode
-                </div>
-                <div className="mt-4 grid gap-3">
-                  {notificationModes.map((mode) => {
-                    const isSelected = mode.id === notificationMode
-
-                    return (
-                      <button
-                        key={mode.id}
-                        type="button"
-                        onClick={() => setNotificationMode(mode.id)}
-                        className={`rounded-2xl border px-4 py-3 text-left transition ${
-                          isSelected
-                            ? 'border-violet-500/30 bg-violet-500/10'
-                            : 'border-white/10 bg-white/[0.03] hover:border-violet-500/20'
-                        }`}
-                      >
-                        <p className="text-sm font-semibold text-white">{mode.label}</p>
-                        <p className="mt-2 text-sm leading-7 text-gray-400">{mode.systems.join(' + ')}</p>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
-                <p className="text-sm font-semibold text-white">Node library</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {liveNodeLibrary.map((node) => (
-                    <span key={node} className="skill-badge">
-                      {node}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div className="metric-card p-4">
-                  <div className="text-2xl font-semibold text-white">{composerState.stepCount}</div>
-                  <div className="mt-2 text-sm text-gray-400">Active steps</div>
-                </div>
-                <div className="metric-card p-4">
-                  <div className="text-2xl font-semibold text-cyan-300">{composerState.systems}</div>
-                  <div className="mt-2 text-sm text-gray-400">Systems in loop</div>
-                </div>
-                <div className="metric-card p-4">
-                  <div className="text-2xl font-semibold text-violet-300">{composerState.guardrails}</div>
-                  <div className="mt-2 text-sm text-gray-400">Guardrails applied</div>
-                </div>
-                <div className="metric-card p-4">
-                  <div className="text-2xl font-semibold text-emerald-300">{composerState.minutesSaved}m</div>
-                  <div className="mt-2 text-sm text-gray-400">Estimated manual time saved</div>
-                </div>
-              </div>
-
-              <div className="rounded-[1.75rem] border border-dark-700/70 bg-dark-900/40 p-5 sm:p-6">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Composer canvas</p>
-                    <h4 className="mt-3 text-xl font-semibold text-white">{selectedTemplate.title}</h4>
+                    <span className="section-chip">Integrated live editor</span>
+                    <h4 className="section-title text-3xl sm:text-4xl">Load the real editor only when the workflow looks worth proving.</h4>
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-gray-300">
-                    Estimated run: <span className="font-semibold text-white">{composerState.estimatedSeconds}s</span>
+                  <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
+                    This keeps the preview and the editor tied together: use the composer when you need to shape the flow, then switch here only to validate the real constrained surface.
+                  </p>
+                </div>
+
+                {notice ? <p className="text-sm text-cyan-200">{notice}</p> : null}
+                {error ? <p className="text-sm text-red-300">{error}</p> : null}
+
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  {studioActions}
+                </div>
+
+                {studioVisible ? (
+                  <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-white">
+                    <iframe
+                      key={studioFrameKey}
+                      src={workflowStudioUrl}
+                      title="Embedded live n8n studio"
+                      className="h-[70vh] min-h-[30rem] max-h-[48rem] w-full border-0 bg-white"
+                      loading="lazy"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] px-5 py-8 text-sm leading-8 text-gray-300">
+                    The real n8n editor will load here once you start a temporary studio session.
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {activeStage === 'composer' ? (
+            <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
+              <div className="panel-scroll-y space-y-4">
+                <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <FaRobot className="text-primary-300" />
+                    Workflow templates
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {templates.map((template) => {
+                      const isSelected = template.id === selectedTemplateId
+
+                      return (
+                        <button
+                          key={template.id}
+                          type="button"
+                          onClick={() => setSelectedTemplateId(template.id)}
+                          className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                            isSelected
+                              ? 'border-primary-500/40 bg-primary-500/10'
+                              : 'border-white/10 bg-white/[0.03] hover:border-primary-500/20 hover:bg-white/[0.05]'
+                          }`}
+                        >
+                          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{template.eyebrow}</p>
+                          <p className="mt-3 text-sm font-semibold text-white">{template.title}</p>
+                          <p className="mt-2 text-sm leading-7 text-gray-400">{template.summary}</p>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_15rem]">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-[#050816]/80 p-4 sm:p-5">
-                    <div className="panel-scroll-soft space-y-4">
-                      {composerState.mainNodes.map((node, index) => (
-                        <div key={`${node.title}-${index}`} className="relative flex gap-4 pl-2">
-                          {index < composerState.mainNodes.length - 1 ? (
-                            <span className="absolute left-[1.05rem] top-9 h-[calc(100%+0.85rem)] w-px bg-white/10" />
-                          ) : null}
-                          <span className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-sm font-semibold text-white">
-                            {index + 1}
-                          </span>
-                          <div className={`flex-1 rounded-[1.25rem] border px-4 py-4 ${node.tone}`}>
-                            <p className="text-sm font-semibold text-white">{node.title}</p>
-                            <p className="mt-2 text-sm leading-7 text-gray-300">{node.detail}</p>
-                          </div>
-                        </div>
-                      ))}
+                <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <FaCodeBranch className="text-cyan-300" />
+                    Guardrails
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    <button
+                      type="button"
+                      onClick={() => setApprovalEnabled((value) => !value)}
+                      className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition ${
+                        approvalEnabled
+                          ? 'border-amber-500/30 bg-amber-500/10'
+                          : 'border-white/10 bg-white/[0.03] hover:border-amber-500/20'
+                      }`}
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-white">Approval gate</p>
+                        <p className="mt-1 text-sm leading-7 text-gray-400">Hold sensitive runs until an operator confirms the next step.</p>
+                      </div>
+                      <span className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">
+                        {approvalEnabled ? 'On' : 'Off'}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setFailureBranchEnabled((value) => !value)}
+                      className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left transition ${
+                        failureBranchEnabled
+                          ? 'border-rose-500/30 bg-rose-500/10'
+                          : 'border-white/10 bg-white/[0.03] hover:border-rose-500/20'
+                      }`}
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-white">Failure branch</p>
+                        <p className="mt-1 text-sm leading-7 text-gray-400">Add a bounded retry path before handing unexpected cases to humans.</p>
+                      </div>
+                      <span className="text-xs font-semibold uppercase tracking-[0.24em] text-rose-200">
+                        {failureBranchEnabled ? 'On' : 'Off'}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <FaBolt className="text-violet-300" />
+                    Output mode
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    {notificationModes.map((mode) => {
+                      const isSelected = mode.id === notificationMode
+
+                      return (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() => setNotificationMode(mode.id)}
+                          className={`rounded-2xl border px-4 py-3 text-left transition ${
+                            isSelected
+                              ? 'border-violet-500/30 bg-violet-500/10'
+                              : 'border-white/10 bg-white/[0.03] hover:border-violet-500/20'
+                          }`}
+                        >
+                          <p className="text-sm font-semibold text-white">{mode.label}</p>
+                          <p className="mt-2 text-sm leading-7 text-gray-400">{mode.systems.join(' + ')}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
+                  <p className="text-sm font-semibold text-white">Node library</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {liveNodeLibrary.map((node) => (
+                      <span key={node} className="skill-badge">
+                        {node}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="metric-card p-4">
+                    <div className="text-2xl font-semibold text-white">{composerState.stepCount}</div>
+                    <div className="mt-2 text-sm text-gray-400">Active steps</div>
+                  </div>
+                  <div className="metric-card p-4">
+                    <div className="text-2xl font-semibold text-cyan-300">{composerState.systems}</div>
+                    <div className="mt-2 text-sm text-gray-400">Systems in loop</div>
+                  </div>
+                  <div className="metric-card p-4">
+                    <div className="text-2xl font-semibold text-violet-300">{composerState.guardrails}</div>
+                    <div className="mt-2 text-sm text-gray-400">Guardrails applied</div>
+                  </div>
+                  <div className="metric-card p-4">
+                    <div className="text-2xl font-semibold text-emerald-300">{composerState.minutesSaved}m</div>
+                    <div className="mt-2 text-sm text-gray-400">Estimated manual time saved</div>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-dark-700/70 bg-dark-900/40 p-5 sm:p-6">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Composer canvas</p>
+                      <h4 className="mt-3 text-xl font-semibold text-white">{selectedTemplate.title}</h4>
+                    </div>
+                    <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-gray-300">
+                      Estimated run: <span className="font-semibold text-white">{composerState.estimatedSeconds}s</span>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="rounded-[1.5rem] border border-rose-500/20 bg-rose-500/10 p-4">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-rose-100">
-                        <FaExclamationTriangle className="text-xs" />
-                        Failure path
-                      </div>
-                      <div className="mt-4 space-y-3">
-                        {composerState.branchNodes.map((node) => (
-                          <div key={node.title} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
-                            <p className="text-sm font-semibold text-white">{node.title}</p>
-                            <p className="mt-2 text-sm leading-7 text-gray-300">{node.detail}</p>
+                  <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_15rem]">
+                    <div className="rounded-[1.5rem] border border-white/10 bg-[#050816]/80 p-4 sm:p-5">
+                      <div className="panel-scroll-soft space-y-4">
+                        {composerState.mainNodes.map((node, index) => (
+                          <div key={`${node.title}-${index}`} className="relative flex gap-4 pl-2">
+                            {index < composerState.mainNodes.length - 1 ? (
+                              <span className="absolute left-[1.05rem] top-9 h-[calc(100%+0.85rem)] w-px bg-white/10" />
+                            ) : null}
+                            <span className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-sm font-semibold text-white">
+                              {index + 1}
+                            </span>
+                            <div className={`flex-1 rounded-[1.25rem] border px-4 py-4 ${node.tone}`}>
+                              <p className="text-sm font-semibold text-white">{node.title}</p>
+                              <p className="mt-2 text-sm leading-7 text-gray-300">{node.detail}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 p-4">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-emerald-100">
-                        <FaCheckCircle className="text-xs" />
-                        Delivery signal
+                    <div className="space-y-3">
+                      <div className="rounded-[1.5rem] border border-rose-500/20 bg-rose-500/10 p-4">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-rose-100">
+                          <FaExclamationTriangle className="text-xs" />
+                          Failure path
+                        </div>
+                        <div className="mt-4 space-y-3">
+                          {composerState.branchNodes.map((node) => (
+                            <div key={node.title} className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3">
+                              <p className="text-sm font-semibold text-white">{node.title}</p>
+                              <p className="mt-2 text-sm leading-7 text-gray-300">{node.detail}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <p className="mt-3 text-sm leading-7 text-gray-200">
-                        The value here is not the mock canvas alone. It is the ability to review the orchestration path, controls, and handoffs before implementation starts.
-                      </p>
+
+                      <div className="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 p-4">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-emerald-100">
+                          <FaCheckCircle className="text-xs" />
+                          Delivery signal
+                        </div>
+                        <p className="mt-3 text-sm leading-7 text-gray-200">
+                          The value here is not the mock canvas alone. It is the ability to review the orchestration path, controls, and handoffs before implementation starts.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="rounded-2xl border border-primary-500/20 bg-primary-500/10 p-5">
-                <p className="text-sm leading-7 text-gray-300">
-                  <span className="font-semibold">If the preview feels close to the real problem,</span> keep the real n8n editor embedded here, validate the constrained runtime, then send the workflow brief and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
-                </p>
-                <Link
-                  to={createDiscussUrl('workflow-composer')}
-                  className="mt-4 inline-flex justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium transition-colors hover:bg-primary-700"
-                >
-                  Turn this into a workflow build
-                </Link>
+                <div className="rounded-2xl border border-primary-500/20 bg-primary-500/10 p-5">
+                  <p className="text-sm leading-7 text-gray-300">
+                    <span className="font-semibold">If the preview feels close to the real problem,</span> move to the live-editor stage to validate the constrained n8n surface, then send the workflow brief and I&apos;ll turn it into a sharper implementation path with the right approval, retry, and operating-model decisions.
+                  </p>
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <button type="button" onClick={() => setActiveStage('studio')} className="primary-button">
+                      Open the live-editor stage
+                    </button>
+                    <Link
+                      to={createDiscussUrl('workflow-composer')}
+                      className="secondary-button"
+                    >
+                      Turn this into a workflow build
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

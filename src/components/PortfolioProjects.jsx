@@ -48,38 +48,36 @@ function PortfolioProjects() {
             </p>
           </div>
 
-          <div className="content-scroller">
-            {projects.map((project, index) => (
-              <div key={project.title} className="content-scroller-card">
-                <article className="metric-card card-hover flex h-full flex-col p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <h4 className="text-lg font-semibold text-gray-100">{project.title}</h4>
-                    <span className="section-chip !px-3 !py-1 !text-[10px]">
-                      Platform
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {projects.map((project) => (
+              <article key={project.title} className="metric-card card-hover flex h-full flex-col p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-lg font-semibold text-gray-100">{project.title}</h4>
+                  <span className="section-chip !px-3 !py-1 !text-[10px]">
+                    Platform
+                  </span>
+                </div>
+
+                <p className="mt-4 flex-1 text-sm leading-8 text-gray-400">{project.description}</p>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {project.tech.map((tech, i) => (
+                    <span key={i} className="skill-badge !px-3 !py-1.5 !text-xs">
+                      {tech}
                     </span>
-                  </div>
+                  ))}
+                </div>
 
-                  <p className="mt-4 flex-1 text-sm leading-8 text-gray-400">{project.description}</p>
+                <div className="mt-6 border-t border-white/10 pt-4 text-sm text-primary-200">
+                  <span className="font-semibold text-white">Impact:</span> {project.metrics}
+                </div>
 
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {project.tech.map((tech, i) => (
-                      <span key={i} className="skill-badge !px-3 !py-1.5 !text-xs">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 border-t border-white/10 pt-4 text-sm text-primary-200">
-                    <span className="font-semibold text-white">Impact:</span> {project.metrics}
-                  </div>
-
-                  <div className="mt-5">
-                    <Link to={createDiscussUrl(project.topic, { intent: 'scope' })} className="secondary-button !rounded-xl !px-4 !py-2.5">
-                      {project.ctaLabel}
-                    </Link>
-                  </div>
-                </article>
-              </div>
+                <div className="mt-5">
+                  <Link to={createDiscussUrl(project.topic, { intent: 'scope' })} className="secondary-button !rounded-xl !px-4 !py-2.5">
+                    {project.ctaLabel}
+                  </Link>
+                </div>
+              </article>
             ))}
           </div>
 

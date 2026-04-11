@@ -16,7 +16,7 @@ function ServiceCard({ service }) {
     <article className="card-hover relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.12),transparent_34%)]" />
       <div className="relative z-10">
-        <span className="section-chip">{service.eyebrow}</span>
+        <span className="section-chip">{service.categoryLabel || service.eyebrow}</span>
       </div>
       <h3 className="relative z-10 mt-5 text-2xl font-semibold text-white">{service.title}</h3>
       <p className="relative z-10 mt-4 flex-1 text-sm leading-8 text-gray-400">{service.summary}</p>
