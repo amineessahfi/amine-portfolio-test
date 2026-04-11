@@ -32,35 +32,35 @@ export const services = [
     ],
   },
   {
-    slug: 'cloud-cost-optimization',
+    slug: 'cloud-fit-deployment',
     eyebrow: 'Service 02',
-    title: 'AWS Cost Optimization & Cloud Efficiency',
+    title: 'Cloud Fit, IaC & Deployment Packs',
     summary:
-      'Find and remove waste across compute, storage, transfer, and platform architecture while preserving reliability and delivery speed.',
+      'Choose the right provider stack for the workload, make the services listing explicit, and leave with a deploy-ready IaC pack or a one-time rollout.',
     highlights: [
-      'Cost visibility tied to architecture decisions',
-      'Right-sizing, storage, and network spend review',
-      'Savings plans, reservations, and waste reduction backlog',
+      'Provider recommendation tied to cost, ops burden, and resilience tradeoffs',
+      'Services listing that makes compute, data, edge, and backup choices explicit',
+      'OpenTofu or Terraform delivery pack with review or one-time deployment handoff',
     ],
     outcomes: [
-      'Lower recurring cloud spend with measurable savings',
-      'Prioritized cost actions instead of generic recommendations',
-      'Better cost ownership across engineering and platform teams',
+      'Move from vague provider debate into a directionally right stack decision',
+      'Make the infrastructure bill of materials legible before any rollout starts',
+      'Get a deployable pack or one-time deployment path instead of a generic cloud audit',
     ],
     deliverables: [
-      'Current-state AWS cost review and optimization map',
-      'Estimated savings by initiative and implementation priority',
-      'Hands-on support for quick wins and long-term controls',
+      'Workload questionnaire and shortlist recommendation with tradeoff summary',
+      'Services listing covering compute, data, networking, observability, and recovery',
+      'Generated IaC pack plus review or one-time deployment handoff',
     ],
     bestFor: [
-      'AWS estates that grew quickly without cost discipline',
-      'Teams under pressure to cut spend without breaking delivery',
-      'Platforms that need clearer financial visibility and control',
+      'Teams outgrowing simple PaaS setups and needing a clearer production landing zone',
+      'Founders or platform leads comparing providers without wanting a six-week infra study',
+      'Organizations that want a deployable stack choice, not just cost commentary',
     ],
     snapshot: [
-      { label: 'Primary focus', value: 'Spend reduction' },
-      { label: 'Delivery style', value: 'Audit + execution plan' },
-      { label: 'Typical outcome', value: 'Leaner monthly spend' },
+      { label: 'Primary focus', value: 'Cloud fit + deployability' },
+      { label: 'Delivery style', value: 'Recommendation + IaC + rollout' },
+      { label: 'Typical outcome', value: 'Right-fit stack with deploy-ready code' },
     ],
   },
   {
@@ -194,6 +194,10 @@ export const services = [
 ]
 
 export function getServiceBySlug(serviceSlug) {
-  const normalizedSlug = serviceSlug === 'aws-cost-optimization' ? 'cloud-cost-optimization' : serviceSlug
+  const aliases = {
+    'aws-cost-optimization': 'cloud-fit-deployment',
+    'cloud-cost-optimization': 'cloud-fit-deployment',
+  }
+  const normalizedSlug = aliases[serviceSlug] || serviceSlug
   return services.find((service) => service.slug === normalizedSlug)
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaChartLine, FaCodeBranch, FaTerminal } from 'react-icons/fa'
-import { COST_REVIEW_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
+import { CLOUD_FIT_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const demoPages = [
   {
@@ -20,15 +20,15 @@ const demoPages = [
     iconClassName: 'text-cyan-300',
   },
   {
-    eyebrow: 'Cost review',
-    title: 'Model the savings case before you scope the cleanup',
+    eyebrow: 'Cloud fit',
+    title: 'Turn a provider debate into a shortlist and deploy pack',
     description:
-      'Adjust the scenario and see whether the likely efficiency gain is strong enough to justify a focused review.',
-    highlights: ['Interactive scenario inputs', 'Fast savings signal', 'Direct handoff into a cost discussion'],
-    to: COST_REVIEW_ROUTE,
-    cta: 'Open review demo',
-    topic: 'cloud-cost-optimization',
-    discussionCta: 'Discuss the savings signal',
+      'Describe the workload, compare the shortlist, inspect the services listing, and choose between the review and the one-time deployment ask.',
+    highlights: ['Provider comparison by cost + ops', 'Services listing after generation', 'Two clear delivery CTAs'],
+    to: CLOUD_FIT_ROUTE,
+    cta: 'Open cloud fit demo',
+    topic: 'cloud-fit-deployment',
+    discussionCta: 'Discuss the cloud fit path',
     icon: FaChartLine,
     dotClassName: 'bg-primary-300',
     textClassName: 'text-primary-200',

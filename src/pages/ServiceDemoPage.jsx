@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useParams } from 'react-router-dom'
-import CostCalculator from '../components/CostCalculator'
+import CloudFitPlanner from '../components/CloudFitPlanner'
 import SandboxTerminal from '../components/SandboxTerminal'
 import WorkflowComposerDemo from '../components/WorkflowComposerDemo'
 import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
@@ -16,10 +16,10 @@ function ServiceDemoPage() {
   }
 
   const isSandboxDemo = service.slug === 'live-terminal-sandbox'
-  const isCostDemo = service.slug === 'cloud-cost-optimization'
+  const isCloudFitDemo = service.slug === 'cloud-fit-deployment'
   const isWorkflowDemo = service.slug === 'workflow-composer'
 
-  if (!isSandboxDemo && !isCostDemo && !isWorkflowDemo) {
+  if (!isSandboxDemo && !isCloudFitDemo && !isWorkflowDemo) {
     return <NotFoundPage />
   }
 
@@ -46,23 +46,23 @@ function ServiceDemoPage() {
         tertiaryLabel: 'View sandbox architecture',
         tertiaryTo: ARCHITECTURE_STACK_ROUTE,
       }
-    : isCostDemo
+    : isCloudFitDemo
       ? {
-          eyebrow: 'Cost model',
-          title: 'Model the savings pressure before you scope the cleanup.',
+          eyebrow: 'Cloud fit model',
+          title: 'Compare the shortlist, inspect the stack, and choose the handoff.',
           intro:
-            'Adjust the scenario inputs and see whether the savings case is strong enough to justify a targeted cost-efficiency engagement.',
+            'Use the planner to describe the workload, rank the strongest provider fit, review the services listing, and pressure-test whether the next step should be the review or the one-time deploy pack.',
           notes: [
-            'Test whether the likely savings are directionally meaningful for your current spend profile.',
-            'Check how easy it is to move from estimate to a concrete review conversation.',
-            'Use the service page when you want the implementation context around the cleanup work itself.',
+            'Check whether the recommendation explains both cost and ops burden instead of pretending the cheapest provider always wins.',
+            'Review the services listing as the real approval surface after generation, not just the provider headline.',
+            'Use the CTA fork to move either into the architecture review or straight into the one-time deployment ask.',
           ],
           focusTitle: 'What this should prove',
           focusText:
-            'The model should make spend pressure and likely savings legible quickly enough to justify a real review.',
+            'The model should turn a fuzzy infra debate into a believable shortlist, a concrete bill of materials, and a delivery-shaped next step.',
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
-          secondaryLabel: 'Discuss the cost review',
+          secondaryLabel: 'Discuss the cloud fit',
           secondaryTo: discussUrl,
         }
       : {
@@ -167,7 +167,7 @@ function ServiceDemoPage() {
           </div>
         </section>
 
-        {isSandboxDemo ? <SandboxTerminal /> : isCostDemo ? <CostCalculator /> : <WorkflowComposerDemo />}
+        {isSandboxDemo ? <SandboxTerminal /> : isCloudFitDemo ? <CloudFitPlanner /> : <WorkflowComposerDemo />}
       </main>
     </>
   )

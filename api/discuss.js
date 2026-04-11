@@ -3,8 +3,10 @@ import {
   createLeadSubmissionEmailUrl,
 } from '../src/constants/links.js'
 import {
+  discussOfferPresets,
   discussIntentPresets,
   getDiscussTopicPreset,
+  normalizeDiscussOffer,
   normalizeDiscussIntent,
   normalizeDiscussTopic,
   responsePromise,
@@ -39,17 +41,27 @@ function normalizeLeadPayload(body = {}) {
   const intentPreset = discussIntentPresets[intent]
   const topic = normalizeDiscussTopic(sanitizeField(body.topic, 120))
   const preset = getDiscussTopicPreset(topic)
+  const offer =
+    intent === 'scope' && topic === 'cloud-fit-deployment'
+      ? normalizeDiscussOffer(sanitizeField(body.offer, 40) || 'review')
+      : 'general'
+  const offerPreset = discussOfferPresets[offer]
+  const scopedSubject = offer !== 'general' ? `${preset.emailSubject} — ${offerPreset.optionLabel}` : preset.emailSubject
 
   return {
     intent,
     intentLabel: intentPreset.optionLabel,
     topic,
     topicLabel: preset.optionLabel,
-    subject: intent === 'explore' ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+    offer,
+    offerLabel: offerPreset.optionLabel,
+    subject: intent === 'explore' ? `${preset.emailSubject} exploratory note` : scopedSubject,
     intro:
       intent === 'explore'
         ? `I would like to pressure-test whether the ${preset.optionLabel.toLowerCase()} proof path is the right starting point.`
-        : preset.emailIntro,
+        : offer !== 'general' && topic === 'cloud-fit-deployment'
+          ? offerPreset.emailIntro
+          : preset.emailIntro,
     name: sanitizeField(body.name, 120),
     workEmail: sanitizeField(body.workEmail, 160).toLowerCase(),
     company: sanitizeField(body.company, 160),
@@ -115,6 +127,7 @@ function formatLeadEmailText(lead) {
     `New portfolio lead: ${lead.topicLabel}`,
     '',
     `Intent: ${lead.intentLabel}`,
+    ...(lead.offer !== 'general' ? [`Offer: ${lead.offerLabel}`] : []),
     `Name: ${lead.name}`,
     `Work email: ${lead.workEmail}`,
     `Company: ${lead.company}`,
@@ -158,6 +171,11 @@ function formatLeadEmailHtml(lead) {
       <p style="margin: 0 0 16px;">Reply promise shown on the site: ${escape(responsePromise)}</p>
       <table style="border-collapse: collapse; margin-bottom: 20px;">
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Intent</strong></td><td>${escape(lead.intentLabel)}</td></tr>
+        ${
+          lead.offer !== 'general'
+            ? `<tr><td style="padding: 4px 12px 4px 0;"><strong>Offer</strong></td><td>${escape(lead.offerLabel)}</td></tr>`
+            : ''
+        }
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Name</strong></td><td>${escape(lead.name)}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Work email</strong></td><td>${escape(lead.workEmail)}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Company</strong></td><td>${escape(lead.company)}</td></tr>
@@ -196,6 +214,7 @@ async function sendLeadEmail(lead, recipient) {
           intro: lead.intro,
           intentLabel: lead.intentLabel,
           topicLabel: lead.topicLabel,
+          offerLabel: lead.offer !== 'general' ? lead.offerLabel : '',
           name: lead.name,
           workEmail: lead.workEmail,
         company: lead.company,
@@ -319,6 +338,7 @@ export default async function handler(req, res) {
         intro: lead.intro,
         intentLabel: lead.intentLabel,
         topicLabel: lead.topicLabel,
+        offerLabel: lead.offer !== 'general' ? lead.offerLabel : '',
         name: lead.name,
         workEmail: lead.workEmail,
         company: lead.company,

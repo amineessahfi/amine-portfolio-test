@@ -7,7 +7,7 @@ import {
   createLeadSubmissionEmailUrl,
 } from '../constants/links'
 import {
-  COST_REVIEW_ROUTE,
+  CLOUD_FIT_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
@@ -17,8 +17,10 @@ import { getServiceBySlug } from '../data/services'
 import {
   budgetRangeOptions,
   discussIntentPresets,
+  discussOfferPresets,
   discussTopicOptions,
   getDiscussTopicPreset,
+  normalizeDiscussOffer,
   normalizeDiscussIntent,
   normalizeDiscussTopic,
   responsePromise,
@@ -76,6 +78,19 @@ const intentCards = [
   },
 ]
 
+const offerCards = [
+  {
+    value: 'review',
+    title: discussOfferPresets.review.optionLabel,
+    description: discussOfferPresets.review.summaryText,
+  },
+  {
+    value: 'deploy-pack',
+    title: discussOfferPresets['deploy-pack'].optionLabel,
+    description: discussOfferPresets['deploy-pack'].summaryText,
+  },
+]
+
 const topicActions = {
   general: {
     label: 'Browse service paths',
@@ -85,9 +100,9 @@ const topicActions = {
     label: 'Review platform engineering',
     to: createServiceRoute('platform-engineering'),
   },
-  'cloud-cost-optimization': {
-    label: 'Reopen the savings model',
-    to: COST_REVIEW_ROUTE,
+  'cloud-fit-deployment': {
+    label: 'Reopen the cloud fit model',
+    to: CLOUD_FIT_ROUTE,
   },
   'data-platforms': {
     label: 'Review data platform service',
@@ -114,6 +129,10 @@ function DiscussProjectPage() {
   const preset = getDiscussTopicPreset(selectedTopic)
   const intentPreset = discussIntentPresets[selectedIntent]
   const isExploreIntent = selectedIntent === 'explore'
+  const isCloudFitTopic = selectedTopic === 'cloud-fit-deployment'
+  const selectedOffer =
+    !isExploreIntent && isCloudFitTopic ? normalizeDiscussOffer(searchParams.get('offer') || 'review') : 'general'
+  const offerPreset = discussOfferPresets[selectedOffer]
   const relatedService = getServiceBySlug(selectedTopic)
   const [formState, setFormState] = useState(defaultFormState)
   const [fieldErrors, setFieldErrors] = useState({})
@@ -125,19 +144,32 @@ function DiscussProjectPage() {
   const nextStepSignals = isExploreIntent ? intentPreset.responseSteps : preset.responseSteps
   const discussIntro = isExploreIntent
     ? `I would like to pressure-test whether the ${preset.optionLabel.toLowerCase()} proof path is the right starting point.`
-    : preset.emailIntro
+    : isCloudFitTopic && selectedOffer !== 'general'
+      ? offerPreset.emailIntro
+      : preset.emailIntro
   const directEmailHref = createDiscussEmailUrl({
-    subject: isExploreIntent ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+    subject:
+      isExploreIntent
+        ? `${preset.emailSubject} exploratory note`
+        : isCloudFitTopic && selectedOffer !== 'general'
+          ? `${preset.emailSubject} — ${offerPreset.optionLabel}`
+          : preset.emailSubject,
     intro: discussIntro,
     prompts: isExploreIntent ? exploreEmailPrompts : preset.emailPrompts,
   })
 
   const buildFallbackUrl = () =>
     createLeadSubmissionEmailUrl({
-      subject: isExploreIntent ? `${preset.emailSubject} exploratory note` : preset.emailSubject,
+      subject:
+        isExploreIntent
+          ? `${preset.emailSubject} exploratory note`
+          : isCloudFitTopic && selectedOffer !== 'general'
+            ? `${preset.emailSubject} — ${offerPreset.optionLabel}`
+            : preset.emailSubject,
       intro: discussIntro,
       intentLabel: intentPreset.optionLabel,
       topicLabel: preset.optionLabel,
+      offerLabel: isCloudFitTopic && selectedOffer !== 'general' ? offerPreset.optionLabel : '',
       name: formState.name,
       workEmail: formState.workEmail,
       company: formState.company,
@@ -154,11 +186,18 @@ function DiscussProjectPage() {
   const handleTopicChange = (event) => {
     const nextTopic = normalizeDiscussTopic(event.target.value)
     const nextSearchParams = new URLSearchParams(searchParams)
+    const nextIntent = normalizeDiscussIntent(nextSearchParams.get('intent') || 'scope')
 
     if (nextTopic === 'general') {
       nextSearchParams.delete('topic')
     } else {
       nextSearchParams.set('topic', nextTopic)
+    }
+
+    if (nextTopic === 'cloud-fit-deployment' && nextIntent === 'scope') {
+      nextSearchParams.set('offer', normalizeDiscussOffer(nextSearchParams.get('offer') || 'review'))
+    } else {
+      nextSearchParams.delete('offer')
     }
 
     setSearchParams(nextSearchParams)
@@ -176,6 +215,20 @@ function DiscussProjectPage() {
       nextSearchParams.set('intent', normalizedIntent)
     }
 
+    if (normalizedIntent === 'scope' && selectedTopic === 'cloud-fit-deployment') {
+      nextSearchParams.set('offer', normalizeDiscussOffer(nextSearchParams.get('offer') || 'review'))
+    } else {
+      nextSearchParams.delete('offer')
+    }
+
+    setSearchParams(nextSearchParams)
+    setFieldErrors({})
+    setSubmitState(defaultSubmitState)
+  }
+
+  const handleOfferChange = (nextOffer) => {
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('offer', normalizeDiscussOffer(nextOffer))
     setSearchParams(nextSearchParams)
     setFieldErrors({})
     setSubmitState(defaultSubmitState)
@@ -212,6 +265,7 @@ function DiscussProjectPage() {
       ...formState,
       intent: selectedIntent,
       topic: selectedTopic,
+      offer: selectedOffer,
       pageUrl: window.location.href,
     }
 
@@ -269,7 +323,7 @@ function DiscussProjectPage() {
   const pageIntro = isExploreIntent
     ? 'If a demo, trace, or system map feels close to the real problem, use the lighter exploration path to explain what you want to inspect before you commit to a scoped engagement.'
     : preset.intro
-  const bestUseText = intentPreset.summaryText
+  const bestUseText = !isExploreIntent && isCloudFitTopic ? offerPreset.summaryText : intentPreset.summaryText
   const problemLabel = isExploreIntent ? 'What do you want to inspect first?' : 'Problem / pressure point'
   const problemPlaceholder = isExploreIntent
     ? 'Which failure, handoff, or technical risk do you want the proof surface to make clearer?'
@@ -283,7 +337,9 @@ function DiscussProjectPage() {
     ? 'What should be clearer once you have the right trace, map, or proof surface?'
     : 'What should be clearer, safer, faster, or cheaper after the first phase?'
   const timeSensitivityLabel = isExploreIntent ? 'Anything time-sensitive (optional)' : 'Anything time-sensitive'
-  const successButtonLabel = isExploreIntent ? 'Send exploration note' : intentPreset.submitLabel
+  const formTitle = !isExploreIntent && isCloudFitTopic ? offerPreset.formTitle : intentPreset.formTitle
+  const formIntro = !isExploreIntent && isCloudFitTopic ? offerPreset.formIntro : intentPreset.formIntro
+  const successButtonLabel = isExploreIntent ? 'Send exploration note' : !isExploreIntent && isCloudFitTopic ? offerPreset.submitLabel : intentPreset.submitLabel
 
   return (
     <>
@@ -300,6 +356,11 @@ function DiscussProjectPage() {
                 <p className="mt-4 text-sm leading-7 text-primary-100">
                   Current focus: <span className="font-semibold text-white">{preset.optionLabel}</span>
                 </p>
+                {!isExploreIntent && isCloudFitTopic ? (
+                  <p className="mt-2 text-sm leading-7 text-primary-100">
+                    Selected handoff: <span className="font-semibold text-white">{offerPreset.optionLabel}</span>
+                  </p>
+                ) : null}
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                   <a href="#project-brief-form" className="primary-button gap-2">
@@ -350,6 +411,33 @@ function DiscussProjectPage() {
                   })}
                 </div>
 
+                {!isExploreIntent && isCloudFitTopic ? (
+                  <div className="mt-8">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Choose the scoped handoff</p>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      {offerCards.map((card) => {
+                        const isActive = card.value === selectedOffer
+
+                        return (
+                          <button
+                            key={card.value}
+                            type="button"
+                            onClick={() => handleOfferChange(card.value)}
+                            className={`rounded-[1.5rem] border p-5 text-left transition ${
+                              isActive
+                                ? 'border-primary-500/30 bg-primary-500/10'
+                                : 'border-white/10 bg-white/[0.03] hover:border-primary-500/20 hover:bg-white/[0.05]'
+                            }`}
+                          >
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{card.title}</p>
+                            <p className="mt-3 text-sm leading-7 text-gray-300">{card.description}</p>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
                   <div className="metric-card p-5">
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Response promise</p>
@@ -364,9 +452,9 @@ function DiscussProjectPage() {
 
               <div id="project-brief-form" className="relative z-10 metric-card scroll-mt-28 p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">{intentPreset.formEyebrow}</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">{intentPreset.formTitle}</h2>
+                <h2 className="mt-4 text-2xl font-semibold text-white">{formTitle}</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  {intentPreset.formIntro} Direct delivery still uses the API when configured and falls back to a prefilled email when needed.
+                  {formIntro} Direct delivery still uses the API when configured and falls back to a prefilled email when needed.
                 </p>
 
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit}>

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   ARCHITECTURE_STACK_ROUTE,
-  COST_REVIEW_ROUTE,
+  CLOUD_FIT_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
@@ -20,23 +20,23 @@ function ServiceDetailPage() {
     return <NotFoundPage />
   }
 
-  const isCostService = service.slug === 'cloud-cost-optimization'
+  const isCloudFitService = service.slug === 'cloud-fit-deployment'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const isWorkflowService = service.slug === 'workflow-composer'
   const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
   const primaryCta = isSandboxService
     ? { label: 'Open the live sandbox', to: LIVE_SANDBOX_ROUTE }
-    : isCostService
-      ? { label: 'Open the savings model', to: COST_REVIEW_ROUTE }
+    : isCloudFitService
+      ? { label: 'Open the cloud fit model', to: CLOUD_FIT_ROUTE }
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
         : { label: 'Start the project brief', to: discussUrl }
-  const secondaryCta = isSandboxService || isCostService || isWorkflowService
+  const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService
     ? {
         label: isWorkflowService
           ? 'Discuss the workflow build'
-          : isCostService
-            ? 'Plan the cost review'
+          : isCloudFitService
+            ? 'Plan the cloud fit'
             : 'Discuss the sandbox build',
         to: discussUrl,
       }
@@ -62,25 +62,25 @@ function ServiceDetailPage() {
         supportingText:
           'The value is in the combination of launch flow, runtime guardrails, and a clear explanation of how the system stays bounded.',
       }
-    : isCostService
+    : isCloudFitService
       ? {
           eyebrow: 'Interactive proof',
-          title: 'Open the savings model when you need a fast signal on efficiency',
+          title: 'Open the cloud fit model when you need a fast path from shortlist to deploy pack',
           description:
-            'Use the calculator to pressure-test spend, likely savings, and the business case before turning the work into a focused cost review.',
+            'Use the planner to capture the workload, compare providers, inspect the services listing, and decide whether the next step should be the review or the one-time deploy pack.',
           highlights: [
-            'Adjust the scenario inputs against your current spend pressure.',
-            'See whether the likely savings are big enough to justify a real review.',
-            'Move into a cost conversation only after the estimate feels directionally right.',
+            'Compare provider fit across cost, ops load, and resilience tradeoffs.',
+            'Review the services bill of materials after generation, not only the provider headline.',
+            'Move into either the architecture review or the one-time deploy pack once the stack feels directionally right.',
           ],
-          primaryLabel: 'Open the review demo',
-          primaryTo: COST_REVIEW_ROUTE,
-          secondaryLabel: 'Plan the cost review',
+          primaryLabel: 'Open the cloud fit demo',
+          primaryTo: CLOUD_FIT_ROUTE,
+          secondaryLabel: 'Plan the cloud fit',
           secondaryTo: discussUrl,
           supportingEyebrow: 'What the demo proves',
-          supportingTitle: 'The savings case should become legible quickly.',
+          supportingTitle: 'The stack decision should become deployable quickly.',
           supportingText:
-            'The model is meant to create a fast decision: keep exploring, or move into a real efficiency engagement with clearer priorities.',
+            'The planner is meant to create a fast decision: keep iterating on the shortlist, or move straight into a real review or deployment package.',
         }
       : isWorkflowService
         ? {

@@ -53,6 +53,38 @@ export const discussIntentPresets = {
   },
 }
 
+export const discussOfferPresets = {
+  general: {
+    optionLabel: 'Scoped engagement',
+    formTitle: 'Send the project context once.',
+    formIntro: 'This path captures the commercial and operating context needed for a scoped reply.',
+    submitLabel: 'Send scoped brief',
+    summaryText:
+      'Use this when the problem is real enough that you want a fit verdict, a first delivery shape, and the right next step.',
+    emailIntro: '',
+  },
+  review: {
+    optionLabel: 'Architecture review',
+    formTitle: 'Send the review context once.',
+    formIntro:
+      'Use this when you want the stack recommendation pressure-tested before you commit to generation or rollout.',
+    submitLabel: 'Request architecture review',
+    summaryText:
+      'Best when the provider choice, regional posture, or risk controls still need expert validation before the stack lands.',
+    emailIntro: 'I would like to discuss the cloud fit recommendation and an architecture review.',
+  },
+  'deploy-pack': {
+    optionLabel: 'One-time deploy pack',
+    formTitle: 'Send the deployment context once.',
+    formIntro:
+      'Use this when you already want the generated IaC pack and a single deployment motion into your cloud account.',
+    submitLabel: 'Request deploy pack',
+    summaryText:
+      'Best when you want the chosen provider, services listing, and IaC turned into a one-time delivery package.',
+    emailIntro: 'I would like to discuss the cloud fit recommendation and a one-time deploy pack.',
+  },
+}
+
 const generalBriefFields = [
   'Problem / pressure point:',
   'Current stack or environment:',
@@ -68,11 +100,11 @@ const platformBriefFields = [
   'Anything time-sensitive:',
 ]
 
-const costReviewBriefFields = [
-  'Approximate monthly cloud spend or scale:',
-  'Biggest suspected waste areas:',
-  'Constraints that limit cost changes:',
-  'Desired savings target or budget pressure:',
+const cloudFitBriefFields = [
+  'What the workload needs to run (app, API, worker, internal tool, pipeline, etc.):',
+  'Services that must exist (database, queue, cache, object storage, observability, etc.):',
+  'Traffic, uptime, or regional expectations that change the stack choice:',
+  'Whether you want a review or a one-time deployment pack:',
   'Anything time-sensitive:',
 ]
 
@@ -141,19 +173,19 @@ export const discussTopicPresets = {
       'You get a practical first phase tied to delivery speed, release safety, and team adoption.',
     ],
   },
-  'cloud-cost-optimization': {
-    optionLabel: 'Cloud cost optimization',
-    eyebrow: 'Cost review fit',
-    title: 'Turn the savings signal into a real efficiency plan.',
+  'cloud-fit-deployment': {
+    optionLabel: 'Cloud fit and deployment',
+    eyebrow: 'Cloud fit',
+    title: 'Turn the recommendation into a deployable environment.',
     intro:
-      'If the model feels directionally right, send the rough spend profile, the budget pressure, and the areas most likely leaking money.',
-    emailSubject: 'Cloud cost review discussion',
-    emailIntro: 'I would like to discuss a cloud cost-efficiency review.',
-    emailPrompts: costReviewBriefFields,
+      'If the shortlist feels directionally right, send the workload shape, the services you need, and whether the next step should be the review or the one-time deploy pack.',
+    emailSubject: 'Cloud fit and deployment discussion',
+    emailIntro: 'I would like to discuss a cloud fit recommendation and deployment path.',
+    emailPrompts: cloudFitBriefFields,
     responseSteps: [
-      'We identify where the biggest savings signal is likely real versus noisy.',
-      'I recommend the fastest high-leverage review scope and where execution support matters most.',
-      'You get a concrete starting plan instead of a generic cost-optimization checklist.',
+      'We pressure-test the shortlist, the services listing, and the strongest production landing shape.',
+      'I recommend whether the right next step is an architecture review or a one-time deployment pack.',
+      'You get a concrete path from provider choice into generated infrastructure and rollout.',
     ],
   },
   'data-platforms': {
@@ -221,7 +253,7 @@ export const discussTopicPresets = {
 export const discussTopicOptions = [
   { value: 'general', label: discussTopicPresets.general.optionLabel },
   { value: 'platform-engineering', label: discussTopicPresets['platform-engineering'].optionLabel },
-  { value: 'cloud-cost-optimization', label: discussTopicPresets['cloud-cost-optimization'].optionLabel },
+  { value: 'cloud-fit-deployment', label: discussTopicPresets['cloud-fit-deployment'].optionLabel },
   { value: 'data-platforms', label: discussTopicPresets['data-platforms'].optionLabel },
   { value: 'telco-tooling', label: discussTopicPresets['telco-tooling'].optionLabel },
   { value: 'live-terminal-sandbox', label: discussTopicPresets['live-terminal-sandbox'].optionLabel },
@@ -229,7 +261,8 @@ export const discussTopicOptions = [
 ]
 
 const topicAliases = {
-  'aws-cost-optimization': 'cloud-cost-optimization',
+  'aws-cost-optimization': 'cloud-fit-deployment',
+  'cloud-cost-optimization': 'cloud-fit-deployment',
 }
 
 export function normalizeDiscussIntent(intent = 'scope') {
@@ -239,6 +272,10 @@ export function normalizeDiscussIntent(intent = 'scope') {
 export function normalizeDiscussTopic(topic = 'general') {
   const normalizedTopic = topicAliases[topic] || topic
   return discussTopicPresets[normalizedTopic] ? normalizedTopic : 'general'
+}
+
+export function normalizeDiscussOffer(offer = 'general') {
+  return discussOfferPresets[offer] ? offer : 'general'
 }
 
 export function getDiscussTopicPreset(topic = 'general') {

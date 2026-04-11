@@ -12,7 +12,7 @@ export const EMAIL_URL = `mailto:${DEFAULT_LEAD_INBOX}`
 export const RESUME_REQUEST_URL =
   `${EMAIL_URL}?subject=Resume%20request&body=Hi%20Amine%2C%20I%27d%20like%20to%20see%20your%20resume.`
 export const AUDIT_REQUEST_URL =
-  `${EMAIL_URL}?subject=AWS%20audit%20request&body=Hi%20Amine%2C%20I%27d%20like%20to%20discuss%20an%20AWS%20cost%20and%20platform%20audit.`
+  `${EMAIL_URL}?subject=Cloud%20fit%20review%20request&body=Hi%20Amine%2C%20I%27d%20like%20to%20discuss%20a%20cloud%20fit%20recommendation%20and%20deployment%20path.`
 
 export function createDiscussEmailUrl({
   subject = 'Project conversation',
@@ -39,6 +39,7 @@ export function createLeadSubmissionEmailUrl({
   intro = 'I would like to discuss a project.',
   intentLabel = 'Scope a real engagement',
   topicLabel = 'General project fit',
+  offerLabel = '',
   name = '',
   workEmail = '',
   company = '',
@@ -59,6 +60,7 @@ export function createLeadSubmissionEmailUrl({
       '',
       `Intent: ${intentLabel || 'Scope a real engagement'}`,
       `Topic: ${topicLabel || 'General project fit'}`,
+      ...(offerLabel ? [`Offer: ${offerLabel}`] : []),
       `Name: ${name || 'Not provided'}`,
       `Work email: ${workEmail || 'Not provided'}`,
       `Company: ${company || 'Not provided'}`,

@@ -6,7 +6,7 @@ import {
   LINKEDIN_URL,
 } from '../constants/links'
 import {
-  COST_REVIEW_ROUTE,
+  CLOUD_FIT_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
@@ -73,9 +73,9 @@ function CtaBar() {
             <p className="mt-3 text-sm leading-7 text-gray-400">Use the live shell when runtime safety, access flow, and product feel need to be judged together.</p>
           </Link>
 
-          <Link to={COST_REVIEW_ROUTE} className="metric-card card-hover p-5">
-            <p className="text-sm font-semibold text-white">Savings proof</p>
-            <p className="mt-3 text-sm leading-7 text-gray-400">Use the model when you need a fast signal on whether a cost-efficiency review is worth pursuing now.</p>
+          <Link to={CLOUD_FIT_ROUTE} className="metric-card card-hover p-5">
+            <p className="text-sm font-semibold text-white">Cloud fit proof</p>
+            <p className="mt-3 text-sm leading-7 text-gray-400">Use the planner when you need a fast shortlist, explicit services listing, and a deploy-shaped next step.</p>
           </Link>
 
           <Link to={WORKFLOW_COMPOSER_ROUTE} className="metric-card card-hover p-5">
