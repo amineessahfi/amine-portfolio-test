@@ -41,7 +41,7 @@ function SiteLayout() {
   }, [location.pathname, location.hash])
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-gray-100">
+    <div className="relative min-h-screen text-gray-100">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-12rem] top-[-10rem] h-[30rem] w-[30rem] rounded-full bg-primary-500/14 blur-3xl" />
         <div className="absolute right-[-10rem] top-24 h-[26rem] w-[26rem] rounded-full bg-cyan-400/10 blur-3xl" />
