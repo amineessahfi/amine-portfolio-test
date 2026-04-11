@@ -36,7 +36,7 @@ function ServicesPage() {
   return (
     <>
       <section className="page-hero">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
             <div className="grid gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:items-start">
               <div>
