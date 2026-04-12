@@ -4,6 +4,7 @@ import SiteHeader from './SiteHeader'
 import SiteFooter from './SiteFooter'
 import CtaBar from './CtaBar'
 import SiteChatbot from './SiteChatbot'
+import SiteMeta from './SiteMeta'
 
 function SiteLayout() {
   const location = useLocation()
@@ -49,6 +50,7 @@ function SiteLayout() {
       </div>
 
       <div className="relative z-10">
+        <SiteMeta />
         <SiteHeader />
         <Outlet />
         {showGlobalCta ? (

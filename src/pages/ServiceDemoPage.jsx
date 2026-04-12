@@ -1,18 +1,24 @@
-import React from 'react'
-import { Link, useParams } from 'react-router-dom'
-import CloudFitPlanner from '../components/CloudFitPlanner'
-import SandboxTerminal from '../components/SandboxTerminal'
-import WorkflowComposerDemo from '../components/WorkflowComposerDemo'
+import React, { Suspense, lazy } from 'react'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
+const CloudFitPlanner = lazy(() => import('../components/CloudFitPlanner'))
+const SandboxTerminal = lazy(() => import('../components/SandboxTerminal'))
+const WorkflowComposerDemo = lazy(() => import('../components/WorkflowComposerDemo'))
+
 function ServiceDemoPage() {
   const { serviceSlug } = useParams()
+  const location = useLocation()
   const service = getServiceBySlug(serviceSlug)
 
   if (!service) {
     return <NotFoundPage />
+  }
+
+  if (serviceSlug !== service.slug) {
+    return <Navigate to={`${createServiceRoute(service.slug)}/demo${location.search}${location.hash}`} replace />
   }
 
   const isSandboxDemo = service.slug === 'live-terminal-sandbox'
@@ -83,6 +89,8 @@ function ServiceDemoPage() {
           secondaryLabel: 'Discuss this workflow',
           secondaryTo: discussUrl,
         }
+  const DemoSurface = isSandboxDemo ? SandboxTerminal : isCloudFitDemo ? CloudFitPlanner : WorkflowComposerDemo
+
   return (
     <>
       <section className="page-hero">
@@ -166,7 +174,21 @@ function ServiceDemoPage() {
           </div>
         </section>
 
-        {isSandboxDemo ? <SandboxTerminal /> : isCloudFitDemo ? <CloudFitPlanner /> : <WorkflowComposerDemo />}
+        <Suspense
+          fallback={
+            <section className="terminal-window">
+              <div className="terminal-header">
+                <div className="text-sm text-gray-400">demo — loading</div>
+              </div>
+
+              <div className="terminal-content">
+                <p className="text-sm leading-7 text-gray-300">Preparing the proof surface for this route.</p>
+              </div>
+            </section>
+          }
+        >
+          <DemoSurface />
+        </Suspense>
       </main>
     </>
   )

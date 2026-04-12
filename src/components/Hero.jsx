@@ -69,9 +69,9 @@ function Hero() {
                 </Link>
               </div>
 
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="content-scroller mt-10 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none]">
                 {metrics.map((metric) => (
-                  <div key={metric.label} className="metric-card">
+                  <div key={metric.label} className="metric-card content-scroller-card">
                     <p className="text-3xl font-semibold text-white sm:text-4xl">{metric.value}</p>
                     <p className="mt-3 text-sm leading-7 text-gray-400">{metric.label}</p>
                   </div>
@@ -90,9 +90,9 @@ function Hero() {
                 </p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+              <div className="content-scroller sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none] xl:grid-cols-1">
                 {entryCards.map((card) => (
-                  <div key={card.title} className="metric-card p-5">
+                  <div key={card.title} className="metric-card content-scroller-card p-5">
                     <p className="text-sm font-semibold text-white">{card.title}</p>
                     <p className="mt-3 text-sm leading-7 text-gray-400">{card.description}</p>
                   </div>

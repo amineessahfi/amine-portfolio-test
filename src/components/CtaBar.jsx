@@ -67,18 +67,18 @@ function CtaBar() {
           </div>
         </div>
 
-        <div className="mt-6 grid gap-4 xl:grid-cols-3">
-          <Link to={LIVE_SANDBOX_ROUTE} className="metric-card card-hover p-5">
+        <div className="content-scroller mt-6 xl:grid xl:grid-cols-3 xl:overflow-visible xl:pb-0 xl:[scroll-snap-type:none]">
+          <Link to={LIVE_SANDBOX_ROUTE} className="metric-card card-hover content-scroller-card p-5">
             <p className="text-sm font-semibold text-white">Sandbox proof</p>
             <p className="mt-3 text-sm leading-7 text-gray-400">Use the live shell when runtime safety, access flow, and product feel need to be judged together.</p>
           </Link>
 
-          <Link to={CLOUD_FIT_ROUTE} className="metric-card card-hover p-5">
+          <Link to={CLOUD_FIT_ROUTE} className="metric-card card-hover content-scroller-card p-5">
             <p className="text-sm font-semibold text-white">Cloud fit proof</p>
             <p className="mt-3 text-sm leading-7 text-gray-400">Use the planner when you need a fast shortlist, explicit services listing, and a deploy-shaped next step.</p>
           </Link>
 
-          <Link to={WORKFLOW_COMPOSER_ROUTE} className="metric-card card-hover p-5">
+          <Link to={WORKFLOW_COMPOSER_ROUTE} className="metric-card card-hover content-scroller-card p-5">
             <p className="text-sm font-semibold text-white">Workflow proof</p>
             <p className="mt-3 text-sm leading-7 text-gray-400">Use the composer when orchestration clarity and safe operator handoffs are the strongest proof points.</p>
           </Link>
@@ -103,20 +103,20 @@ function CtaBar() {
         </div>
 
         <div className="mt-8 border-t border-white/10 pt-6">
-          <div className="grid gap-4 text-center sm:grid-cols-2 xl:grid-cols-4">
-            <div className="metric-card p-4">
+          <div className="content-scroller text-center sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none] xl:grid-cols-4">
+            <div className="metric-card content-scroller-card p-4">
               <div className="text-2xl font-semibold text-white">5+</div>
               <div className="mt-2 text-sm text-gray-400">Years in complex delivery</div>
             </div>
-            <div className="metric-card p-4">
+            <div className="metric-card content-scroller-card p-4">
               <div className="text-2xl font-semibold text-white">30%+</div>
               <div className="mt-2 text-sm text-gray-400">Savings identified</div>
             </div>
-            <div className="metric-card p-4">
+            <div className="metric-card content-scroller-card p-4">
               <div className="text-2xl font-semibold text-white">Fast</div>
               <div className="mt-2 text-sm text-gray-400">From diagnosis to action</div>
             </div>
-            <div className="metric-card p-4">
+            <div className="metric-card content-scroller-card p-4">
               <div className="text-2xl font-semibold text-white">Hands-on</div>
               <div className="mt-2 text-sm text-gray-400">Architecture through handoff</div>
             </div>

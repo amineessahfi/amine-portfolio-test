@@ -69,12 +69,12 @@ function DemoShowcase() {
             </p>
           </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="content-scroller md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:[scroll-snap-type:none] xl:grid-cols-3">
           {demoPages.map((demo) => {
             const Icon = demo.icon
 
             return (
-              <article key={demo.title} className="metric-card card-hover flex h-full flex-col p-6">
+              <article key={demo.title} className="metric-card card-hover content-scroller-card flex h-full flex-col p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">

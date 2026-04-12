@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import {
   ARCHITECTURE_STACK_ROUTE,
   CLOUD_FIT_ROUTE,
@@ -14,10 +14,15 @@ import NotFoundPage from './NotFoundPage'
 
 function ServiceDetailPage() {
   const { serviceSlug } = useParams()
+  const location = useLocation()
   const service = getServiceBySlug(serviceSlug)
 
   if (!service) {
     return <NotFoundPage />
+  }
+
+  if (serviceSlug !== service.slug) {
+    return <Navigate to={`${createServiceRoute(service.slug)}${location.search}${location.hash}`} replace />
   }
 
   const isCloudFitService = service.slug === 'cloud-fit-deployment'

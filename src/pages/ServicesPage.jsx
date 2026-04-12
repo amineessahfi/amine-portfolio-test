@@ -86,14 +86,14 @@ function ServicesPage() {
                 <h2 className="mt-2 text-2xl font-semibold text-white">How the work usually lands</h2>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                {deliverySteps.map((step, index) => (
-                  <div key={step.title} className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
-                    <p className="text-sm font-semibold text-primary-300">0{index + 1}</p>
-                    <h3 className="mt-3 text-lg font-semibold text-white">{step.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-gray-400">{step.description}</p>
-                  </div>
-                ))}
+                <div className="content-scroller md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:[scroll-snap-type:none]">
+                  {deliverySteps.map((step, index) => (
+                    <div key={step.title} className="content-scroller-card rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5">
+                      <p className="text-sm font-semibold text-primary-300">0{index + 1}</p>
+                      <h3 className="mt-3 text-lg font-semibold text-white">{step.title}</h3>
+                      <p className="mt-3 text-sm leading-7 text-gray-400">{step.description}</p>
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
@@ -109,13 +109,13 @@ function ServicesPage() {
                 <h2 className="mt-2 text-2xl font-semibold text-white">How the engagement can start</h2>
               </div>
 
-              <ul className="space-y-3 text-sm leading-7 text-gray-300">
-                {engagementNotes.map((note) => (
-                  <li key={note} className="flex gap-3 rounded-2xl border border-dark-700/70 bg-dark-900/40 px-4 py-3">
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
-                    <span>{note}</span>
-                  </li>
-                ))}
+                <ul className="content-scroller text-sm leading-7 text-gray-300 sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none]">
+                  {engagementNotes.map((note) => (
+                    <li key={note} className="content-scroller-card flex gap-3 rounded-2xl border border-dark-700/70 bg-dark-900/40 px-4 py-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+                      <span>{note}</span>
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>

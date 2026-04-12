@@ -218,11 +218,16 @@ export const serviceBrowseOptions = [
   { value: 'automation-ops', label: 'Automation & operations' },
 ]
 
+export const serviceSlugAliases = {
+  'aws-cost-optimization': 'cloud-fit-deployment',
+  'cloud-cost-optimization': 'cloud-fit-deployment',
+}
+
+export function normalizeServiceSlug(serviceSlug = '') {
+  return serviceSlugAliases[serviceSlug] || serviceSlug
+}
+
 export function getServiceBySlug(serviceSlug) {
-  const aliases = {
-    'aws-cost-optimization': 'cloud-fit-deployment',
-    'cloud-cost-optimization': 'cloud-fit-deployment',
-  }
-  const normalizedSlug = aliases[serviceSlug] || serviceSlug
+  const normalizedSlug = normalizeServiceSlug(serviceSlug)
   return services.find((service) => service.slug === normalizedSlug)
 }
