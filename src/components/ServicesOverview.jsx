@@ -85,7 +85,7 @@ function ServicesOverview({
             </div>
           ) : null}
 
-          <div className="content-scroller md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:[scroll-snap-type:none] xl:grid-cols-3">
+          <div className="content-scroller md:grid md:grid-cols-2 md:items-start md:overflow-visible md:pb-0 md:[scroll-snap-type:none] xl:grid-cols-3">
             {visibleServices.map((service) => (
               <ServiceCard key={service.slug} service={service} className="content-scroller-card" />
             ))}

@@ -13,7 +13,7 @@ function ServiceCard({ service, className = '' }) {
   const typicalOutcome = service.snapshot.find((item) => item.label === 'Typical outcome')?.value
 
   return (
-    <article className={`card-hover relative flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)] ${className}`.trim()}>
+    <article className={`card-hover relative flex self-start flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_18px_60px_rgba(2,6,23,0.2)] ${className}`.trim()}>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.12),transparent_34%)]" />
       <div className="relative z-10">
         <span className="section-chip">{service.categoryLabel || service.eyebrow}</span>

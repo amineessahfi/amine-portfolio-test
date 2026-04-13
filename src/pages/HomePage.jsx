@@ -11,10 +11,10 @@ import {
 
 const flagshipPath = {
   eyebrow: 'Cloud fit',
-  title: 'Pick the right provider stack and move into deploy-ready infrastructure.',
+  title: 'Choose the right cloud stack and move into deploy-ready infrastructure.',
   description:
-    'Use the cloud fit lane when the fastest win is turning vague provider debate into a shortlist, services bill, and delivery-shaped next step.',
-  highlights: ['Provider shortlist with ops tradeoffs', 'Services bill before rollout', 'Review or deploy-pack handoff'],
+    'Use cloud fit when provider choice, service selection, or rollout shape is still fuzzy and you need a grounded recommendation fast.',
+  highlights: ['Provider shortlist with real tradeoffs', 'Service bill before rollout', 'Review or deploy-pack handoff'],
   primaryLabel: 'Open cloud fit',
   primaryTo: CLOUD_FIT_ROUTE,
   secondaryLabel: 'Discuss cloud fit',
@@ -24,10 +24,10 @@ const flagshipPath = {
 const secondaryPaths = [
   {
     eyebrow: 'Workflow systems',
-    title: 'Make operator handoffs and approvals explicit before the automation gets built.',
+    title: 'Map the operator flow before anyone builds the automation.',
     description:
-      'Use the workflow lane when approvals, retries, escalation, and operator handoffs need to be made explicit before buildout starts.',
-    highlights: ['Preview flow logic before implementation', 'Open the constrained live studio', 'Move from proof into scoped delivery'],
+      'Use this when approvals, retries, escalations, and handoffs need to be explicit before implementation starts.',
+    highlights: ['Model the flow before implementation', 'Use the constrained live studio', 'Turn proof into scoped delivery'],
     primaryLabel: 'Open workflow proof',
     primaryTo: WORKFLOW_COMPOSER_ROUTE,
     secondaryLabel: 'Discuss workflow build',
@@ -35,13 +35,13 @@ const secondaryPaths = [
   },
   {
     eyebrow: 'Platform, data & telecom',
-    title: 'Fix the delivery system underneath the product when the visible issue is only the symptom.',
+    title: 'Fix the delivery system underneath the product.',
     description:
-      'Use the broader systems lane when releases, environments, data flows, or telecom operations are slowing the team down more than the application logic itself.',
-    highlights: ['Platform diagnostics and paved roads', 'Operational data and orchestration patterns', 'Telecom-heavy operational tooling'],
+      'Use this when releases, environments, data flows, or telecom operations are creating drag that product work alone will not solve.',
+    highlights: ['Platform diagnostics and paved roads', 'Operational data and orchestration patterns', 'Telecom-heavy internal tooling'],
     primaryLabel: 'Browse services',
     primaryTo: SERVICES_DIRECTORY_ROUTE,
-    secondaryLabel: 'Start the diagnostic',
+    secondaryLabel: 'Discuss the problem',
     secondaryTo: createDiscussUrl('platform-engineering', { intent: 'scope' }),
   },
 ]
@@ -50,7 +50,7 @@ const proofSurfaces = [
   {
     title: 'Cloud fit planner',
     description:
-      'Inspect provider tradeoffs, the services bill, and the deploy-pack path before the conversation turns commercial.',
+      'Inspect provider tradeoffs, the service bill, and the deploy-pack path before the conversation turns commercial.',
     to: CLOUD_FIT_ROUTE,
   },
   {
@@ -62,7 +62,7 @@ const proofSurfaces = [
   {
     title: 'Live sandbox',
     description:
-      'Inspect the browser Linux sandbox and see how the productized proof surface behaves in practice.',
+      'Inspect the browser Linux sandbox and see how the proof surface behaves in practice.',
     to: LIVE_SANDBOX_ROUTE,
   },
 ]
@@ -123,54 +123,52 @@ function HomePage() {
                 <h2 className="section-title text-3xl sm:text-4xl">Start from the decision you need to make.</h2>
               </div>
               <p className="max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
-                Most work lands through one of three motions: choosing the right cloud shape, making workflow handoffs explicit, or stabilizing the delivery system underneath the product.
+                Most engagements start in one of three places: cloud fit, workflow design, or the platform, data, and telecom systems underneath the product.
               </p>
             </div>
 
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
+            <div className="space-y-5">
               <article className="relative overflow-hidden rounded-[1.85rem] border border-white/10 bg-[linear-gradient(180deg,rgba(10,14,28,0.92),rgba(8,12,26,0.68))] p-6 shadow-[0_28px_90px_rgba(2,6,23,0.34)] sm:p-8">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(96,165,250,0.12),transparent_34%)]" />
-                <div className="relative z-10">
-                  <span className="section-chip">{flagshipPath.eyebrow}</span>
-                  <h3 className="mt-5 max-w-3xl text-3xl font-semibold text-white sm:text-[2.2rem] sm:leading-[1.08]">
-                    {flagshipPath.title}
-                  </h3>
-                  <p className="mt-4 max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
-                    {flagshipPath.description}
-                  </p>
+                <div className="relative z-10 grid gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
+                  <div>
+                    <span className="section-chip">{flagshipPath.eyebrow}</span>
+                    <h3 className="mt-5 max-w-3xl text-3xl font-semibold text-white sm:text-[2.2rem] sm:leading-[1.08]">
+                      {flagshipPath.title}
+                    </h3>
+                    <p className="mt-4 max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
+                      {flagshipPath.description}
+                    </p>
 
-                  <ul className="mt-6 space-y-3 sm:hidden">
-                    {flagshipPath.highlights.map((item) => (
-                      <li key={item} className="flex gap-3 text-sm text-gray-300">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6 hidden gap-3 sm:grid sm:grid-cols-3">
-                    {flagshipPath.highlights.map((item) => (
-                      <div
-                        key={item}
-                        className="rounded-[1.25rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-7 text-gray-300"
-                      >
-                        {item}
-                      </div>
-                    ))}
+                    <ul className="mt-6 space-y-3 text-sm text-gray-300">
+                      {flagshipPath.highlights.map((item) => (
+                        <li key={item} className="flex gap-3">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <Link to={flagshipPath.primaryTo} className="primary-button">
-                      {flagshipPath.primaryLabel}
-                    </Link>
-                    <Link to={flagshipPath.secondaryTo} className="secondary-button">
-                      {flagshipPath.secondaryLabel}
-                    </Link>
+                  <div className="rounded-[1.55rem] border border-white/10 bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Best when</p>
+                    <p className="mt-4 text-sm leading-8 text-gray-300">
+                      You need a grounded recommendation on provider choice, service selection, and rollout shape before anyone starts provisioning.
+                    </p>
+
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <Link to={flagshipPath.primaryTo} className="primary-button">
+                        {flagshipPath.primaryLabel}
+                      </Link>
+                      <Link to={flagshipPath.secondaryTo} className="secondary-button">
+                        {flagshipPath.secondaryLabel}
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </article>
 
-              <div className="content-scroller xl:hidden">
+              <div className="content-scroller lg:hidden">
                 {secondaryPaths.map((path) => (
                   <article
                     key={path.title}
@@ -199,26 +197,9 @@ function HomePage() {
                     </div>
                   </article>
                 ))}
-
-                <div className="content-scroller-card rounded-[1.55rem] border border-white/10 bg-[#060b1b]/62 p-6 shadow-[0_20px_60px_rgba(2,6,23,0.26)]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Proof surfaces</p>
-                  <h3 className="mt-4 text-2xl font-semibold text-white">Inspect the logic before you scope the work.</h3>
-                  <div className="mt-5 space-y-4">
-                    {proofSurfaces.map((surface) => (
-                      <Link
-                        key={surface.title}
-                        to={surface.to}
-                        className="block rounded-[1.25rem] border border-white/10 bg-white/[0.035] px-4 py-4 transition hover:border-primary-400/30 hover:bg-white/[0.05]"
-                      >
-                        <p className="text-sm font-semibold text-white">{surface.title}</p>
-                        <p className="mt-2 text-sm leading-7 text-gray-400">{surface.description}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
               </div>
 
-              <div className="hidden space-y-4 xl:block">
+              <div className="hidden gap-4 lg:grid lg:grid-cols-2 lg:items-start">
                 {secondaryPaths.map((path) => (
                   <article
                     key={path.title}
@@ -247,16 +228,24 @@ function HomePage() {
                     </div>
                   </article>
                 ))}
+              </div>
 
-                <div className="rounded-[1.55rem] border border-white/10 bg-[#060b1b]/62 p-6 shadow-[0_20px_60px_rgba(2,6,23,0.26)] sm:p-7">
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Proof surfaces</p>
-                  <h3 className="mt-4 text-2xl font-semibold text-white">Inspect the logic before you scope the work.</h3>
-                  <div className="mt-5 space-y-4">
+              <div className="rounded-[1.55rem] border border-white/10 bg-[#060b1b]/62 p-6 shadow-[0_20px_60px_rgba(2,6,23,0.26)] sm:p-7">
+                <div className="grid gap-5 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-start">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Working proof</p>
+                    <h3 className="mt-4 text-2xl font-semibold text-white">Review the proof before you scope the work.</h3>
+                    <p className="mt-4 text-sm leading-8 text-gray-400">
+                      These surfaces let you inspect the logic before the conversation becomes commercial.
+                    </p>
+                  </div>
+
+                  <div className="content-scroller md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:[scroll-snap-type:none]">
                     {proofSurfaces.map((surface) => (
                       <Link
                         key={surface.title}
                         to={surface.to}
-                        className="block rounded-[1.25rem] border border-white/10 bg-white/[0.035] px-4 py-4 transition hover:border-primary-400/30 hover:bg-white/[0.05]"
+                        className="content-scroller-card rounded-[1.25rem] border border-white/10 bg-white/[0.035] px-4 py-4 transition hover:border-primary-400/30 hover:bg-white/[0.05]"
                       >
                         <p className="text-sm font-semibold text-white">{surface.title}</p>
                         <p className="mt-2 text-sm leading-7 text-gray-400">{surface.description}</p>
@@ -277,7 +266,7 @@ function HomePage() {
                 <h2 className="section-title text-3xl sm:text-4xl">Representative delivery under real constraints.</h2>
               </div>
               <p className="max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
-                Enough signal to show the kind of systems involved, the operating pressure around them, and the outcome the work was meant to create.
+                A few concrete examples of the kind of delivery work this turns into.
               </p>
             </div>
 
@@ -336,7 +325,7 @@ function HomePage() {
                 <h2 className="section-title text-3xl sm:text-4xl">How the engagement usually lands.</h2>
               </div>
               <p className="max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
-                The point is not endless discovery. It is to identify the real constraint, shape the first move, and implement the part that should actually ship.
+                Get to the bottleneck, shape the first move, then ship the part that matters.
               </p>
             </div>
 

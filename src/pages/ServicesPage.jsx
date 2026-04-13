@@ -12,7 +12,7 @@ const deliverySteps = [
   {
     title: 'Design',
     description:
-      'Turn that diagnosis into a practical architecture, delivery shape, and first scope that a team can actually adopt.',
+      'Turn that diagnosis into a practical architecture and first delivery plan that a team can actually adopt.',
   },
   {
     title: 'Implement',
@@ -30,14 +30,14 @@ const engagementNotes = [
 
 const expectationPoints = [
   'A concrete diagnosis of the bottleneck',
-  'A delivery shape matched to the team and the constraint',
+  'A delivery plan matched to the team and the constraint',
   'Hands-on implementation when the work needs shipping, not just advice',
 ]
 
 const fitSignals = [
-  'Best when the pressure spans architecture, workflow, and team constraints rather than one isolated task.',
-  'Useful when the first phase needs to turn into delivery quickly, not sit as a recommendations deck.',
-  'Works well with internal teams that want hands-on collaboration, not a pure throw-over advisory model.',
+  'Best when the issue crosses architecture, workflow, and delivery constraints instead of one isolated task.',
+  'Useful when the first phase needs to turn into real delivery quickly.',
+  'Works best with teams that want hands-on collaboration, not a recommendations deck.',
 ]
 
 function ServicesPage() {
@@ -50,10 +50,10 @@ function ServicesPage() {
               <div>
                 <span className="section-chip">Services</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  Choose the service path that matches the pressure, not the buzzword.
+                  Choose the service that matches the pressure.
                 </h1>
                 <p className="section-copy max-w-3xl text-base sm:text-lg">
-                  Each service is framed around the decision it should unlock, the first phase it should produce, and the proof you can inspect before you commit to the conversation.
+                  Each page makes the scope, likely first phase, and available proof concrete before you commit to a conversation.
                 </p>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
@@ -67,7 +67,7 @@ function ServicesPage() {
               </div>
 
               <div className="rounded-[1.55rem] border border-white/10 bg-[#060b1b]/68 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.28)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">What a good start looks like</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">What to expect first</p>
                 <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
                   {expectationPoints.map((item) => (
                     <li key={item} className="flex gap-3">
@@ -85,8 +85,8 @@ function ServicesPage() {
       <main className="page-shell">
         <ServicesOverview
           eyebrow="Service directory"
-          title="Choose the service path that matches the problem you need solved"
-          intro="Start with the type of pressure you need resolved, then move into the service page that makes the expected scope and proof points concrete."
+          title="Find the service that fits the bottleneck"
+          intro="Start with the pressure you need resolved, then open the service page that makes the scope and proof points concrete."
           enableFilters
           sectionId="services-directory"
           surface="surface"
@@ -98,9 +98,9 @@ function ServicesPage() {
               <div id="service-delivery-model" className="scroll-mt-28">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Approach</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-white">How the work usually lands</h2>
+                  <h2 className="mt-2 text-2xl font-semibold text-white">How the work usually runs</h2>
                   <p className="mt-4 max-w-3xl text-sm leading-8 text-gray-400">
-                    The engagement should move from diagnosis into delivery shape quickly, then into implementation where the work actually needs to land.
+                    The work should move from diagnosis into a real delivery plan quickly, then into implementation where it actually needs to land.
                   </p>
                 </div>
 

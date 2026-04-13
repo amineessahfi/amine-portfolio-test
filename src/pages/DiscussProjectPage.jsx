@@ -74,7 +74,7 @@ const intentCards = [
   {
     value: 'scope',
     title: discussIntentPresets.scope.optionLabel,
-    description: 'Use the guided path when the problem is real and you want fit, scope, and the first delivery shape.',
+    description: 'Use the guided path when the problem is real and you want fit, scope, and a credible first delivery plan.',
   },
 ]
 
@@ -255,12 +255,12 @@ function DiscussProjectPage() {
   const funnelSteps = [
     {
       id: 'path',
-      label: '1. Path',
-      shortLabel: 'Path',
+      label: '1. Direction',
+      shortLabel: 'Direction',
       eyebrow: 'Choose the lane',
-      title: 'Set the motion, topic, and handoff first.',
-      description: 'Keep the first move simple: choose the route, the service focus, and the handoff before you describe the problem.',
-      teaser: 'Choose the lane, service focus, and handoff.',
+      title: 'Choose the lane and service focus.',
+      description: 'Pick the type of conversation, the service focus, and the handoff before you describe the problem.',
+      teaser: 'Choose the lane, focus, and handoff.',
     },
     {
       id: 'problem',
@@ -290,12 +290,12 @@ function DiscussProjectPage() {
     },
     {
       id: 'contact',
-      label: '4. All set',
-      shortLabel: 'All set',
+      label: '4. Reply',
+      shortLabel: 'Reply',
       eyebrow: 'Ready to send',
-      title: 'All set. Leave the reply path and send it.',
+      title: 'Add your reply details and send the note.',
       description: `${formIntro} Direct delivery still uses the API when configured and falls back to a prefilled email when needed.`,
-      teaser: 'Leave the reply path, review the intake, and send it.',
+      teaser: 'Add contact details, review the note, and send it.',
     },
   ]
 
@@ -318,7 +318,7 @@ function DiscussProjectPage() {
 
   const finalReviewCards = [
     {
-      label: 'Path',
+      label: 'Direction',
       value: pathSummary,
     },
     {
@@ -625,7 +625,7 @@ function DiscussProjectPage() {
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <a href="#contact-flow" className="primary-button gap-2">
-                    Start the left-to-right flow
+                    Start the intake
                     <FaArrowRight className="text-xs" />
                   </a>
                   <Link to={secondaryAction.to} className="secondary-button gap-2">
@@ -652,18 +652,20 @@ function DiscussProjectPage() {
               </div>
 
               <div className="relative z-10 metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">4-step contact flow</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Left to right until all set.</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">4-step intake</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">Four short steps to a useful reply.</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  Keep the contact path narrow: choose the lane, name the pressure, shape the outcome, then finish at
-                  the reply step.
+                  Choose the lane, name the pressure, define the outcome, then leave a clear reply path.
                 </p>
 
-                <div className="mt-6 space-y-3">
+                <div className="mt-6 space-y-4">
                   {funnelSteps.map((step) => (
-                    <div key={step.id} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{step.label}</p>
-                      <p className="mt-2 text-sm leading-7 text-gray-300">{step.teaser}</p>
+                    <div key={step.id} className="flex gap-3">
+                      <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-cyan-300" />
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-200">{step.label}</p>
+                        <p className="mt-1 text-sm leading-7 text-gray-300">{step.teaser}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -681,7 +683,7 @@ function DiscussProjectPage() {
       <main className="page-shell">
         <section id="contact-flow" className="terminal-window scroll-mt-28">
           <div className="terminal-header">
-            <div className="text-sm text-gray-400">contact flow — left to right</div>
+            <div className="text-sm text-gray-400">guided intake</div>
           </div>
 
           <div className="terminal-content">
@@ -703,16 +705,16 @@ function DiscussProjectPage() {
                     type="button"
                     onClick={() => setActiveStep(step.id)}
                     className={`parallax-step-button ${isActive ? 'parallax-step-button-active' : ''}`}
-                  >
-                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{step.label}</span>
-                    <span className="mt-2 block text-sm font-semibold text-white">{step.shortLabel}</span>
-                    <span className="mt-2 block text-sm leading-7 text-gray-400">
-                      {index < activeStepIndex ? 'Set' : isActive ? 'Current step' : 'Still ahead'}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+                    >
+                      <span className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">{step.label}</span>
+                      <span className="mt-2 block text-sm font-semibold text-white">{step.shortLabel}</span>
+                      <span className="mt-2 block text-sm leading-7 text-gray-400">
+                        {index < activeStepIndex ? 'Done' : isActive ? 'Current' : 'Up next'}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
 
             <div className="parallax-progress-track">
               <div
@@ -725,11 +727,8 @@ function DiscussProjectPage() {
               <div className="parallax-flow-layer" />
               <div className="parallax-flow-layer parallax-flow-layer-secondary" />
 
-              <div
-                className="parallax-flow-track"
-                style={{ transform: `translateX(-${activeStepIndex * 100}%)` }}
-              >
-                <section className="parallax-flow-slide">
+              <div className="parallax-flow-track">
+                <section className="p-1" hidden={activeStep !== 'path'}>
                   <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
@@ -829,7 +828,7 @@ function DiscussProjectPage() {
                   </div>
                 </section>
 
-                <section className="parallax-flow-slide">
+                <section className="p-1" hidden={activeStep !== 'problem'}>
                   <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
@@ -897,7 +896,7 @@ function DiscussProjectPage() {
                   </div>
                 </section>
 
-                <section className="parallax-flow-slide">
+                <section className="p-1" hidden={activeStep !== 'shape'}>
                   <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
@@ -988,7 +987,7 @@ function DiscussProjectPage() {
                           Back to pressure
                         </button>
                         <button type="button" onClick={() => moveToNextStep('shape')} className="primary-button gap-2">
-                          Continue to all set
+                          Continue to reply
                           <FaArrowRight className="text-xs" />
                         </button>
                       </div>
@@ -1018,7 +1017,7 @@ function DiscussProjectPage() {
                   </div>
                 </section>
 
-                <section className="parallax-flow-slide">
+                <section className="p-1" hidden={activeStep !== 'contact'}>
                   <div className="grid gap-6 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-start">
                     <form className="space-y-4" onSubmit={handleSubmit}>
                       <input

@@ -27,7 +27,7 @@ export const discussIntentPresets = {
     formIntro: 'This guided funnel captures the commercial and operating context needed for a scoped reply without dropping you into one long form.',
     submitLabel: 'Send scoped request',
     summaryText:
-      'Use this when the problem is real enough that you want a fit verdict, a first delivery shape, and the right next step.',
+      'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     responseSteps: [
       'I review the problem, the constraints, and whether the work is a strong fit.',
       'You get a recommendation on the best starting shape: diagnostic sprint, redesign blueprint, or implementation track.',
@@ -60,7 +60,7 @@ export const discussOfferPresets = {
     formIntro: 'This guided funnel captures the commercial and operating context needed for a scoped reply without dropping you into one long form.',
     submitLabel: 'Send scoped request',
     summaryText:
-      'Use this when the problem is real enough that you want a fit verdict, a first delivery shape, and the right next step.',
+      'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     emailIntro: '',
   },
   review: {

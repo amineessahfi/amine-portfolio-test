@@ -11,23 +11,23 @@ const metrics = [
 
 const startOptions = [
   {
-    label: 'Start with a scoped diagnostic',
-    description: 'Use this when the team already needs a fit verdict, architecture direction, or the first delivery slice.',
+    label: 'Discuss a live problem',
+    description: 'Use this when the issue is real and you need a fit verdict, architecture direction, or a credible first delivery plan.',
     to: createDiscussUrl('', { intent: 'scope' }),
-    action: 'Start the diagnostic',
+    action: 'Open the intake',
   },
   {
-    label: 'Start with live proof',
-    description: 'Use this when trust has to be earned through a concrete planner, workflow surface, or sandbox before scope.',
+    label: 'Review working proof',
+    description: 'Use this when you want to inspect a planner, workflow model, or sandbox before turning it into a scoped project.',
     to: CLOUD_FIT_ROUTE,
-    action: 'Explore live proof',
+    action: 'Open the demos',
   },
 ]
 
 const fitSignals = [
-  'Best when reliability, operator clarity, and commercial pressure all matter at once.',
-  'Useful for cloud, workflow, platform, data, and telecom-heavy delivery constraints.',
-  'Strongest when the answer needs to become an implementation path, not a slide deck.',
+  'Best when multiple systems, operators, and delivery constraints are in play at once.',
+  'Useful for cloud, workflow, platform, data, and telecom-heavy programmes.',
+  'Strongest when the next step needs to ship, not sit in a slide deck.',
 ]
 
 function Hero() {
@@ -46,16 +46,16 @@ function Hero() {
                 <span className="gradient-text"> Then make change safer.</span>
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                I help teams untangle platform, cloud, workflow, data, and telecom delivery problems when the real issue is buried below the first symptom.
+                I help teams diagnose platform, cloud, workflow, data, and telecom delivery problems when the symptom is obvious but the real failure point is buried underneath.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                 <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
-                  Start the diagnostic
+                  Discuss the problem
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <Link to={CLOUD_FIT_ROUTE} className="secondary-button gap-2">
-                  Explore live proof
+                  Review live proof
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <a href="#projects" className="soft-link inline-flex items-center justify-center px-2 py-3">
@@ -79,7 +79,7 @@ function Hero() {
             <div className="relative z-10 rounded-[1.9rem] border border-white/10 bg-[#060b1b]/72 p-6 shadow-[0_28px_90px_rgba(2,6,23,0.36)] backdrop-blur-2xl sm:p-7">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Where to start</p>
               <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                Pick the motion that removes uncertainty fastest.
+                Choose the clearest starting point.
               </h2>
 
               <div className="mt-6 space-y-4">
