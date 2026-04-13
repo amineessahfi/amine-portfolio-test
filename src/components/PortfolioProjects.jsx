@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { createDiscussUrl } from '../constants/routes'
+import IntakeTriggerButton from './IntakeTriggerButton'
 
 function PortfolioProjects() {
   const projects = [
@@ -73,9 +72,9 @@ function PortfolioProjects() {
                 </div>
 
                 <div className="mt-5">
-                  <Link to={createDiscussUrl(project.topic, { intent: 'scope' })} className="secondary-button !rounded-xl !px-4 !py-2.5">
+                  <IntakeTriggerButton topic={project.topic} className="secondary-button !rounded-xl !px-4 !py-2.5">
                     {project.ctaLabel}
-                  </Link>
+                  </IntakeTriggerButton>
                 </div>
               </article>
             ))}

@@ -1,12 +1,12 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight } from 'react-icons/fa'
+import IntakeTriggerButton from './IntakeTriggerButton'
 import {
   CLOUD_FIT_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
-  createDiscussUrl,
 } from '../constants/routes'
 
 const firstOutputs = [
@@ -49,10 +49,10 @@ function Hero() {
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
+                <IntakeTriggerButton className="primary-button gap-2">
                   Discuss the problem
                   <FaArrowRight className="text-xs" />
-                </Link>
+                </IntakeTriggerButton>
                 <Link to={CLOUD_FIT_ROUTE} className="secondary-button gap-2">
                   Review live proof
                   <FaArrowRight className="text-xs" />
@@ -82,10 +82,10 @@ function Hero() {
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
+                <IntakeTriggerButton className="primary-button gap-2">
                   Open the intake
                   <FaArrowRight className="text-xs" />
-                </Link>
+                </IntakeTriggerButton>
                 <Link to={CLOUD_FIT_ROUTE} className="secondary-button gap-2">
                   Review proof first
                   <FaArrowRight className="text-xs" />

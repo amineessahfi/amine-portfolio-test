@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { createDiscussUrl } from '../constants/routes'
+import IntakeTriggerButton from './IntakeTriggerButton'
 import { SANDBOX_API_BASE } from '../constants/sandbox'
 import { useSiteAuth } from '../context/SiteAuthContext'
 
@@ -451,9 +451,9 @@ function SandboxTerminal() {
                 >
                   Sign-in temporarily unavailable
                 </button>
-                <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button !rounded-xl !px-4 !py-2">
+                <IntakeTriggerButton topic="live-terminal-sandbox" className="secondary-button !rounded-xl !px-4 !py-2">
                   Request authenticated access
-                </Link>
+                </IntakeTriggerButton>
               </>
             )}
           </div>
@@ -520,9 +520,9 @@ function SandboxTerminal() {
                 </button>
 
                 {!authState.authConfigured ? (
-                  <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button !rounded-xl !px-4 !py-2">
+                  <IntakeTriggerButton topic="live-terminal-sandbox" className="secondary-button !rounded-xl !px-4 !py-2">
                     Discuss extended access
-                  </Link>
+                  </IntakeTriggerButton>
                 ) : null}
               </div>
 

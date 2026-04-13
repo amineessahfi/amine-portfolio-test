@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import IntakeTriggerButton from '../components/IntakeTriggerButton'
 import ServicesOverview from '../components/ServicesOverview'
-import { CLOUD_FIT_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
+import { CLOUD_FIT_ROUTE, WORKFLOW_COMPOSER_ROUTE } from '../constants/routes'
 
 const deliverySteps = [
   {
@@ -59,7 +60,7 @@ const recommendedStarts = [
     eyebrow: 'Platform, data, or telecom',
     title: 'The real issue sits in the delivery system underneath the product.',
     recommendation: 'Start in the directory or describe the bottleneck directly.',
-    to: createDiscussUrl('', { intent: 'scope' }),
+    kind: 'intake',
     label: 'Discuss the problem',
   },
 ]
@@ -84,9 +85,9 @@ function ServicesPage() {
                   <a href="#services-directory" className="secondary-button">
                     Browse the directory
                   </a>
-                  <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button">
+                  <IntakeTriggerButton className="primary-button">
                     Discuss the problem
-                  </Link>
+                  </IntakeTriggerButton>
                 </div>
               </div>
 
@@ -99,9 +100,13 @@ function ServicesPage() {
                       <p className="mt-2 text-sm font-semibold leading-7 text-white">{item.title}</p>
                       <p className="mt-2 text-sm leading-7 text-gray-400">{item.recommendation}</p>
                       <div className="mt-4">
-                        <Link to={item.to} className="soft-link">
-                          {item.label}
-                        </Link>
+                        {item.kind === 'intake' ? (
+                          <IntakeTriggerButton className="soft-link text-left">{item.label}</IntakeTriggerButton>
+                        ) : (
+                          <Link to={item.to} className="soft-link">
+                            {item.label}
+                          </Link>
+                        )}
                       </div>
                     </div>
                   ))}

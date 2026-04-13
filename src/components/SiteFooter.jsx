@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { GITHUB_URL, LINKEDIN_URL, createDiscussEmailUrl } from '../constants/links'
-import { LOGIN_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
+import { LOGIN_ROUTE, SERVICES_DIRECTORY_ROUTE } from '../constants/routes'
+import IntakeTriggerButton from './IntakeTriggerButton'
 
 function SiteFooter() {
   return (
@@ -26,9 +27,9 @@ function SiteFooter() {
                   <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link">
                     Services
                   </Link>
-                  <Link to={createDiscussUrl('', { intent: 'scope' })} className="soft-link">
+                  <IntakeTriggerButton className="soft-link text-left">
                     Discuss a project
-                  </Link>
+                  </IntakeTriggerButton>
                   <Link to={LOGIN_ROUTE} className="soft-link">
                     Access gated demos
                   </Link>

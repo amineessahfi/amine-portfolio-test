@@ -22,10 +22,10 @@ export const discussIntentPresets = {
   scope: {
     optionLabel: 'Discuss a live problem',
     eyebrow: 'Live problem',
-    formEyebrow: 'Guided intake',
-    formTitle: 'Describe the problem step by step.',
-    formIntro: 'This short intake captures the commercial and operating context needed for a serious reply without dropping you into one long form.',
-    submitLabel: 'Send intake',
+    formEyebrow: 'Quick intake',
+    formTitle: 'Send a short note.',
+    formIntro: 'Two short notes and a work email are enough to start. I can ask for deeper context after I review the problem.',
+    submitLabel: 'Send quick intake',
     summaryText:
       'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     responseSteps: [
@@ -33,15 +33,15 @@ export const discussIntentPresets = {
       'You get a recommendation on the best starting shape: diagnostic sprint, redesign blueprint, or implementation track.',
       'If the fit is real, we move straight into a concrete next step instead of a vague discovery loop.',
     ],
-    requiredFields: ['name', 'workEmail', 'company', 'role', 'timeline', 'budgetRange', 'problem', 'currentEnvironment', 'desiredOutcome'],
+    requiredFields: ['workEmail', 'problem'],
   },
   explore: {
     optionLabel: 'Review proof first',
     eyebrow: 'Proof first',
-    formEyebrow: 'Guided intake',
-    formTitle: 'Describe the proof question step by step.',
-    formIntro: 'Keep it light. Share the system, the part you want to inspect, and what would make the proof useful.',
-    submitLabel: 'Send proof request',
+    formEyebrow: 'Quick intake',
+    formTitle: 'Send a short proof note.',
+    formIntro: 'Keep it light. Share what you want to inspect, what would make the proof useful, and the best email for the reply.',
+    submitLabel: 'Send proof note',
     summaryText:
       'Use this when you want a lighter technical reply focused on proof, fit, and whether the problem deserves formal scoping.',
     responseSteps: [
@@ -49,25 +49,25 @@ export const discussIntentPresets = {
       'You get a recommendation on whether to inspect a live proof surface, review a system map, or move into a scoped conversation.',
       'If the problem is real enough, we can turn the exploration into a formal scoped project.',
     ],
-    requiredFields: ['name', 'workEmail', 'problem'],
+    requiredFields: ['workEmail', 'problem'],
   },
 }
 
 export const discussOfferPresets = {
   general: {
     optionLabel: 'Scoped engagement',
-    formTitle: 'Describe the problem step by step.',
-    formIntro: 'This short intake captures the commercial and operating context needed for a serious reply without dropping you into one long form.',
-    submitLabel: 'Send intake',
+    formTitle: 'Send a short note.',
+    formIntro: 'Two short notes and a work email are enough to start. I can ask for the deeper delivery context after reviewing the problem.',
+    submitLabel: 'Send quick intake',
     summaryText:
       'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     emailIntro: '',
   },
   review: {
     optionLabel: 'Architecture review',
-    formTitle: 'Describe the review context step by step.',
+    formTitle: 'Send the review context in a short note.',
     formIntro:
-      'Use this when you want the stack recommendation pressure-tested before you commit to generation or rollout, while keeping the intake short and focused.',
+      'Use this when you want the stack recommendation pressure-tested before you commit to generation or rollout, without opening a long scoping form.',
     submitLabel: 'Request architecture review',
     summaryText:
       'Best when the provider choice, regional posture, or risk controls still need expert validation before the stack lands.',
@@ -75,9 +75,9 @@ export const discussOfferPresets = {
   },
   'deploy-pack': {
     optionLabel: 'One-time deploy pack',
-    formTitle: 'Describe the deployment context step by step.',
+    formTitle: 'Send the deployment context in a short note.',
     formIntro:
-      'Use this when you already want the generated IaC pack and a single deployment motion into your cloud account, while keeping the intake short and focused.',
+      'Use this when you already want the generated IaC pack and a single deployment motion into your cloud account, without opening a long scoping form.',
     submitLabel: 'Request deploy pack',
     summaryText:
       'Best when you want the chosen provider, services listing, and IaC turned into a one-time delivery package.',

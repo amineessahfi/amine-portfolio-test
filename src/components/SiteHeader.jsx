@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { LOGIN_ROUTE, createDiscussUrl } from '../constants/routes'
+import { LOGIN_ROUTE } from '../constants/routes'
 import { useSiteAuth } from '../context/SiteAuthContext'
+import IntakeTriggerButton from './IntakeTriggerButton'
 
 function SiteHeader() {
   const { authReady, authState } = useSiteAuth()
@@ -60,9 +61,9 @@ function SiteHeader() {
                 <span className="truncate">{authLabel}</span>
               </NavLink>
 
-              <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button !px-4 !py-2.5">
+              <IntakeTriggerButton className="primary-button !px-4 !py-2.5">
                 Discuss
-              </Link>
+              </IntakeTriggerButton>
             </div>
           </div>
         </div>

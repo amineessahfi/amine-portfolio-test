@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight, FaCheckCircle, FaCode, FaLayerGroup } from 'react-icons/fa'
-import { createDiscussUrl } from '../constants/routes'
+import IntakeTriggerButton from './IntakeTriggerButton'
 import {
   buildCloudFitPlan,
   cloudFitPriorityOptions,
@@ -554,13 +554,14 @@ function CloudFitPlanner() {
                     {recommended.recommendedOffer === 'review' ? <span className="skill-badge">Recommended</span> : null}
                   </div>
                   <p className="mt-4 text-sm leading-8 text-gray-400">{reviewOffer.summaryText}</p>
-                  <Link
-                    to={createDiscussUrl('cloud-fit-deployment', { intent: 'scope', offer: 'review' })}
+                  <IntakeTriggerButton
+                    topic="cloud-fit-deployment"
+                    offer="review"
                     className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-700"
                   >
                     Book the architecture review
                     <FaArrowRight className="text-xs" />
-                  </Link>
+                  </IntakeTriggerButton>
                 </div>
 
                 <div
@@ -576,13 +577,14 @@ function CloudFitPlanner() {
                     {recommended.recommendedOffer === 'deploy-pack' ? <span className="skill-badge">Recommended</span> : null}
                   </div>
                   <p className="mt-4 text-sm leading-8 text-gray-400">{deployPackOffer.summaryText}</p>
-                  <Link
-                    to={createDiscussUrl('cloud-fit-deployment', { intent: 'scope', offer: 'deploy-pack' })}
+                  <IntakeTriggerButton
+                    topic="cloud-fit-deployment"
+                    offer="deploy-pack"
                     className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-5 py-3 text-sm font-medium text-white transition-colors hover:border-primary-500/30 hover:bg-white/[0.05]"
                   >
                     Request the one-time deploy pack
                     <FaCode className="text-xs" />
-                  </Link>
+                  </IntakeTriggerButton>
                 </div>
               </div>
             </div>

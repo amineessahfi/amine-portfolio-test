@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight } from 'react-icons/fa'
+import IntakeTriggerButton from './IntakeTriggerButton'
 import {
   GITHUB_URL,
   LINKEDIN_URL,
@@ -59,10 +60,10 @@ function CtaBar() {
               </p>
 
               <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
+                <IntakeTriggerButton className="primary-button gap-2">
                   <FaArrowRight />
                   Open the intake
-                </Link>
+                </IntakeTriggerButton>
                 <Link to={SERVICES_DIRECTORY_ROUTE} className="secondary-button gap-2">
                   Browse service fit
                 </Link>

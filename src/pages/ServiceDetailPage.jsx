@@ -1,12 +1,12 @@
 import React from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
+import IntakeTriggerButton from '../components/IntakeTriggerButton'
 import {
   ARCHITECTURE_STACK_ROUTE,
   CLOUD_FIT_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
-  createDiscussUrl,
   createServiceRoute,
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
@@ -28,14 +28,13 @@ function ServiceDetailPage() {
   const isCloudFitService = service.slug === 'cloud-fit-deployment'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const isWorkflowService = service.slug === 'workflow-composer'
-  const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
   const primaryCta = isSandboxService
     ? { label: 'Open the live sandbox', to: LIVE_SANDBOX_ROUTE }
     : isCloudFitService
       ? { label: 'Open the cloud fit model', to: CLOUD_FIT_ROUTE }
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
-        : { label: 'Open the intake', to: discussUrl }
+        : { label: 'Open the intake', type: 'intake', topic: service.slug }
   const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService
     ? {
         label: isWorkflowService
@@ -43,7 +42,8 @@ function ServiceDetailPage() {
           : isCloudFitService
             ? 'Plan the cloud fit'
             : 'Discuss the sandbox build',
-        to: discussUrl,
+        type: 'intake',
+        topic: service.slug,
       }
     : { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE }
   const showArchitectureLink = isSandboxService
@@ -125,12 +125,24 @@ function ServiceDetailPage() {
               <p className="mt-5 max-w-3xl text-sm leading-8 text-gray-300 sm:text-base">{service.summary}</p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to={primaryCta.to} className="primary-button">
-                  {primaryCta.label}
-                </Link>
-                <Link to={secondaryCta.to} className="secondary-button">
-                  {secondaryCta.label}
-                </Link>
+                {primaryCta.type === 'intake' ? (
+                  <IntakeTriggerButton topic={primaryCta.topic} className="primary-button">
+                    {primaryCta.label}
+                  </IntakeTriggerButton>
+                ) : (
+                  <Link to={primaryCta.to} className="primary-button">
+                    {primaryCta.label}
+                  </Link>
+                )}
+                {secondaryCta.type === 'intake' ? (
+                  <IntakeTriggerButton topic={secondaryCta.topic} className="secondary-button">
+                    {secondaryCta.label}
+                  </IntakeTriggerButton>
+                ) : (
+                  <Link to={secondaryCta.to} className="secondary-button">
+                    {secondaryCta.label}
+                  </Link>
+                )}
                 {showArchitectureLink ? (
                   <Link to={ARCHITECTURE_STACK_ROUTE} className="soft-link inline-flex items-center px-2 py-3">
                     View architecture

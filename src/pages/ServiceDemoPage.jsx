@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
-import { ARCHITECTURE_STACK_ROUTE, createDiscussUrl, createServiceRoute } from '../constants/routes'
+import IntakeTriggerButton from '../components/IntakeTriggerButton'
+import { ARCHITECTURE_STACK_ROUTE, createServiceRoute } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
@@ -30,7 +31,6 @@ function ServiceDemoPage() {
   }
 
   const serviceRoute = createServiceRoute(service.slug)
-  const discussUrl = createDiscussUrl(service.slug, { intent: 'scope' })
   const demoCopy = isSandboxDemo
     ? {
         eyebrow: 'Live sandbox',
@@ -48,7 +48,7 @@ function ServiceDemoPage() {
         primaryLabel: 'Back to service context',
         primaryTo: serviceRoute,
         secondaryLabel: 'Discuss the sandbox build',
-        secondaryTo: discussUrl,
+        secondaryTopic: service.slug,
         tertiaryLabel: 'View sandbox architecture',
         tertiaryTo: ARCHITECTURE_STACK_ROUTE,
       }
@@ -69,7 +69,7 @@ function ServiceDemoPage() {
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
           secondaryLabel: 'Discuss the cloud fit',
-          secondaryTo: discussUrl,
+          secondaryTopic: service.slug,
         }
       : {
           eyebrow: 'Workflow proof',
@@ -87,7 +87,7 @@ function ServiceDemoPage() {
           primaryLabel: 'Back to service context',
           primaryTo: serviceRoute,
           secondaryLabel: 'Discuss this workflow',
-          secondaryTo: discussUrl,
+          secondaryTopic: service.slug,
         }
   const DemoSurface = isSandboxDemo ? SandboxTerminal : isCloudFitDemo ? CloudFitPlanner : WorkflowComposerDemo
 
@@ -111,9 +111,9 @@ function ServiceDemoPage() {
                 <Link to={demoCopy.primaryTo} className="secondary-button">
                   {demoCopy.primaryLabel}
                 </Link>
-                <Link to={demoCopy.secondaryTo} className="primary-button">
+                <IntakeTriggerButton topic={demoCopy.secondaryTopic} className="primary-button">
                   {demoCopy.secondaryLabel}
-                </Link>
+                </IntakeTriggerButton>
                 {demoCopy.tertiaryTo ? (
                   <Link to={demoCopy.tertiaryTo} className="soft-link inline-flex items-center px-2 py-3">
                     {demoCopy.tertiaryLabel}

@@ -1,11 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import Hero from '../components/Hero'
+import IntakeTriggerButton from '../components/IntakeTriggerButton'
 import {
   CLOUD_FIT_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
-  createDiscussUrl,
 } from '../constants/routes'
 
 const problemPaths = [
@@ -18,7 +18,7 @@ const problemPaths = [
     primaryLabel: 'Open cloud fit',
     primaryTo: CLOUD_FIT_ROUTE,
     secondaryLabel: 'Discuss cloud fit',
-    secondaryTo: createDiscussUrl('cloud-fit-deployment', { intent: 'scope' }),
+    secondaryTopic: 'cloud-fit-deployment',
   },
   {
     eyebrow: 'Workflow design',
@@ -29,7 +29,7 @@ const problemPaths = [
     primaryLabel: 'Open workflow proof',
     primaryTo: WORKFLOW_COMPOSER_ROUTE,
     secondaryLabel: 'Discuss workflow build',
-    secondaryTo: createDiscussUrl('workflow-composer', { intent: 'scope' }),
+    secondaryTopic: 'workflow-composer',
   },
   {
     eyebrow: 'Platform, data & telecom',
@@ -40,7 +40,7 @@ const problemPaths = [
     primaryLabel: 'Browse services',
     primaryTo: SERVICES_DIRECTORY_ROUTE,
     secondaryLabel: 'Discuss the problem',
-    secondaryTo: createDiscussUrl('platform-engineering', { intent: 'scope' }),
+    secondaryTopic: 'platform-engineering',
   },
 ]
 
@@ -51,7 +51,7 @@ const selectedOutcomes = [
     description: 'Internal platform foundations for over-the-air updates across device fleets where rollout safety and operator clarity both mattered.',
     metric: 'Reduced deployment time by 70%',
     ctaLabel: 'Discuss similar platform work',
-    ctaTo: createDiscussUrl('platform-engineering', { intent: 'scope' }),
+    ctaTopic: 'platform-engineering',
   },
   {
     title: 'Data insight tooling',
@@ -59,7 +59,7 @@ const selectedOutcomes = [
     description: 'Realtime data pipelines and reporting flows for telecom-heavy metrics where freshness and reliability directly shaped the operating model.',
     metric: 'Processed 2TB+ of daily data',
     ctaLabel: 'Discuss similar data work',
-    ctaTo: createDiscussUrl('data-platforms', { intent: 'scope' }),
+    ctaTopic: 'data-platforms',
   },
   {
     title: 'SIM tooling platform',
@@ -67,7 +67,7 @@ const selectedOutcomes = [
     description: 'Provisioning and lifecycle tooling for SIM operations where the platform had to reduce manual handling without hiding critical operator controls.',
     metric: 'Managed 500k+ SIM cards',
     ctaLabel: 'Discuss telecom tooling',
-    ctaTo: createDiscussUrl('telco-tooling', { intent: 'scope' }),
+    ctaTopic: 'telco-tooling',
   },
 ]
 
@@ -123,9 +123,9 @@ function HomePage() {
                     <Link to={path.primaryTo} className="primary-button">
                       {path.primaryLabel}
                     </Link>
-                    <Link to={path.secondaryTo} className="secondary-button">
+                    <IntakeTriggerButton topic={path.secondaryTopic} className="secondary-button">
                       {path.secondaryLabel}
-                    </Link>
+                    </IntakeTriggerButton>
                   </div>
                 </article>
               ))}
@@ -155,9 +155,9 @@ function HomePage() {
                     {item.metric}
                   </div>
                   <div className="mt-5">
-                    <Link to={item.ctaTo} className="soft-link">
+                    <IntakeTriggerButton topic={item.ctaTopic} className="soft-link text-left">
                       {item.ctaLabel}
-                    </Link>
+                    </IntakeTriggerButton>
                   </div>
                 </article>
               ))}
@@ -182,9 +182,9 @@ function HomePage() {
                     <div className="rounded-full border border-white/10 bg-white/[0.035] px-4 py-2 text-sm text-gray-100">
                       {item.metric}
                     </div>
-                    <Link to={item.ctaTo} className="soft-link">
+                    <IntakeTriggerButton topic={item.ctaTopic} className="soft-link text-left">
                       {item.ctaLabel}
-                    </Link>
+                    </IntakeTriggerButton>
                   </div>
                 </article>
               ))}

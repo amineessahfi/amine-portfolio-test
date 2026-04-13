@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { FaBolt, FaCheckCircle, FaCodeBranch, FaExclamationTriangle, FaRobot } from 'react-icons/fa'
+import IntakeTriggerButton from './IntakeTriggerButton'
 import { SANDBOX_API_BASE } from '../constants/sandbox'
-import { createDiscussUrl } from '../constants/routes'
 import { useSiteAuth } from '../context/SiteAuthContext'
 
 const templates = [
@@ -269,9 +269,9 @@ function WorkflowComposerDemo() {
         </button>
       )}
 
-      <Link to={createDiscussUrl('workflow-composer')} className="secondary-button">
+      <IntakeTriggerButton topic="workflow-composer" className="secondary-button">
         Discuss the workflow build
-      </Link>
+      </IntakeTriggerButton>
       {studioVisible ? (
         <button type="button" onClick={() => setStudioVisible(false)} className="secondary-button">
           Hide embedded studio
@@ -604,12 +604,9 @@ function WorkflowComposerDemo() {
                     <button type="button" onClick={() => setActiveStage('studio')} className="primary-button">
                       Open the live-editor stage
                     </button>
-                    <Link
-                      to={createDiscussUrl('workflow-composer')}
-                      className="secondary-button"
-                    >
+                    <IntakeTriggerButton topic="workflow-composer" className="secondary-button">
                       Turn this into a workflow build
-                    </Link>
+                    </IntakeTriggerButton>
                   </div>
                 </div>
               </div>

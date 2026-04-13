@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { LIVE_SANDBOX_ROUTE, LIVE_SANDBOX_SERVICE_ROUTE, createDiscussUrl } from '../constants/routes'
+import IntakeTriggerButton from '../components/IntakeTriggerButton'
+import { LIVE_SANDBOX_ROUTE, LIVE_SANDBOX_SERVICE_ROUTE } from '../constants/routes'
 
 const architectureLayers = [
   {
@@ -109,9 +110,9 @@ function ArchitecturePage() {
                   <Link to={LIVE_SANDBOX_ROUTE} className="primary-button">
                     Open sandbox demo
                   </Link>
-                  <Link to={createDiscussUrl('live-terminal-sandbox')} className="secondary-button">
+                  <IntakeTriggerButton topic="live-terminal-sandbox" className="secondary-button">
                     Discuss the sandbox build
-                  </Link>
+                  </IntakeTriggerButton>
                 </div>
               </div>
 

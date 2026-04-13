@@ -1,16 +1,40 @@
 import React, { useEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import SiteHeader from './SiteHeader'
 import SiteFooter from './SiteFooter'
 import CtaBar from './CtaBar'
 import SiteChatbot from './SiteChatbot'
 import SiteMeta from './SiteMeta'
+import QuickIntakePanel from './QuickIntakePanel'
 
 function SiteLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const showGlobalCta =
     location.pathname === '/' ||
     location.pathname === '/services'
+  const modalSearchParams = new URLSearchParams(location.search)
+  const showIntakeModal = modalSearchParams.get('intake') === '1'
+
+  const closeIntakeModal = () => {
+    const nextSearchParams = new URLSearchParams(location.search)
+
+    nextSearchParams.delete('intake')
+    nextSearchParams.delete('topic')
+    nextSearchParams.delete('intent')
+    nextSearchParams.delete('offer')
+
+    const nextSearch = nextSearchParams.toString()
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: nextSearch ? `?${nextSearch}` : '',
+        hash: location.hash,
+      },
+      { replace: true },
+    )
+  }
 
   useEffect(() => {
     const hash = decodeURIComponent(location.hash.replace('#', ''))
@@ -60,6 +84,15 @@ function SiteLayout() {
         ) : null}
         <SiteFooter />
         <SiteChatbot />
+        {showIntakeModal ? (
+          <QuickIntakePanel
+            variant="modal"
+            initialTopic={modalSearchParams.get('topic') || ''}
+            initialIntent={modalSearchParams.get('intent') || 'scope'}
+            initialOffer={modalSearchParams.get('offer') || ''}
+            onClose={closeIntakeModal}
+          />
+        ) : null}
       </div>
     </div>
   )

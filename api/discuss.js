@@ -87,7 +87,7 @@ function validateLeadPayload(lead) {
 
   if (requiredFields.has('workEmail') && !lead.workEmail) {
     errors.workEmail = 'Work email is required.'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.workEmail)) {
+  } else if (lead.workEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.workEmail)) {
     errors.workEmail = 'Enter a valid email address.'
   }
 
@@ -128,22 +128,22 @@ function formatLeadEmailText(lead) {
     '',
     `Intent: ${lead.intentLabel}`,
     ...(lead.offer !== 'general' ? [`Offer: ${lead.offerLabel}`] : []),
-    `Name: ${lead.name}`,
+    `Name: ${lead.name || 'Not provided'}`,
     `Work email: ${lead.workEmail}`,
-    `Company: ${lead.company}`,
-    `Role: ${lead.role}`,
-    `Timeline: ${lead.timeline}`,
-    `Budget range: ${lead.budgetRange}`,
+    `Company: ${lead.company || 'Not provided'}`,
+    `Role: ${lead.role || 'Not provided'}`,
+    `Timeline: ${lead.timeline || 'Not provided'}`,
+    `Budget range: ${lead.budgetRange || 'Not provided'}`,
     ...(lead.pageUrl ? [`Source page: ${lead.pageUrl}`] : []),
     '',
     'Problem / pressure point:',
     lead.problem,
     '',
     'Current stack or environment:',
-    lead.currentEnvironment,
+    lead.currentEnvironment || 'Not provided',
     '',
     'Desired outcome for the first phase:',
-    lead.desiredOutcome,
+    lead.desiredOutcome || 'Not provided',
     '',
     'Anything time-sensitive:',
     lead.timeSensitivity || 'Not provided',
@@ -176,12 +176,12 @@ function formatLeadEmailHtml(lead) {
             ? `<tr><td style="padding: 4px 12px 4px 0;"><strong>Offer</strong></td><td>${escape(lead.offerLabel)}</td></tr>`
             : ''
         }
-        <tr><td style="padding: 4px 12px 4px 0;"><strong>Name</strong></td><td>${escape(lead.name)}</td></tr>
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Name</strong></td><td>${escape(lead.name || 'Not provided')}</td></tr>
         <tr><td style="padding: 4px 12px 4px 0;"><strong>Work email</strong></td><td>${escape(lead.workEmail)}</td></tr>
-        <tr><td style="padding: 4px 12px 4px 0;"><strong>Company</strong></td><td>${escape(lead.company)}</td></tr>
-        <tr><td style="padding: 4px 12px 4px 0;"><strong>Role</strong></td><td>${escape(lead.role)}</td></tr>
-        <tr><td style="padding: 4px 12px 4px 0;"><strong>Timeline</strong></td><td>${escape(lead.timeline)}</td></tr>
-        <tr><td style="padding: 4px 12px 4px 0;"><strong>Budget range</strong></td><td>${escape(lead.budgetRange)}</td></tr>
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Company</strong></td><td>${escape(lead.company || 'Not provided')}</td></tr>
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Role</strong></td><td>${escape(lead.role || 'Not provided')}</td></tr>
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Timeline</strong></td><td>${escape(lead.timeline || 'Not provided')}</td></tr>
+        <tr><td style="padding: 4px 12px 4px 0;"><strong>Budget range</strong></td><td>${escape(lead.budgetRange || 'Not provided')}</td></tr>
         ${
           lead.pageUrl
             ? `<tr><td style="padding: 4px 12px 4px 0;"><strong>Source page</strong></td><td>${escape(lead.pageUrl)}</td></tr>`
@@ -240,7 +240,7 @@ async function sendLeadEmail(lead, recipient) {
       from: process.env.LEADS_FROM_EMAIL || 'Portfolio Leads <onboarding@resend.dev>',
       to: [recipient],
       reply_to: lead.workEmail,
-      subject: `${lead.subject} — ${lead.company}`,
+      subject: lead.company ? `${lead.subject} — ${lead.company}` : lead.subject,
       text: formatLeadEmailText(lead),
       html: formatLeadEmailHtml(lead),
     }),
