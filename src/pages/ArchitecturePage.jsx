@@ -89,7 +89,7 @@ function ArchitecturePage() {
       <section className="page-hero">
         <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
                 <Link to={LIVE_SANDBOX_SERVICE_ROUTE} className="soft-link inline-flex items-center gap-2">
                   Back to live sandbox service
@@ -145,7 +145,7 @@ function ArchitecturePage() {
       </section>
 
       <main className="page-shell">
-        <section id="stack-flow" className="grid scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <section id="stack-flow" className="grid grid-cols-1 scroll-mt-28 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
           <div className="terminal-window">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">architecture - system stack</div>
@@ -231,7 +231,7 @@ function ArchitecturePage() {
           </div>
         </section>
 
-        <section id="architecture-layers" className="grid scroll-mt-28 gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <section id="architecture-layers" className="grid grid-cols-1 scroll-mt-28 gap-5 md:grid-cols-2 xl:grid-cols-4">
           {architectureLayers.map((layer) => (
             <article key={layer.title} className="metric-card card-hover p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Layer</p>

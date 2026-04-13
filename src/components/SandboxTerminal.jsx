@@ -467,7 +467,7 @@ function SandboxTerminal() {
           {error ? <p className="mt-4 text-sm text-red-300">{error}</p> : null}
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
           <div className="rounded-2xl border border-dark-700/70 bg-dark-950/80 p-4">
             <div
               ref={terminalHostRef}

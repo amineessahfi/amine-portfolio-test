@@ -93,7 +93,7 @@ function LoginPage() {
   return (
     <section className="page-hero">
       <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
           <div className="relative z-10">
             <span className="section-chip">Access</span>
             <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
@@ -151,7 +151,7 @@ function LoginPage() {
               </ul>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-1">
               {quickRoutes.map((route) => (
                 <Link key={route.title} to={route.to} className="metric-card card-hover p-5">
                   <p className="text-sm font-semibold text-white">{route.title}</p>

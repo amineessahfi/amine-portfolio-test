@@ -95,7 +95,7 @@ function ServiceDemoPage() {
     <>
       <section className="page-hero">
         <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
             <div className="relative z-10">
               <Link to={serviceRoute} className="soft-link inline-flex items-center gap-2">
                 Back to service
@@ -135,7 +135,7 @@ function ServiceDemoPage() {
       </section>
 
       <main className="page-shell">
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
           <div id="demo-guide" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">demo — proof</div>

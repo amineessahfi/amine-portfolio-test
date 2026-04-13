@@ -112,7 +112,7 @@ function ServiceDetailPage() {
     <>
       <section className="page-hero">
         <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(18rem,0.96fr)] xl:items-start">
             <div className="relative z-10">
               <Link to={createServiceRoute()} className="soft-link inline-flex items-center gap-2">
                 Back to services
@@ -152,7 +152,7 @@ function ServiceDetailPage() {
       </section>
 
       <main className="page-shell">
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div id="service-scope" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">service — scope</div>
@@ -205,7 +205,7 @@ function ServiceDetailPage() {
             </div>
 
             <div className="terminal-content">
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                 <div>
                   <span className="section-chip">{demoPanel.eyebrow}</span>
                   <h2 className="section-title text-3xl sm:text-4xl">{demoPanel.title}</h2>
@@ -253,7 +253,7 @@ function ServiceDetailPage() {
               <h2 className="mt-2 text-2xl font-semibold text-white">What this engagement is designed to improve</h2>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {service.outcomes.map((item) => (
                 <div key={item} className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-5 text-sm leading-7 text-gray-300">
                   {item}

@@ -94,7 +94,7 @@ function HomePage() {
       <main className="page-shell lg:gap-12">
         <section id="home-services" className="section-surface scroll-mt-24">
           <div className="section-surface-body">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
               <div>
                 <span className="section-chip">Common starting points</span>
                 <h2 className="section-title text-3xl sm:text-4xl">Most engagements start when one of these problems becomes hard to ignore.</h2>
@@ -135,7 +135,7 @@ function HomePage() {
 
         <section id="projects" className="section-surface scroll-mt-24">
           <div className="section-surface-body">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
               <div>
                 <span className="section-chip">Selected outcomes</span>
                 <h2 className="section-title text-3xl sm:text-4xl">What this work has looked like in practice.</h2>
@@ -167,7 +167,7 @@ function HomePage() {
               {selectedOutcomes.map((item) => (
                 <article
                   key={item.title}
-                  className="grid gap-5 py-6 lg:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_auto] lg:items-start lg:gap-8"
+                  className="grid grid-cols-1 gap-5 py-6 lg:grid-cols-[minmax(0,10rem)_minmax(0,1fr)_auto] lg:items-start lg:gap-8"
                 >
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary-200">{item.label}</p>
@@ -194,7 +194,7 @@ function HomePage() {
 
         <section className="section-surface">
           <div className="section-surface-body">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
               <div>
                 <span className="section-chip">Working model</span>
                 <h2 className="section-title text-3xl sm:text-4xl">How the engagement usually lands.</h2>

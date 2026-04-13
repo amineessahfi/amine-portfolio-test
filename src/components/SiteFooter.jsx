@@ -8,7 +8,7 @@ function SiteFooter() {
     <footer className="pb-10 pt-2 text-sm text-dark-400">
       <div className="page-frame">
         <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] px-6 py-6 shadow-[0_20px_60px_rgba(2,6,23,0.3)] backdrop-blur-xl sm:px-8">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)]">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)]">
             <div>
               <p className="font-display text-xl text-white">Amine Essahfi</p>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400">
@@ -19,7 +19,7 @@ function SiteFooter() {
               </p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Navigate</p>
                 <div className="mt-4 flex flex-col gap-3">

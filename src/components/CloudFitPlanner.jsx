@@ -120,7 +120,7 @@ function CloudFitPlanner() {
           </div>
 
           {activeStage === 'inputs' ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
               <div className="panel-scroll-y space-y-5 rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary-200">1. Capture the workload</p>
@@ -131,7 +131,7 @@ function CloudFitPlanner() {
                   </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="sm:col-span-2">
                     <label className="form-label" htmlFor="cloud-fit-workload">
                       Workload profile
@@ -315,7 +315,7 @@ function CloudFitPlanner() {
           ) : null}
 
           {activeStage === 'fit' ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
               <div className="space-y-4">
                 <div className="metric-card p-6 sm:p-7">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">2. Recommended stack</p>
@@ -412,7 +412,7 @@ function CloudFitPlanner() {
           ) : null}
 
           {activeStage === 'bill' ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] xl:items-start">
               <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
@@ -438,7 +438,7 @@ function CloudFitPlanner() {
                     {recommended.serviceRows.map((row) => (
                       <div
                         key={row.category}
-                        className="grid gap-2 border-t border-white/10 px-4 py-4 md:grid-cols-[0.9fr_1.35fr_1.1fr_0.7fr_0.65fr] md:items-start"
+                        className="grid grid-cols-1 gap-2 border-t border-white/10 px-4 py-4 md:grid-cols-[0.9fr_1.35fr_1.1fr_0.7fr_0.65fr] md:items-start"
                       >
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200 md:hidden">Service</p>
@@ -540,7 +540,7 @@ function CloudFitPlanner() {
                 </p>
               </div>
 
-              <div className="grid gap-4 xl:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 <div
                   className={`metric-card p-6 sm:p-7 ${
                     recommended.recommendedOffer === 'review' ? 'ring-1 ring-primary-400/40' : ''

@@ -17,7 +17,7 @@ function CtaBar() {
     <section id="contact" className="scroll-mt-24">
       <div className="section-surface">
         <div className="section-surface-body">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] lg:items-end">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)] lg:items-end">
             <div>
               <span className="section-chip">Next step</span>
               <h3 className="section-title text-3xl sm:text-4xl">Choose the next step that fits the level of certainty you need.</h3>

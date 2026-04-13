@@ -70,7 +70,7 @@ function ServicesPage() {
       <section className="page-hero">
         <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-            <div className="grid gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
               <div>
                 <span className="section-chip">Services</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
@@ -124,7 +124,7 @@ function ServicesPage() {
 
         <section className="section-surface">
           <div className="section-surface-body">
-            <div className="grid gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(22rem,0.96fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.04fr)_minmax(22rem,0.96fr)] xl:items-start">
               <div id="service-delivery-model" className="scroll-mt-28">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Approach</p>

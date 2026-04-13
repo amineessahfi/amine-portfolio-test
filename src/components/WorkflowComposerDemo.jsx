@@ -312,7 +312,7 @@ function WorkflowComposerDemo() {
           </div>
 
           {activeStage === 'access' ? (
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
               <div className="metric-card p-6 sm:p-7">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Live studio access</p>
                 <h4 className="mt-4 text-2xl font-semibold text-white">Actual n8n editor, kept inside this page.</h4>
@@ -401,7 +401,7 @@ function WorkflowComposerDemo() {
           ) : null}
 
           {activeStage === 'composer' ? (
-            <div className="grid gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(16rem,0.88fr)_minmax(0,1.12fr)]">
               <div className="panel-scroll-y space-y-4">
                 <div className="rounded-2xl border border-dark-700/70 bg-dark-900/40 p-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-white">
@@ -517,7 +517,7 @@ function WorkflowComposerDemo() {
               </div>
 
               <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   <div className="metric-card p-4">
                     <div className="text-2xl font-semibold text-white">{composerState.stepCount}</div>
                     <div className="mt-2 text-sm text-gray-400">Active steps</div>

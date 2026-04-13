@@ -604,7 +604,7 @@ function DiscussProjectPage() {
       <section className="page-hero">
         <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-            <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:items-start">
+            <div className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(18rem,0.92fr)] xl:items-start">
               <div className="relative z-10">
                 <span className="section-chip">{intentPreset.eyebrow}</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
@@ -729,11 +729,11 @@ function DiscussProjectPage() {
 
               <div className="parallax-flow-track">
                 <section className="p-1" hidden={activeStep !== 'path'}>
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
+                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
                         <p className="form-label">Conversation motion</p>
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           {intentCards.map((card) => {
                             const isActive = card.value === selectedIntent
 
@@ -778,7 +778,7 @@ function DiscussProjectPage() {
                       {!isExploreIntent && isCloudFitTopic ? (
                         <div>
                           <p className="form-label">Scoped handoff</p>
-                          <div className="grid gap-4 sm:grid-cols-2">
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {offerCards.map((card) => {
                               const isActive = card.value === selectedOffer
 
@@ -829,7 +829,7 @@ function DiscussProjectPage() {
                 </section>
 
                 <section className="p-1" hidden={activeStep !== 'problem'}>
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
                         <label className="form-label" htmlFor="problem">
@@ -897,7 +897,7 @@ function DiscussProjectPage() {
                 </section>
 
                 <section className="p-1" hidden={activeStep !== 'shape'}>
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
+                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] xl:items-start">
                     <div className="space-y-5">
                       <div>
                         <label className="form-label" htmlFor="desiredOutcome">
@@ -917,7 +917,7 @@ function DiscussProjectPage() {
                       </div>
 
                       {!isExploreIntent ? (
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div>
                             <label className="form-label" htmlFor="timeline">
                               Timeline
@@ -1018,7 +1018,7 @@ function DiscussProjectPage() {
                 </section>
 
                 <section className="p-1" hidden={activeStep !== 'contact'}>
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-start">
+                  <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] xl:items-start">
                     <form className="space-y-4" onSubmit={handleSubmit}>
                       <input
                         type="text"
@@ -1030,7 +1030,7 @@ function DiscussProjectPage() {
                         className="hidden"
                       />
 
-                      <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                           <label className="form-label" htmlFor="name">
                             Name
