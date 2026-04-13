@@ -1,22 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { FaArrowRight } from 'react-icons/fa'
-import { SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
-
-const entryCards = [
-  {
-    title: 'Explore live proof',
-    description: 'Start from demos, traces, and system maps when you want technical trust before you ask for scope.',
-  },
-  {
-    title: 'Scope the diagnostic',
-    description: 'Use the guided funnel when the problem is real and you want a first delivery shape, not just a chat.',
-  },
-  {
-    title: 'Shared thesis',
-    description: 'The common thread is diagnosing hidden failure, making change safer, and restoring enough trust to act.',
-  },
-]
+import { CLOUD_FIT_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const metrics = [
   { value: '5+', label: 'Years across platform, cloud, and operational delivery' },
@@ -24,13 +9,25 @@ const metrics = [
   { value: '30%+', label: 'Savings identified in targeted efficiency reviews' },
 ]
 
-const focusAreas = [
-  'Platform foundations',
-  'Delivery automation',
-  'Runtime safety',
-  'Cost visibility',
-  'Operational data',
-  'Telecom-grade tooling',
+const startOptions = [
+  {
+    label: 'Start with a scoped diagnostic',
+    description: 'Use this when the team already needs a fit verdict, architecture direction, or the first delivery slice.',
+    to: createDiscussUrl('', { intent: 'scope' }),
+    action: 'Start the diagnostic',
+  },
+  {
+    label: 'Start with live proof',
+    description: 'Use this when trust has to be earned through a concrete planner, workflow surface, or sandbox before scope.',
+    to: CLOUD_FIT_ROUTE,
+    action: 'Explore live proof',
+  },
+]
+
+const fitSignals = [
+  'Best when reliability, operator clarity, and commercial pressure all matter at once.',
+  'Useful for cloud, workflow, platform, data, and telecom-heavy delivery constraints.',
+  'Strongest when the answer needs to become an implementation path, not a slide deck.',
 ]
 
 function Hero() {
@@ -38,7 +35,7 @@ function Hero() {
     <header className="page-hero">
       <div className="w-full">
         <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-14">
-          <div className="grid gap-10 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
+          <div className="grid gap-12 xl:grid-cols-[minmax(0,1.08fr)_minmax(23rem,0.92fr)] xl:items-start">
             <div className="relative z-10">
               <span className="section-chip">Diagnose hidden failure / make change safer / restore operational trust</span>
               <p className="mt-6 text-sm font-semibold uppercase tracking-[0.32em] text-primary-200/90">
@@ -49,29 +46,29 @@ function Hero() {
                 <span className="gradient-text"> Then make change safer.</span>
               </h1>
               <p className="section-copy max-w-2xl text-base sm:text-lg">
-                I help teams see where flows break, how change ripples, and where to intervene first across telco operations, event-driven software, and real-time data.
+                I help teams untangle platform, cloud, workflow, data, and telecom delivery problems when the real issue is buried below the first symptom.
               </p>
 
               <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
-                <a href="#home-proof" className="primary-button gap-2">
-                  Explore live proof
+                <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button gap-2">
+                  Start the diagnostic
                   <FaArrowRight className="text-xs" />
-                </a>
-                <Link to={createDiscussUrl('', { intent: 'scope' })} className="secondary-button gap-2">
-                  Scope the diagnostic
+                </Link>
+                <Link to={CLOUD_FIT_ROUTE} className="secondary-button gap-2">
+                  Explore live proof
                   <FaArrowRight className="text-xs" />
                 </Link>
                 <a href="#projects" className="soft-link inline-flex items-center justify-center px-2 py-3">
-                  Review delivery proof
+                  Review selected outcomes
                 </a>
                 <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link inline-flex items-center justify-center px-2 py-3">
-                  Browse service fit
+                  Browse all services
                 </Link>
               </div>
 
-              <div className="content-scroller mt-10 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none]">
+              <div className="content-scroller mt-10 border-t border-white/10 pt-6 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none]">
                 {metrics.map((metric) => (
-                  <div key={metric.label} className="metric-card content-scroller-card">
+                  <div key={metric.label} className="content-scroller-card sm:pr-4">
                     <p className="text-3xl font-semibold text-white sm:text-4xl">{metric.value}</p>
                     <p className="mt-3 text-sm leading-7 text-gray-400">{metric.label}</p>
                   </div>
@@ -79,42 +76,40 @@ function Hero() {
               </div>
             </div>
 
-            <div className="relative z-10 space-y-5">
-              <div className="metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Positioning</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
-                  One brand, two ways in.
-                </h2>
-                <p className="mt-4 text-sm leading-8 text-gray-400">
-                  Start from live proof when you need technical trust first. Start from the diagnostic when the problem is already real and the next step needs shape.
-                </p>
-              </div>
+            <div className="relative z-10 rounded-[1.9rem] border border-white/10 bg-[#060b1b]/72 p-6 shadow-[0_28px_90px_rgba(2,6,23,0.36)] backdrop-blur-2xl sm:p-7">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Where to start</p>
+              <h2 className="mt-4 text-2xl font-semibold text-white sm:text-[2rem]">
+                Pick the motion that removes uncertainty fastest.
+              </h2>
 
-              <div className="content-scroller sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0 sm:[scroll-snap-type:none] xl:grid-cols-1">
-                {entryCards.map((card) => (
-                  <div key={card.title} className="metric-card content-scroller-card p-5">
-                    <p className="text-sm font-semibold text-white">{card.title}</p>
-                    <p className="mt-3 text-sm leading-7 text-gray-400">{card.description}</p>
-                  </div>
+              <div className="mt-6 space-y-4">
+                {startOptions.map((option) => (
+                  <Link
+                    key={option.label}
+                    to={option.to}
+                    className="block rounded-[1.4rem] border border-white/10 bg-white/[0.035] px-5 py-5 transition hover:border-primary-400/30 hover:bg-white/[0.05]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-white">{option.label}</p>
+                        <p className="mt-2 text-sm leading-7 text-gray-400">{option.description}</p>
+                      </div>
+                      <span className="soft-link whitespace-nowrap">{option.action}</span>
+                    </div>
+                  </Link>
                 ))}
               </div>
-            </div>
-          </div>
 
-          <div className="relative z-10 mt-10 border-t border-white/10 pt-8">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Delivery strengths</p>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400">
-                  Best suited to environments where reliability, operator clarity, and commercial pressure all matter at once.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                {focusAreas.map((area) => (
-                  <span key={area} className="skill-badge">
-                    {area}
-                  </span>
-                ))}
+              <div className="mt-6 border-t border-white/10 pt-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Best fit</p>
+                <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
+                  {fitSignals.map((signal) => (
+                    <li key={signal} className="flex gap-3">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                      <span>{signal}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

@@ -1,52 +1,53 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { GITHUB_URL, LINKEDIN_URL, createDiscussEmailUrl } from '../constants/links'
-import { LIVE_SANDBOX_ARCHITECTURE_ROUTE, createDiscussUrl } from '../constants/routes'
+import { LOGIN_ROUTE, SERVICES_DIRECTORY_ROUTE, createDiscussUrl } from '../constants/routes'
 
 function SiteFooter() {
   return (
     <footer className="pb-10 pt-2 text-sm text-dark-400">
       <div className="page-frame">
-        <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.035] px-6 py-6 shadow-[0_20px_60px_rgba(2,6,23,0.3)] backdrop-blur-xl sm:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-2xl">
+        <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.03] px-6 py-6 shadow-[0_20px_60px_rgba(2,6,23,0.3)] backdrop-blur-xl sm:px-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)]">
+            <div>
               <p className="font-display text-xl text-white">Amine Essahfi</p>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-gray-400">
-                Platform engineer focused on high-value delivery across runtime architecture, delivery systems, operational data, and telecom-grade tooling.
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-400">
+                Production-focused consulting across cloud fit, workflow systems, platform foundations, operational data, and telecom-heavy delivery work.
+              </p>
+              <p className="mt-5 text-xs uppercase tracking-[0.24em] text-gray-500">
+                Strategy when needed. Implementation when it matters. Clear next steps either way.
               </p>
             </div>
 
-            <div className="w-full max-w-xl space-y-4">
-              <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Choose the handoff</p>
-                <h3 className="mt-3 text-xl font-semibold text-white">Start from proof or scope the work.</h3>
-                <p className="mt-3 text-sm leading-7 text-gray-400">
-                  Keep the demo lane light when you want technical trust first. Use the scoped brief when the problem is already concrete enough for a real engagement conversation.
-                </p>
-
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Link to={createDiscussUrl('', { intent: 'explore' })} className="secondary-button !px-4 !py-2.5">
-                    Start from proof
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Navigate</p>
+                <div className="mt-4 flex flex-col gap-3">
+                  <Link to={SERVICES_DIRECTORY_ROUTE} className="soft-link">
+                    Services
                   </Link>
-                  <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button !px-4 !py-2.5">
-                    Scope the work
+                  <Link to={createDiscussUrl('', { intent: 'scope' })} className="soft-link">
+                    Discuss a project
                   </Link>
-                  <Link to={LIVE_SANDBOX_ARCHITECTURE_ROUTE} className="secondary-button !px-4 !py-2.5">
-                    Sandbox architecture
+                  <Link to={LOGIN_ROUTE} className="soft-link">
+                    Access gated demos
                   </Link>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <a href={createDiscussEmailUrl()} className="soft-link">
-                  Email fallback
-                </a>
-                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
-                  Code profile
-                </a>
-                <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
-                  Professional profile
-                </a>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Contact & profiles</p>
+                <div className="mt-4 flex flex-col gap-3">
+                  <a href={createDiscussEmailUrl()} className="soft-link">
+                    Email fallback
+                  </a>
+                  <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
+                    Code profile
+                  </a>
+                  <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="soft-link">
+                    Professional profile
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -55,6 +55,30 @@
     @apply mx-auto flex w-full max-w-[92rem] flex-col gap-8 px-4 pb-16 sm:gap-10 sm:px-6 lg:px-8;
   }
 
+  .section-surface {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 1.85rem;
+    background: linear-gradient(180deg, rgba(8, 12, 26, 0.86), rgba(5, 9, 21, 0.68));
+    backdrop-filter: blur(22px);
+    box-shadow: 0 28px 90px rgba(2, 6, 23, 0.4);
+  }
+
+  .section-surface::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent 16rem),
+      radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24rem);
+    pointer-events: none;
+  }
+
+  .section-surface-body {
+    @apply relative flex flex-col gap-6 px-6 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10;
+  }
+
   .content-scroller {
     @apply flex gap-5 overflow-x-auto pb-2 [scrollbar-width:none];
     scroll-snap-type: x proximity;

@@ -12,6 +12,7 @@ function ServicesOverview({
   sectionId,
   featuredOnly = false,
   enableFilters = false,
+  surface = 'terminal',
 }) {
   const [activeFilter, setActiveFilter] = useState('all')
 
@@ -38,14 +39,20 @@ function ServicesOverview({
     [availableServices],
   )
 
+  const isSurface = surface === 'surface'
+  const wrapperClassName = isSurface ? 'section-surface' : 'terminal-window'
+  const bodyClassName = isSurface ? 'section-surface-body' : 'terminal-content'
+
   return (
     <section id={sectionId} className={sectionId ? 'scroll-mt-28' : undefined}>
-      <div className="terminal-window">
-        <div className="terminal-header">
-          <div className="text-sm text-gray-400">services - fit</div>
-        </div>
+      <div className={wrapperClassName}>
+        {!isSurface ? (
+          <div className="terminal-header">
+            <div className="text-sm text-gray-400">services - fit</div>
+          </div>
+        ) : null}
 
-        <div className="terminal-content">
+        <div className={bodyClassName}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="section-chip">{eyebrow}</span>

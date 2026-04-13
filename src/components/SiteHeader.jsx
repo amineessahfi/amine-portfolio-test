@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { LOGIN_ROUTE } from '../constants/routes'
+import { LOGIN_ROUTE, createDiscussUrl } from '../constants/routes'
 import { useSiteAuth } from '../context/SiteAuthContext'
 
 function SiteHeader() {
@@ -46,18 +46,24 @@ function SiteHeader() {
               ))}
             </nav>
 
-            <NavLink
-              to={LOGIN_ROUTE}
-              className={({ isActive }) =>
-                `inline-flex w-full items-center justify-center rounded-full border px-4 py-2.5 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:w-auto sm:max-w-[15rem] sm:justify-start ${
-                  isActive
-                    ? 'border-white/20 bg-white/[0.1] text-white'
-                    : 'border-white/10 bg-white/[0.04] text-gray-200'
-                }`
-              }
-            >
-              <span className="truncate">{authLabel}</span>
-            </NavLink>
+            <div className="flex items-center justify-center gap-2">
+              <NavLink
+                to={LOGIN_ROUTE}
+                className={({ isActive }) =>
+                  `inline-flex items-center justify-center rounded-full border px-4 py-2.5 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] ${
+                    isActive
+                      ? 'border-white/20 bg-white/[0.1] text-white'
+                      : 'border-white/10 bg-white/[0.04] text-gray-200'
+                  }`
+                }
+              >
+                <span className="truncate">{authLabel}</span>
+              </NavLink>
+
+              <Link to={createDiscussUrl('', { intent: 'scope' })} className="primary-button !px-4 !py-2.5">
+                Discuss
+              </Link>
+            </div>
           </div>
         </div>
       </div>
