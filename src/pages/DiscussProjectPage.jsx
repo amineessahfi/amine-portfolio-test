@@ -74,7 +74,7 @@ const intentCards = [
   {
     value: 'scope',
     title: discussIntentPresets.scope.optionLabel,
-    description: 'Use the guided path when the problem is real and you want fit, scope, and a credible first delivery plan.',
+    description: 'Use this when the problem is real and you want fit, scope, and a credible first delivery plan.',
   },
 ]
 
@@ -226,9 +226,9 @@ function DiscussProjectPage() {
       pageUrl: typeof window !== 'undefined' ? window.location.href : '',
     })
 
-  const pageTitle = isExploreIntent ? 'Start from the proof you want to pressure-test.' : preset.title
+  const pageTitle = isExploreIntent ? 'Show me the proof you want pressure-tested.' : preset.title
   const pageIntro = isExploreIntent
-    ? 'If a demo, trace, or system map feels close to the real problem, use the lighter exploration path to explain what you want to inspect before you commit to a scoped engagement.'
+    ? 'If a planner, workflow model, trace, or system map feels close to the real problem, use the proof-first path to explain what you want to inspect before you scope the work.'
     : preset.intro
   const bestUseText = !isExploreIntent && isCloudFitTopic ? offerPreset.summaryText : intentPreset.summaryText
   const problemLabel = isExploreIntent ? 'What do you want to inspect first?' : 'Problem / pressure point'
@@ -565,7 +565,7 @@ function DiscussProjectPage() {
 
         setSubmitState({
           type: 'error',
-          message: data.error || 'The guided path could not be delivered right now.',
+          message: data.error || 'The intake could not be delivered right now.',
           fallbackUrl,
         })
         return
@@ -591,7 +591,7 @@ function DiscussProjectPage() {
     } catch {
       setSubmitState({
         type: 'error',
-        message: 'The guided path could not be delivered right now.',
+        message: 'The intake could not be delivered right now.',
         fallbackUrl: buildFallbackUrl(),
       })
     } finally {
@@ -614,7 +614,7 @@ function DiscussProjectPage() {
 
                 <div className="mt-5 flex flex-wrap gap-3 text-sm text-primary-100">
                   <span>
-                    Focus: <span className="font-semibold text-white">{preset.optionLabel}</span>
+                    Topic: <span className="font-semibold text-white">{preset.optionLabel}</span>
                   </span>
                   {!isExploreIntent && isCloudFitTopic ? (
                     <span>
@@ -652,10 +652,10 @@ function DiscussProjectPage() {
               </div>
 
               <div className="relative z-10 metric-card p-6 sm:p-7">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">4-step intake</p>
-                <h2 className="mt-4 text-2xl font-semibold text-white">Four short steps to a useful reply.</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">What happens here</p>
+                <h2 className="mt-4 text-2xl font-semibold text-white">A short intake for a serious reply.</h2>
                 <p className="mt-4 text-sm leading-8 text-gray-400">
-                  Choose the lane, name the pressure, define the outcome, then leave a clear reply path.
+                  You do not need polished materials. Four short steps are enough to get to the problem, the outcome, and the best reply path.
                 </p>
 
                 <div className="mt-6 space-y-4">

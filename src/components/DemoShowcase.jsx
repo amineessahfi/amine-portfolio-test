@@ -65,7 +65,7 @@ function DemoShowcase() {
               <h2 className="section-title text-3xl sm:text-4xl">Explore the proof before you scope the work</h2>
             </div>
             <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-              Each surface answers a different technical risk quickly and gives you a lighter path into the conversation when you want the breakdown before a formal brief.
+              Each surface answers a different technical risk quickly and gives you a lighter path into the conversation when you want working proof before a full project discussion.
             </p>
           </div>
 

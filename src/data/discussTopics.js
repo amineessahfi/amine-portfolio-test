@@ -20,12 +20,12 @@ export const budgetRangeOptions = [
 
 export const discussIntentPresets = {
   scope: {
-    optionLabel: 'Scope a real engagement',
-    eyebrow: 'Scoped engagement',
-    formEyebrow: 'Guided funnel',
-    formTitle: 'Walk the project context step by step.',
-    formIntro: 'This guided funnel captures the commercial and operating context needed for a scoped reply without dropping you into one long form.',
-    submitLabel: 'Send scoped request',
+    optionLabel: 'Discuss a live problem',
+    eyebrow: 'Live problem',
+    formEyebrow: 'Guided intake',
+    formTitle: 'Describe the problem step by step.',
+    formIntro: 'This short intake captures the commercial and operating context needed for a serious reply without dropping you into one long form.',
+    submitLabel: 'Send intake',
     summaryText:
       'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     responseSteps: [
@@ -36,18 +36,18 @@ export const discussIntentPresets = {
     requiredFields: ['name', 'workEmail', 'company', 'role', 'timeline', 'budgetRange', 'problem', 'currentEnvironment', 'desiredOutcome'],
   },
   explore: {
-    optionLabel: 'Start from proof',
-    eyebrow: 'Explore from proof',
-    formEyebrow: 'Guided funnel',
-    formTitle: 'Walk the proof question step by step.',
-    formIntro: 'Keep it light. Share the system, the part you want to inspect, and what would make the proof useful, one step at a time.',
-    submitLabel: 'Send exploration request',
+    optionLabel: 'Review proof first',
+    eyebrow: 'Proof first',
+    formEyebrow: 'Guided intake',
+    formTitle: 'Describe the proof question step by step.',
+    formIntro: 'Keep it light. Share the system, the part you want to inspect, and what would make the proof useful.',
+    submitLabel: 'Send proof request',
     summaryText:
       'Use this when you want a lighter technical reply focused on proof, fit, and whether the problem deserves formal scoping.',
     responseSteps: [
       'I reply with the strongest proof path, a fit read, or a few clarifying questions.',
       'You get a recommendation on whether to inspect a live proof surface, review a system map, or move into a scoped conversation.',
-      'If the problem is real enough, we can turn the exploration into a formal diagnostic brief.',
+      'If the problem is real enough, we can turn the exploration into a formal scoped project.',
     ],
     requiredFields: ['name', 'workEmail', 'problem'],
   },
@@ -56,18 +56,18 @@ export const discussIntentPresets = {
 export const discussOfferPresets = {
   general: {
     optionLabel: 'Scoped engagement',
-    formTitle: 'Walk the project context step by step.',
-    formIntro: 'This guided funnel captures the commercial and operating context needed for a scoped reply without dropping you into one long form.',
-    submitLabel: 'Send scoped request',
+    formTitle: 'Describe the problem step by step.',
+    formIntro: 'This short intake captures the commercial and operating context needed for a serious reply without dropping you into one long form.',
+    submitLabel: 'Send intake',
     summaryText:
       'Use this when the problem is real enough that you want a fit verdict, a first delivery plan, and the right next step.',
     emailIntro: '',
   },
   review: {
     optionLabel: 'Architecture review',
-    formTitle: 'Walk the review context step by step.',
+    formTitle: 'Describe the review context step by step.',
     formIntro:
-      'Use this when you want the stack recommendation pressure-tested before you commit to generation or rollout, but still want the intake to stay guided.',
+      'Use this when you want the stack recommendation pressure-tested before you commit to generation or rollout, while keeping the intake short and focused.',
     submitLabel: 'Request architecture review',
     summaryText:
       'Best when the provider choice, regional posture, or risk controls still need expert validation before the stack lands.',
@@ -75,9 +75,9 @@ export const discussOfferPresets = {
   },
   'deploy-pack': {
     optionLabel: 'One-time deploy pack',
-    formTitle: 'Walk the deployment context step by step.',
+    formTitle: 'Describe the deployment context step by step.',
     formIntro:
-      'Use this when you already want the generated IaC pack and a single deployment motion into your cloud account, and want the intake to stay guided.',
+      'Use this when you already want the generated IaC pack and a single deployment motion into your cloud account, while keeping the intake short and focused.',
     submitLabel: 'Request deploy pack',
     summaryText:
       'Best when you want the chosen provider, services listing, and IaC turned into a one-time delivery package.',
@@ -150,9 +150,9 @@ export const discussTopicPresets = {
   general: {
     optionLabel: 'General project fit',
     eyebrow: 'Project fit',
-    title: 'Send the version of the problem that actually matters.',
+    title: 'Describe the problem. Get a clear next step.',
     intro:
-      'You do not need a polished brief. A short note with the bottleneck, the current environment, and the outcome you need is enough to make the next step useful.',
+      'If the issue is live, send the bottleneck, the current environment, and what needs to improve first. I reply with a fit verdict, a first delivery plan, or the next question that actually matters.',
     emailSubject: 'Project conversation',
     emailIntro: 'I would like to discuss a delivery problem.',
     emailPrompts: generalBriefFields,

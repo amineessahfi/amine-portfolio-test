@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import ServicesOverview from '../components/ServicesOverview'
-import { createDiscussUrl } from '../constants/routes'
+import { CLOUD_FIT_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const deliverySteps = [
   {
@@ -40,6 +40,30 @@ const fitSignals = [
   'Works best with teams that want hands-on collaboration, not a recommendations deck.',
 ]
 
+const recommendedStarts = [
+  {
+    eyebrow: 'Cloud decision',
+    title: 'Provider choice, service selection, or rollout shape is still fuzzy.',
+    recommendation: 'Start with Cloud Fit, IaC & Deployment Packs.',
+    to: CLOUD_FIT_ROUTE,
+    label: 'Open cloud fit',
+  },
+  {
+    eyebrow: 'Workflow drag',
+    title: 'Approvals, escalations, or operator handoffs are slowing delivery.',
+    recommendation: 'Start with Workflow Composer & Automation Orchestration.',
+    to: WORKFLOW_COMPOSER_ROUTE,
+    label: 'Open workflow proof',
+  },
+  {
+    eyebrow: 'Platform, data, or telecom',
+    title: 'The real issue sits in the delivery system underneath the product.',
+    recommendation: 'Start in the directory or describe the bottleneck directly.',
+    to: createDiscussUrl('', { intent: 'scope' }),
+    label: 'Discuss the problem',
+  },
+]
+
 function ServicesPage() {
   return (
     <>
@@ -50,10 +74,10 @@ function ServicesPage() {
               <div>
                 <span className="section-chip">Services</span>
                 <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  Choose the service that matches the pressure.
+                  Find the service that matches the bottleneck.
                 </h1>
                 <p className="section-copy max-w-3xl text-base sm:text-lg">
-                  Each page makes the scope, likely first phase, and available proof concrete before you commit to a conversation.
+                  If you already know the kind of problem you have, start with the recommended path on the right. If not, browse the full directory below.
                 </p>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
@@ -67,15 +91,21 @@ function ServicesPage() {
               </div>
 
               <div className="rounded-[1.55rem] border border-white/10 bg-[#060b1b]/68 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.28)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">What to expect first</p>
-                <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
-                  {expectationPoints.map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                      <span>{item}</span>
-                    </li>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Recommended starting paths</p>
+                <div className="mt-4 space-y-4">
+                  {recommendedStarts.map((item) => (
+                    <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-200">{item.eyebrow}</p>
+                      <p className="mt-2 text-sm font-semibold leading-7 text-white">{item.title}</p>
+                      <p className="mt-2 text-sm leading-7 text-gray-400">{item.recommendation}</p>
+                      <div className="mt-4">
+                        <Link to={item.to} className="soft-link">
+                          {item.label}
+                        </Link>
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -84,9 +114,9 @@ function ServicesPage() {
 
       <main className="page-shell">
         <ServicesOverview
-          eyebrow="Service directory"
-          title="Find the service that fits the bottleneck"
-          intro="Start with the pressure you need resolved, then open the service page that makes the scope and proof points concrete."
+          eyebrow="Full directory"
+          title="Browse the full services directory"
+          intro="If more than one path could fit, use the filters below and open the service page that makes the scope and proof concrete."
           enableFilters
           sectionId="services-directory"
           surface="surface"

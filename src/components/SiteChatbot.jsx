@@ -59,7 +59,7 @@ function buildRouteContext(pathname) {
       prompts: ['Help me choose a service', 'Compare cloud stack', 'Scope a project'],
       actions: [
         { label: 'Browse all services', to: SERVICES_DIRECTORY_ROUTE },
-        { label: 'Start guided funnel', to: createDiscussUrl('', { intent: 'scope' }) },
+        { label: 'Open the intake', to: createDiscussUrl('', { intent: 'scope' }) },
       ],
     }
   }
@@ -68,10 +68,10 @@ function buildRouteContext(pathname) {
     return {
       welcome:
         'You are already on the handoff page. I can help you decide whether to keep it proof-led or move into a scoped engagement.',
-      prompts: ['Start from proof', 'Scope a real engagement', 'Help me choose the right topic'],
+      prompts: ['Review proof first', 'Discuss a live problem', 'Help me choose the right topic'],
       actions: [
-        { label: 'Proof-led note', to: createDiscussUrl('', { intent: 'explore' }) },
-        { label: 'Scoped funnel', to: createDiscussUrl('', { intent: 'scope' }) },
+        { label: 'Review proof first', to: createDiscussUrl('', { intent: 'explore' }) },
+        { label: 'Open the intake', to: createDiscussUrl('', { intent: 'scope' }) },
       ],
     }
   }
@@ -187,10 +187,10 @@ function getChatbotReply(message, pathname) {
   if (includesAny(lower, ['book', 'hire', 'project', 'scope', 'quote', 'budget', 'timeline'])) {
     return {
       text:
-        'If the problem is already real, go straight into the scoped brief. If you still need technical trust first, use the proof-led note and I will keep the next step lighter.',
+        'If the problem is already real, go straight into the intake. If you still need technical trust first, start with proof and keep the next step lighter.',
       actions: [
-        { label: 'Start scoped brief', to: createDiscussUrl('', { intent: 'scope' }) },
-        { label: 'Start from proof', to: createDiscussUrl('', { intent: 'explore' }) },
+        { label: 'Open the intake', to: createDiscussUrl('', { intent: 'scope' }) },
+        { label: 'Review proof first', to: createDiscussUrl('', { intent: 'explore' }) },
       ],
     }
   }
@@ -220,7 +220,7 @@ function getChatbotReply(message, pathname) {
 
   return {
     text:
-      'I can route you to the strongest proof surface or the right scoped brief. Try asking about cloud fit, workflow automation, sandbox demos, platform engineering, data pipelines, or telco tooling.',
+      'I can route you to the strongest proof surface or the right intake path. Try asking about cloud fit, workflow automation, sandbox demos, platform engineering, data pipelines, or telco tooling.',
     actions: [
       { label: 'Browse services', to: SERVICES_DIRECTORY_ROUTE },
       { label: 'Open workflow demo', to: WORKFLOW_COMPOSER_ROUTE },
@@ -284,7 +284,7 @@ function SiteChatbot() {
           <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Site concierge</p>
-              <p className="mt-1 text-sm text-gray-300">Routes visitors into proof or scope.</p>
+              <p className="mt-1 text-sm text-gray-300">Routes visitors into proof or the right next step.</p>
             </div>
             <button
               type="button"
@@ -364,7 +364,7 @@ function SiteChatbot() {
             </form>
 
             <p className="mt-3 text-xs leading-6 text-gray-500">
-              This concierge routes you through the site locally. Nothing is sent until you open the proof or brief path.
+              This concierge routes you through the site locally. Nothing is sent until you open the proof or intake path.
             </p>
           </div>
         </div>
@@ -375,14 +375,14 @@ function SiteChatbot() {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="inline-flex items-center gap-3 rounded-full border border-primary-500/20 bg-[#071022]/90 px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl transition hover:border-primary-500/35 hover:bg-[#091329]"
+            className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-primary-500/20 bg-[#071022]/90 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(2,6,23,0.45)] backdrop-blur-xl transition hover:border-primary-500/35 hover:bg-[#091329] sm:h-auto sm:w-auto sm:gap-3 sm:px-5 sm:py-3"
             aria-expanded={isOpen}
             aria-label="Open chatbot"
           >
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600/90">
               <FaComments />
             </span>
-            <span className="text-left">
+            <span className="hidden text-left sm:block">
               <span className="block">Ask the site</span>
               <span className="block text-xs font-medium text-gray-400">Proof, service fit, or next step</span>
             </span>
