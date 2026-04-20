@@ -5,6 +5,7 @@ import { ARCHITECTURE_STACK_ROUTE, createServiceRoute } from '../constants/route
 import { getServiceBySlug } from '../data/services'
 import NotFoundPage from './NotFoundPage'
 
+const AwsDataPipelineStudio = lazy(() => import('../components/AwsDataPipelineStudio'))
 const CloudFitPlanner = lazy(() => import('../components/CloudFitPlanner'))
 const SandboxTerminal = lazy(() => import('../components/SandboxTerminal'))
 const WorkflowComposerDemo = lazy(() => import('../components/WorkflowComposerDemo'))
@@ -25,8 +26,9 @@ function ServiceDemoPage() {
   const isSandboxDemo = service.slug === 'live-terminal-sandbox'
   const isCloudFitDemo = service.slug === 'cloud-fit-deployment'
   const isWorkflowDemo = service.slug === 'workflow-composer'
+  const isDataPlatformDemo = service.slug === 'data-platforms'
 
-  if (!isSandboxDemo && !isCloudFitDemo && !isWorkflowDemo) {
+  if (!isSandboxDemo && !isCloudFitDemo && !isWorkflowDemo && !isDataPlatformDemo) {
     return <NotFoundPage />
   }
 
@@ -71,25 +73,44 @@ function ServiceDemoPage() {
           secondaryLabel: 'Discuss the cloud fit',
           secondaryTopic: service.slug,
         }
-      : {
-          eyebrow: 'Workflow proof',
-          title: 'Shape the flow, then use the restricted live studio in-page.',
-          intro:
-            'Use the preview builder to pressure-test triggers, branches, and approvals before loading the real constrained n8n studio inside the website.',
-          notes: [
-            'See whether the orchestration pattern is clear enough before you touch the live editor.',
-            'Use the restricted studio when you want to validate the real surface under safe limits.',
-            'Move into the discussion once the workflow shape feels close to the operating problem you need solved.',
-          ],
-          focusTitle: 'What this should prove',
-          focusText:
-            'The preview should show whether the workflow deserves implementation, while the live studio confirms that the editor surface can stay safely constrained.',
-          primaryLabel: 'Back to service context',
-          primaryTo: serviceRoute,
-          secondaryLabel: 'Discuss this workflow',
-          secondaryTopic: service.slug,
-        }
-  const DemoSurface = isSandboxDemo ? SandboxTerminal : isCloudFitDemo ? CloudFitPlanner : WorkflowComposerDemo
+      : isWorkflowDemo
+        ? {
+            eyebrow: 'Workflow proof',
+            title: 'Shape the flow, then use the restricted live studio in-page.',
+            intro:
+              'Use the preview builder to pressure-test triggers, branches, and approvals before loading the real constrained n8n studio inside the website.',
+            notes: [
+              'See whether the orchestration pattern is clear enough before you touch the live editor.',
+              'Use the restricted studio when you want to validate the real surface under safe limits.',
+              'Move into the discussion once the workflow shape feels close to the operating problem you need solved.',
+            ],
+            focusTitle: 'What this should prove',
+            focusText:
+              'The preview should show whether the workflow deserves implementation, while the live studio confirms that the editor surface can stay safely constrained.',
+            primaryLabel: 'Back to service context',
+            primaryTo: serviceRoute,
+            secondaryLabel: 'Discuss this workflow',
+            secondaryTopic: service.slug,
+          }
+        : {
+            eyebrow: 'Low-cost AWS proof',
+            title: 'Model the AWS pipeline on its own route so the proof does not overwhelm the service page.',
+            intro:
+              'Use the dedicated demo route to shape incremental extraction, raw and curated S3 zones, Parquet transforms, Athena serving, and lightweight orchestration before you turn it into a scoped build.',
+            notes: [
+              'Check whether the route makes the raw-to-curated path, cost envelope, and upgrade path obvious quickly.',
+              'Use the second mode when the more urgent problem is rescue, replayability, or pipeline stabilization.',
+              'Judge whether the proof belongs as a demo-first route instead of bloating the service page itself.',
+            ],
+            focusTitle: 'What this should prove',
+            focusText:
+              'The AWS model should feel technical and commercially grounded at the same time: real pipeline thinking, without a heavyweight bill of materials.',
+            primaryLabel: 'Back to service context',
+            primaryTo: serviceRoute,
+            secondaryLabel: 'Plan the data build',
+            secondaryTopic: service.slug,
+          }
+  const DemoSurface = isSandboxDemo ? SandboxTerminal : isCloudFitDemo ? CloudFitPlanner : isWorkflowDemo ? WorkflowComposerDemo : AwsDataPipelineStudio
 
   return (
     <>

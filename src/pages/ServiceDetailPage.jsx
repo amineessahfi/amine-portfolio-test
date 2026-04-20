@@ -1,6 +1,5 @@
 import React from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
-import AwsDataPipelineStudio from '../components/AwsDataPipelineStudio'
 import IntakeTriggerButton from '../components/IntakeTriggerButton'
 import {
   ARCHITECTURE_STACK_ROUTE,
@@ -119,22 +118,22 @@ function ServiceDetailPage() {
         : isDataPlatformService
           ? {
               eyebrow: 'Interactive proof',
-              title: 'Open the low-cost AWS demo when you need a technical path that stays commercially sane',
+              title: 'Open the low-cost AWS demo when you want to test the data path before you scope the build',
               description:
-                'Use the model to shape incremental extraction, S3 raw and curated zones, Parquet transforms, Athena serving, and lightweight orchestration before you commit to a heavier stack.',
+                'The proof route should carry the interactive AWS pipeline model, while the service page stays focused on fit, deliverables, and where the work makes sense.',
               highlights: [
-                'Incremental extraction, raw and curated S3 zones, and Parquet-first serving.',
-                'Athena, EventBridge, SQS, and CloudWatch instead of jumping straight into heavier always-on services.',
-                'A second mode dedicated to rescuing failing pipelines before redesigning the whole stack.',
+                'Low-cost AWS pipeline modeling on a dedicated proof route.',
+                'Incremental extraction, raw and curated zones, Parquet serving, and lightweight orchestration.',
+                'A cleaner split between service context and interactive proof.',
               ],
               primaryLabel: 'Open the low-cost AWS demo',
               primaryTo: DATA_PIPELINE_DEMO_ROUTE,
               secondaryLabel: 'Plan the data build',
               secondaryTo: discussUrl,
               supportingEyebrow: 'What the demo proves',
-              supportingTitle: 'The pipeline can stay technical without inflating the bill.',
+              supportingTitle: 'The service page should explain the work, not absorb the whole demo.',
               supportingText:
-                'The value is in showing a serious AWS data path that still respects budget: replayable ingestion, curated Parquet datasets, cheap serving, and a clear upgrade path only when the workload truly demands it.',
+                'Keeping the interactive AWS model on its own proof route makes the routing clearer, the service page calmer, and the sizing system easier to normalize across the site.',
             }
           : null
 
@@ -281,8 +280,6 @@ function ServiceDetailPage() {
             </div>
           </section>
         ) : null}
-
-        {isDataPlatformService ? <AwsDataPipelineStudio /> : null}
 
         <section id="service-outcomes" className="terminal-window scroll-mt-28">
           <div className="terminal-header">
