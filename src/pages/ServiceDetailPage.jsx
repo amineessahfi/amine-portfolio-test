@@ -1,12 +1,15 @@
 import React from 'react'
 import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
+import AwsDataPipelineStudio from '../components/AwsDataPipelineStudio'
 import IntakeTriggerButton from '../components/IntakeTriggerButton'
 import {
   ARCHITECTURE_STACK_ROUTE,
   CLOUD_FIT_ROUTE,
+  DATA_PIPELINE_DEMO_ROUTE,
   LIVE_SANDBOX_ROUTE,
   SERVICES_DIRECTORY_ROUTE,
   WORKFLOW_COMPOSER_ROUTE,
+  createDiscussUrl,
   createServiceRoute,
 } from '../constants/routes'
 import { getServiceBySlug } from '../data/services'
@@ -25,7 +28,9 @@ function ServiceDetailPage() {
     return <Navigate to={`${createServiceRoute(service.slug)}${location.search}${location.hash}`} replace />
   }
 
+  const discussUrl = createDiscussUrl(service.slug)
   const isCloudFitService = service.slug === 'cloud-fit-deployment'
+  const isDataPlatformService = service.slug === 'data-platforms'
   const isSandboxService = service.slug === 'live-terminal-sandbox'
   const isWorkflowService = service.slug === 'workflow-composer'
   const primaryCta = isSandboxService
@@ -34,14 +39,18 @@ function ServiceDetailPage() {
       ? { label: 'Open the cloud fit model', to: CLOUD_FIT_ROUTE }
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
-        : { label: 'Open the intake', type: 'intake', topic: service.slug }
-  const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService
+        : isDataPlatformService
+          ? { label: 'Open the low-cost AWS demo', to: DATA_PIPELINE_DEMO_ROUTE }
+          : { label: 'Open the intake', type: 'intake', topic: service.slug }
+  const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService || isDataPlatformService
     ? {
         label: isWorkflowService
           ? 'Discuss the workflow build'
           : isCloudFitService
             ? 'Plan the cloud fit'
-            : 'Discuss the sandbox build',
+            : isDataPlatformService
+              ? 'Plan the data build'
+              : 'Discuss the sandbox build',
         type: 'intake',
         topic: service.slug,
       }
@@ -107,7 +116,28 @@ function ServiceDetailPage() {
             supportingText:
               'The preview and live studio should make it obvious whether the workflow deserves implementation and where guardrails need to stay.',
           }
-      : null
+        : isDataPlatformService
+          ? {
+              eyebrow: 'Interactive proof',
+              title: 'Open the low-cost AWS demo when you need a technical path that stays commercially sane',
+              description:
+                'Use the model to shape incremental extraction, S3 raw and curated zones, Parquet transforms, Athena serving, and lightweight orchestration before you commit to a heavier stack.',
+              highlights: [
+                'Incremental extraction, raw and curated S3 zones, and Parquet-first serving.',
+                'Athena, EventBridge, SQS, and CloudWatch instead of jumping straight into heavier always-on services.',
+                'A second mode dedicated to rescuing failing pipelines before redesigning the whole stack.',
+              ],
+              primaryLabel: 'Open the low-cost AWS demo',
+              primaryTo: DATA_PIPELINE_DEMO_ROUTE,
+              secondaryLabel: 'Plan the data build',
+              secondaryTo: discussUrl,
+              supportingEyebrow: 'What the demo proves',
+              supportingTitle: 'The pipeline can stay technical without inflating the bill.',
+              supportingText:
+                'The value is in showing a serious AWS data path that still respects budget: replayable ingestion, curated Parquet datasets, cheap serving, and a clear upgrade path only when the workload truly demands it.',
+            }
+          : null
+
   return (
     <>
       <section className="page-hero">
@@ -165,7 +195,7 @@ function ServiceDetailPage() {
 
       <main className="page-shell">
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-          <div id="service-scope" className="terminal-window scroll-mt-28">
+          <section id="service-scope" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">service — scope</div>
             </div>
@@ -185,9 +215,9 @@ function ServiceDetailPage() {
                 ))}
               </ul>
             </div>
-          </div>
+          </section>
 
-          <div id="service-fit" className="terminal-window scroll-mt-28">
+          <section id="service-fit" className="terminal-window scroll-mt-28">
             <div className="terminal-header">
               <div className="text-sm text-gray-400">service — fit</div>
             </div>
@@ -207,7 +237,7 @@ function ServiceDetailPage() {
                 ))}
               </ul>
             </div>
-          </div>
+          </section>
         </section>
 
         {demoPanel ? (
@@ -236,9 +266,7 @@ function ServiceDetailPage() {
                 <div className="metric-card p-6 sm:p-7">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">{demoPanel.supportingEyebrow}</p>
                   <h3 className="mt-4 text-2xl font-semibold text-white">{demoPanel.supportingTitle}</h3>
-                  <p className="mt-4 text-sm leading-8 text-gray-400">
-                    {demoPanel.supportingText}
-                  </p>
+                  <p className="mt-4 text-sm leading-8 text-gray-400">{demoPanel.supportingText}</p>
 
                   <div className="mt-6 flex flex-col gap-3">
                     <Link to={demoPanel.primaryTo} className="primary-button justify-center">
@@ -253,6 +281,8 @@ function ServiceDetailPage() {
             </div>
           </section>
         ) : null}
+
+        {isDataPlatformService ? <AwsDataPipelineStudio /> : null}
 
         <section id="service-outcomes" className="terminal-window scroll-mt-28">
           <div className="terminal-header">

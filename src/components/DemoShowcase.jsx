@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaChartLine, FaCodeBranch, FaTerminal } from 'react-icons/fa'
-import { CLOUD_FIT_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
+import { FaArrowRight, FaChartLine, FaCodeBranch, FaDatabase, FaTerminal } from 'react-icons/fa'
+import { CLOUD_FIT_ROUTE, DATA_PIPELINE_DEMO_ROUTE, LIVE_SANDBOX_ROUTE, WORKFLOW_COMPOSER_ROUTE, createDiscussUrl } from '../constants/routes'
 
 const demoPages = [
   {
@@ -35,6 +35,21 @@ const demoPages = [
     iconClassName: 'text-primary-300',
   },
   {
+    eyebrow: 'Low-cost AWS',
+    title: 'Model a serious AWS data pipeline without the heavy bill',
+    description:
+      'Shape incremental ingestion, raw and curated S3 zones, Parquet transforms, Athena serving, and lightweight orchestration before you commit to a more expensive stack.',
+    highlights: ['Incremental extract + S3 raw / curated', 'Athena, EventBridge, SQS, CloudWatch', 'Pipeline rescue mode in the same surface'],
+    to: DATA_PIPELINE_DEMO_ROUTE,
+    cta: 'Open low-cost AWS demo',
+    topic: 'data-platforms',
+    discussionCta: 'Plan the data build',
+    icon: FaDatabase,
+    dotClassName: 'bg-emerald-300',
+    textClassName: 'text-emerald-200',
+    iconClassName: 'text-emerald-300',
+  },
+  {
     eyebrow: 'Workflow composer',
     title: 'Preview the workflow shape before you scope the build',
     description:
@@ -59,17 +74,17 @@ function DemoShowcase() {
       </div>
 
       <div className="terminal-content">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <span className="section-chip">Interactive demos</span>
-              <h2 className="section-title text-3xl sm:text-4xl">Explore the proof before you scope the work</h2>
-            </div>
-            <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-              Each surface answers a different technical risk quickly and gives you a lighter path into the conversation when you want working proof before a full project discussion.
-            </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <span className="section-chip">Interactive demos</span>
+            <h2 className="section-title text-3xl sm:text-4xl">Explore the proof before you scope the work</h2>
           </div>
+          <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
+            Each surface answers a different technical risk quickly and gives you a lighter path into the conversation when you want working proof before a full project discussion.
+          </p>
+        </div>
 
-        <div className="content-scroller md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:[scroll-snap-type:none] xl:grid-cols-3">
+        <div className="content-scroller md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:[scroll-snap-type:none] xl:grid-cols-4">
           {demoPages.map((demo) => {
             const Icon = demo.icon
 

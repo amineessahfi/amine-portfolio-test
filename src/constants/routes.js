@@ -12,6 +12,7 @@ export const LIVE_SANDBOX_ROUTE = `${LIVE_SANDBOX_DEMO_ROUTE}#live-sandbox`
 export const SANDBOX_LOGIN_ROUTE = `${LIVE_SANDBOX_DEMO_ROUTE}#sandbox-login`
 export const CLOUD_FIT_ROUTE = `${CLOUD_FIT_DEMO_ROUTE}#cloud-fit-model`
 export const WORKFLOW_COMPOSER_ROUTE = `${WORKFLOW_COMPOSER_DEMO_ROUTE}#workflow-composer`
+export const DATA_PIPELINE_DEMO_ROUTE = '/services/data-platforms#aws-data-demos'
 export const COST_REVIEW_SERVICE_ROUTE = CLOUD_FIT_SERVICE_ROUTE
 export const COST_REVIEW_DEMO_ROUTE = CLOUD_FIT_DEMO_ROUTE
 export const COST_REVIEW_ROUTE = CLOUD_FIT_ROUTE

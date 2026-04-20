@@ -77,7 +77,7 @@ export const services = [
     homepageFeatured: true,
     title: 'Data Platform & Pipeline Engineering',
     summary:
-      'Build reliable data pipelines, orchestration layers, and platform foundations that turn operational data into usable systems for decision-making.',
+      'Build reliable AWS-native data pipelines with low-cost landing shapes that still use proper raw and curated zones, orchestration, monitoring, and clean upgrade paths as volume grows.',
     highlights: [
       'Pipeline design for batch and near-real-time workloads',
       'Airflow and workflow orchestration patterns',
