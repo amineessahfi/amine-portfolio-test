@@ -39,7 +39,7 @@ function ServiceDetailPage() {
       : isWorkflowService
         ? { label: 'Open the workflow demo', to: WORKFLOW_COMPOSER_ROUTE }
         : isDataPlatformService
-          ? { label: 'Open the low-cost AWS demo', to: DATA_PIPELINE_DEMO_ROUTE }
+          ? { label: 'Open the AWS data architecture demo', to: DATA_PIPELINE_DEMO_ROUTE }
           : { label: 'Open the intake', type: 'intake', topic: service.slug }
   const secondaryCta = isSandboxService || isCloudFitService || isWorkflowService || isDataPlatformService
     ? {
@@ -48,7 +48,7 @@ function ServiceDetailPage() {
           : isCloudFitService
             ? 'Plan the cloud fit'
             : isDataPlatformService
-              ? 'Plan the data build'
+              ? 'Scope the data platform'
               : 'Discuss the sandbox build',
         type: 'intake',
         topic: service.slug,
@@ -118,22 +118,22 @@ function ServiceDetailPage() {
         : isDataPlatformService
           ? {
               eyebrow: 'Interactive proof',
-              title: 'Open the low-cost AWS demo when you want to test the data path before you scope the build',
+              title: 'Open the AWS data architecture demo when you want to shape the target platform before the build',
               description:
-                'The proof route should carry the interactive AWS pipeline model, while the service page stays focused on fit, deliverables, and where the work makes sense.',
+                'The proof route now carries the architecture decisions: ingestion, lakehouse, orchestration, serving, governance, and recovery, while the service page stays focused on fit and delivery shape.',
               highlights: [
-                'Low-cost AWS pipeline modeling on a dedicated proof route.',
-                'Incremental extraction, raw and curated zones, Parquet serving, and lightweight orchestration.',
+                'AWS data architecture modeling on a dedicated proof route.',
+                'Serving, governance, and recovery decisions alongside ingestion and transformation design.',
                 'A cleaner split between service context and interactive proof.',
               ],
-              primaryLabel: 'Open the low-cost AWS demo',
+              primaryLabel: 'Open the AWS data architecture demo',
               primaryTo: DATA_PIPELINE_DEMO_ROUTE,
-              secondaryLabel: 'Plan the data build',
+              secondaryLabel: 'Scope the data platform',
               secondaryTo: discussUrl,
               supportingEyebrow: 'What the demo proves',
-              supportingTitle: 'The service page should explain the work, not absorb the whole demo.',
+              supportingTitle: 'The service page should explain the work, not absorb the architecture simulator.',
               supportingText:
-                'Keeping the interactive AWS model on its own proof route makes the routing clearer, the service page calmer, and the sizing system easier to normalize across the site.',
+                'Keeping the AWS architecture model on its own proof route makes the routing clearer, the service page calmer, and the delivery conversation easier to focus.',
             }
           : null
 

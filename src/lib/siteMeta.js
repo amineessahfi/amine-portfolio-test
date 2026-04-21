@@ -18,6 +18,7 @@ const DEMO_PATHS = [
   '/services/live-terminal-sandbox/demo',
   '/services/cloud-fit-deployment/demo',
   '/services/workflow-composer/demo',
+  '/services/data-platforms/demo',
 ]
 const COMPATIBILITY_SERVICE_PATHS = Object.keys(serviceSlugAliases).map((aliasSlug) => `/services/${aliasSlug}`)
 const INDEXABLE_PATHS = [
@@ -82,6 +83,14 @@ function getDemoMetaForService(service, pathname, canonicalPath, robots) {
       title: withBrand('Workflow composer demo'),
       description:
         'Preview triggers, branches, approvals, and a restricted live studio before you scope a workflow automation build.',
+      pathname,
+      canonicalPath,
+      robots,
+    }),
+    'data-platforms': createMeta({
+      title: withBrand('AWS data architecture demo'),
+      description:
+        'Shape ingestion, lakehouse, orchestration, governance, serving, and recovery decisions for a production-minded AWS data platform.',
       pathname,
       canonicalPath,
       robots,

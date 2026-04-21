@@ -93,23 +93,24 @@ function ServiceDemoPage() {
             secondaryTopic: service.slug,
           }
         : {
-            eyebrow: 'Low-cost AWS proof',
-            title: 'Model the AWS pipeline on its own route so the proof does not overwhelm the service page.',
+            eyebrow: 'AWS data architecture',
+            title: 'Shape the target architecture before you scope the build.',
             intro:
-              'Use the dedicated demo route to shape incremental extraction, raw and curated S3 zones, Parquet transforms, Athena serving, and lightweight orchestration before you turn it into a scoped build.',
+              'Use the dedicated proof route to choose ingestion, lakehouse structure, orchestration, serving, governance, and the scale-up path for an AWS data platform before the implementation plan gets locked in.',
             notes: [
-              'Check whether the route makes the raw-to-curated path, cost envelope, and upgrade path obvious quickly.',
-              'Use the second mode when the more urgent problem is rescue, replayability, or pipeline stabilization.',
-              'Judge whether the proof belongs as a demo-first route instead of bloating the service page itself.',
+              'Check whether the architecture explains both day-one cost and the next scale step, not just the first green build.',
+              'Use the serving and governance choices to pressure-test where Athena still fits and where Redshift, Lake Formation, or heavier transforms become justified.',
+              'Switch to rescue mode when the real need is replayability, hardening, and recovery under incident pressure.',
             ],
             focusTitle: 'What this should prove',
             focusText:
-              'The AWS model should feel technical and commercially grounded at the same time: real pipeline thinking, without a heavyweight bill of materials.',
+              'The route should make architecture tradeoffs legible: ingestion shape, lakehouse structure, control plane, serving layer, governance posture, and recovery model.',
             primaryLabel: 'Back to service context',
             primaryTo: serviceRoute,
-            secondaryLabel: 'Plan the data build',
+            secondaryLabel: 'Scope the data platform',
             secondaryTopic: service.slug,
           }
+
   const DemoSurface = isSandboxDemo ? SandboxTerminal : isCloudFitDemo ? CloudFitPlanner : isWorkflowDemo ? WorkflowComposerDemo : AwsDataPipelineStudio
 
   return (
