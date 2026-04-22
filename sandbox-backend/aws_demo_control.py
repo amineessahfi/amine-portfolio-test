@@ -69,9 +69,9 @@ class DemoControlSettings:
             specs_dir=specs_dir,
             db_path=db_path,
             cleanup_interval_seconds=max(30, int(os.getenv('AWS_DEMO_CLEANUP_INTERVAL_SECONDS', '300'))),
-            default_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_DEFAULT_TTL_MINUTES', '60'))),
-            min_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_TTL_MIN_MINUTES', '15'))),
-            max_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_TTL_MAX_MINUTES', '180'))),
+            default_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_DEFAULT_TTL_MINUTES', '10'))),
+            min_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_TTL_MIN_MINUTES', '10'))),
+            max_ttl_minutes=max(1, int(os.getenv('AWS_DEMO_TTL_MAX_MINUTES', '30'))),
             base_prefix=sanitize_identifier(os.getenv('AWS_DEMO_BASE_PREFIX', 'ae-demo'), max_length=18),
             region_allowlist=allowlist,
         )
@@ -511,24 +511,41 @@ class AwsDemoManager:
                 raise AwsDemoControlError(f'IAM role {role_name} did not become available in time.')
 
             lambda_zip = self._build_lambda_zip()
-            function = lambda_client.create_function(
-                FunctionName=function_name,
-                Runtime='python3.11',
-                Role=role['Arn'],
-                Handler='lambda_function.handler',
-                Timeout=30,
-                MemorySize=128,
-                Environment={
-                    'Variables': {
-                        'BUCKET_NAME': bucket_name,
-                        'OUTPUT_PREFIX': 'curated/events',
-                        'QUEUE_URL': queue_url,
-                    }
-                },
-                Code={'ZipFile': lambda_zip},
-                Publish=True,
-                Tags=tags,
-            )
+            function = None
+            for attempt in range(12):
+                try:
+                    function = lambda_client.create_function(
+                        FunctionName=function_name,
+                        Runtime='python3.11',
+                        Role=role['Arn'],
+                        Handler='lambda_function.handler',
+                        Timeout=30,
+                        MemorySize=128,
+                        Environment={
+                            'Variables': {
+                                'BUCKET_NAME': bucket_name,
+                                'OUTPUT_PREFIX': 'curated/events',
+                                'QUEUE_URL': queue_url,
+                            }
+                        },
+                        Code={'ZipFile': lambda_zip},
+                        Publish=True,
+                        Tags=tags,
+                    )
+                    break
+                except ClientError as exc:
+                    error_code = exc.response.get('Error', {}).get('Code')
+                    error_message = exc.response.get('Error', {}).get('Message', '')
+                    role_not_ready = (
+                        error_code == 'InvalidParameterValueException'
+                        and 'cannot be assumed by Lambda' in error_message
+                    )
+                    if not role_not_ready or attempt == 11:
+                        raise
+                    time.sleep(5)
+
+            if not function:
+                raise AwsDemoControlError(f'Lambda {function_name} could not be created after IAM propagation retries.')
             resources['lambdaName'] = function_name
             resources['lambdaArn'] = function['FunctionArn']
 

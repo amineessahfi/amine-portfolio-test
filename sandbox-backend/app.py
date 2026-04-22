@@ -97,7 +97,21 @@ ALLOWED_ORIGIN_PATTERNS = [
     if pattern.strip()
 ]
 DEFAULT_FRONTEND_ORIGIN = os.getenv('DEFAULT_FRONTEND_ORIGIN', 'https://amine-portfolio-test.vercel.app').rstrip('/')
-PROTECTED_ORIGIN_PATHS = {'/sessions', '/ws', '/auth/status', '/auth/logout'}
+AWS_DEMO_COOKIE_NAME = os.getenv('AWS_DEMO_COOKIE_NAME', 'sandbox_aws_demo')
+AWS_DEMO_PUBLIC_ENABLED = env_flag('AWS_DEMO_PUBLIC_ENABLED', False)
+AWS_DEMO_PUBLIC_SPEC_NAME = os.getenv('AWS_DEMO_PUBLIC_SPEC_NAME', 'lowcost-data-platform').strip() or 'lowcost-data-platform'
+AWS_DEMO_PUBLIC_TTL_MINUTES = max(1, int(os.getenv('AWS_DEMO_PUBLIC_TTL_MINUTES', '10')))
+AWS_DEMO_PUBLIC_MAX_ACTIVE = max(1, int(os.getenv('AWS_DEMO_PUBLIC_MAX_ACTIVE', '1')))
+AWS_DEMO_PUBLIC_MAX_LAUNCHES_PER_HOUR = max(1, int(os.getenv('AWS_DEMO_PUBLIC_MAX_LAUNCHES_PER_HOUR', '2')))
+PROTECTED_ORIGIN_PATHS = {
+    '/sessions',
+    '/ws',
+    '/auth/status',
+    '/auth/logout',
+    '/aws-demo/live/status',
+    '/aws-demo/live/launch',
+    '/aws-demo/live/destroy',
+}
 ACTIVE_SESSION_STATUSES = {'created', 'starting', 'active'}
 AWS_DEMO_ADMIN_HEADER = 'X-Demo-Admin-Token'
 
@@ -283,6 +297,14 @@ def prune_rate_limit(app: web.Application, ip_address: str) -> deque:
     return history
 
 
+def prune_named_rate_limit(app: web.Application, key: str, ip_address: str) -> deque:
+    history = app[key][ip_address]
+    cutoff = time.time() - 3600
+    while history and history[0] < cutoff:
+        history.popleft()
+    return history
+
+
 def active_sessions_for_ip(app: web.Application, ip_address: str) -> int:
     return sum(
         1
@@ -447,6 +469,53 @@ def set_workflow_studio_lease(
     return lease
 
 
+def build_aws_demo_lease(visitor_state: dict, *, demo_id: str, expires_at: int) -> dict:
+    issued_at = int(time.time())
+    return {
+        'scope': 'aws_demo',
+        'visitor_id': visitor_state['visitor_id'],
+        'demo_id': demo_id,
+        'iat': issued_at,
+        'exp': expires_at,
+    }
+
+
+def get_aws_demo_lease(request: web.Request, *, visitor_state: dict | None = None) -> dict | None:
+    payload = read_signed_payload(request.cookies.get(AWS_DEMO_COOKIE_NAME))
+    if not payload:
+        return None
+
+    try:
+        expiry = int(payload.get('exp', 0))
+    except (TypeError, ValueError):
+        return None
+
+    if expiry <= int(time.time()):
+        return None
+
+    if payload.get('scope') != 'aws_demo':
+        return None
+
+    if visitor_state and payload.get('visitor_id') != visitor_state.get('visitor_id'):
+        return None
+
+    if not payload.get('demo_id'):
+        return None
+
+    return payload
+
+
+def set_aws_demo_lease(response: web.StreamResponse, visitor_state: dict, *, demo_id: str, expires_at: int) -> dict:
+    lease = build_aws_demo_lease(visitor_state, demo_id=demo_id, expires_at=expires_at)
+    set_signed_cookie(
+        response,
+        AWS_DEMO_COOKIE_NAME,
+        lease,
+        max_age=max(1, expires_at - int(time.time())),
+    )
+    return lease
+
+
 def clear_cookie(response: web.StreamResponse, cookie_name: str, *, path: str = '/') -> None:
     response.del_cookie(
         cookie_name,
@@ -459,6 +528,10 @@ def clear_cookie(response: web.StreamResponse, cookie_name: str, *, path: str = 
 
 def clear_auth_cookie(response: web.StreamResponse) -> None:
     clear_cookie(response, AUTH_COOKIE_NAME)
+
+
+def clear_aws_demo_cookie(response: web.StreamResponse) -> None:
+    clear_cookie(response, AWS_DEMO_COOKIE_NAME)
 
 
 def normalize_return_to(candidate: str | None) -> str:
@@ -682,6 +755,7 @@ async def health(request: web.Request) -> web.Response:
             'image': SANDBOX_IMAGE,
             'googleOAuthConfigured': google_oauth_enabled(),
             'awsDemoControlEnabled': aws_demo_manager.settings.enabled,
+            'awsDemoPublicEnabled': AWS_DEMO_PUBLIC_ENABLED,
         }
     )
 
@@ -696,6 +770,170 @@ def require_aws_demo_admin(request: web.Request) -> AwsDemoManager:
         raise web.HTTPForbidden(text='Missing or invalid AWS demo admin token.')
 
     return manager
+
+
+def aws_demo_public_guardrails() -> list[str]:
+    return [
+        f'One fixed AWS template only: {AWS_DEMO_PUBLIC_SPEC_NAME}.',
+        f'Forced teardown after {AWS_DEMO_PUBLIC_TTL_MINUTES} minutes.',
+        f'Maximum {AWS_DEMO_PUBLIC_MAX_ACTIVE} live public stack at a time.',
+        'No arbitrary YAML, regions, or resource choices from the browser.',
+        'Destroy control stays inside the same browser session that launched it.',
+    ]
+
+
+def aws_demo_public_available(manager: AwsDemoManager) -> bool:
+    return manager.settings.enabled and AWS_DEMO_PUBLIC_ENABLED
+
+
+def active_aws_demo_runs(manager: AwsDemoManager) -> list[dict]:
+    return [run for run in manager.list_runs() if run['status'] in {'creating', 'ready'}]
+
+
+def serialize_public_aws_demo_run(run: dict | None) -> dict | None:
+    if not run:
+        return None
+
+    outputs = run.get('outputs') or {}
+    return {
+        'id': run['id'],
+        'status': run['status'],
+        'createdAt': run['createdAt'],
+        'expiresAt': run['expiresAt'],
+        'destroyedAt': run['destroyedAt'],
+        'destroyReason': run.get('destroyReason'),
+        'error': run.get('error'),
+        'countdownSeconds': max(0, int(run['expiresAt']) - int(time.time())) if run.get('expiresAt') else 0,
+        'summary': {
+            'region': outputs.get('region') or run.get('region'),
+            'bucketName': outputs.get('bucketName'),
+            'lambdaName': outputs.get('lambdaName'),
+            'eventRuleName': outputs.get('eventRuleName'),
+            'glueDatabase': outputs.get('glueDatabase'),
+            'glueTable': outputs.get('glueTable'),
+            'athenaRowCount': outputs.get('athenaRowCount'),
+        },
+    }
+
+
+def current_public_aws_demo_run(
+    request: web.Request,
+    manager: AwsDemoManager,
+    *,
+    visitor_state: dict,
+) -> tuple[dict | None, bool]:
+    lease = get_aws_demo_lease(request, visitor_state=visitor_state)
+    if not lease:
+        return None, False
+
+    run = manager.get_run(str(lease.get('demo_id')))
+    if not run or run['status'] == 'destroyed' or int(run.get('expiresAt') or 0) <= int(time.time()):
+        return None, True
+    return run, False
+
+
+async def aws_demo_live_status(request: web.Request) -> web.Response:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    current_run, clear_demo_cookie = current_public_aws_demo_run(request, manager, visitor_state=visitor_state)
+
+    payload = {
+        'enabled': AWS_DEMO_PUBLIC_ENABLED,
+        'available': aws_demo_public_available(manager),
+        'launchTtlMinutes': AWS_DEMO_PUBLIC_TTL_MINUTES,
+        'maxActiveRuns': AWS_DEMO_PUBLIC_MAX_ACTIVE,
+        'guardrails': aws_demo_public_guardrails(),
+        'activeRun': serialize_public_aws_demo_run(current_run),
+        'reason': ''
+        if aws_demo_public_available(manager)
+        else (
+            'The public AWS demo launcher is disabled on this host.'
+            if not AWS_DEMO_PUBLIC_ENABLED
+            else 'The AWS demo runtime is not armed yet on vm2.'
+        ),
+    }
+    response = web.json_response(payload)
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
+    if clear_demo_cookie:
+        clear_aws_demo_cookie(response)
+    return response
+
+
+async def aws_demo_live_launch(request: web.Request) -> web.Response:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    client_ip = get_client_ip(request)
+
+    if not aws_demo_public_available(manager):
+        raise web.HTTPServiceUnavailable(text='The AWS demo runtime is not armed yet on vm2.')
+
+    current_run, clear_demo_cookie = current_public_aws_demo_run(request, manager, visitor_state=visitor_state)
+    if current_run:
+        return web.json_response(
+            {
+                'error': 'A live AWS demo is already active in this browser session.',
+                'activeRun': serialize_public_aws_demo_run(current_run),
+            },
+            status=409,
+        )
+
+    launch_history = prune_named_rate_limit(request.app, 'aws_demo_rate_limit', client_ip)
+    if len(launch_history) >= AWS_DEMO_PUBLIC_MAX_LAUNCHES_PER_HOUR:
+        raise web.HTTPTooManyRequests(text='This browser has already launched the maximum AWS demos for the last hour.')
+
+    active_runs = active_aws_demo_runs(manager)
+    if len(active_runs) >= AWS_DEMO_PUBLIC_MAX_ACTIVE:
+        return web.json_response(
+            {'error': 'The public AWS demo is already in use. Wait for the current stack to self-destruct or destroy it first.'},
+            status=503,
+        )
+
+    try:
+        run = await asyncio.to_thread(manager.create_demo, AWS_DEMO_PUBLIC_SPEC_NAME, AWS_DEMO_PUBLIC_TTL_MINUTES)
+    except AwsDemoControlError as exc:
+        raise web.HTTPServiceUnavailable(text=str(exc)) from exc
+
+    launch_history.append(time.time())
+    response = web.json_response(
+        {
+            'guardrails': aws_demo_public_guardrails(),
+            'activeRun': serialize_public_aws_demo_run(run),
+        },
+        status=201,
+    )
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
+    elif clear_demo_cookie:
+        clear_aws_demo_cookie(response)
+    set_aws_demo_lease(response, visitor_state, demo_id=run['id'], expires_at=int(run['expiresAt']))
+    audit_log('aws_demo_live_launched', demo_id=run['id'], visitor_id=visitor_state['visitor_id'], client_ip=client_ip)
+    return response
+
+
+async def aws_demo_live_destroy(request: web.Request) -> web.Response:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    current_run, clear_demo_cookie = current_public_aws_demo_run(request, manager, visitor_state=visitor_state)
+    if not current_run:
+        response = web.json_response({'activeRun': None})
+        if refresh_visitor_cookie:
+            set_visitor_cookie(response, visitor_state)
+        if clear_demo_cookie:
+            clear_aws_demo_cookie(response)
+        return response
+
+    try:
+        run = await asyncio.to_thread(manager.destroy_demo, current_run['id'], reason='browser_destroy')
+    except AwsDemoControlError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+
+    response = web.json_response({'activeRun': serialize_public_aws_demo_run(run)})
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
+    clear_aws_demo_cookie(response)
+    audit_log('aws_demo_live_destroyed', demo_id=run['id'], visitor_id=visitor_state['visitor_id'])
+    return response
 
 
 async def aws_demo_specs(request: web.Request) -> web.Response:
@@ -1207,6 +1445,7 @@ def create_app() -> web.Application:
     app = web.Application(middlewares=[cors_middleware])
     app['sessions'] = {}
     app['rate_limit'] = defaultdict(deque)
+    app['aws_demo_rate_limit'] = defaultdict(deque)
     app.cleanup_ctx.append(aws_demo_cleanup_context)
     app.add_routes(
         [
@@ -1214,6 +1453,9 @@ def create_app() -> web.Application:
             web.post('/sessions', create_session),
             web.options('/sessions', create_session),
             web.get('/ws', websocket_handler),
+            web.get('/aws-demo/live/status', aws_demo_live_status),
+            web.post('/aws-demo/live/launch', aws_demo_live_launch),
+            web.delete('/aws-demo/live/destroy', aws_demo_live_destroy),
             web.get('/aws-demo/specs', aws_demo_specs),
             web.get('/aws-demo/runs', aws_demo_list_runs),
             web.post('/aws-demo/runs', aws_demo_create_run),

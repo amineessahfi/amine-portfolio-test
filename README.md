@@ -54,11 +54,12 @@ The live terminal sandbox UI is hosted in the Vercel frontend, while the backend
 
 ## AWS demo control plane
 
-The sandbox backend also includes a token-protected AWS demo control plane for spinning up short-lived demo stacks from repo-stored YAML specs.
+The sandbox backend also includes a guarded AWS demo control plane for spinning up short-lived demo stacks from repo-stored YAML specs.
 
 - specs live under `sandbox-backend/demo-specs/`
 - run state is stored in SQLite on the host
 - the first enabled template provisions S3, SQS, Lambda, EventBridge, Glue, and Athena validation
+- the public portfolio launcher is a fixed 10-minute stack with forced teardown and no arbitrary browser-side inputs
 - docs: [`docs/aws-demo-control-plane.md`](docs/aws-demo-control-plane.md)
 
 ## License

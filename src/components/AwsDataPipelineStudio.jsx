@@ -1,572 +1,525 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight } from 'react-icons/fa'
+import {
+  FaArrowRight,
+  FaClock,
+  FaCloudUploadAlt,
+  FaShieldAlt,
+  FaSyncAlt,
+  FaTimes,
+  FaTrashAlt,
+} from 'react-icons/fa'
 import { createDiscussUrl } from '../constants/routes'
+import { SANDBOX_API_BASE } from '../constants/sandbox'
 
-const dataDemoModes = [
-  { value: 'aws-data-architect', label: 'AWS data architecture' },
-  { value: 'pipeline-rescue', label: 'Pipeline rescue' },
+const demoLaunchSteps = [
+  'Open the launch modal and arm one fixed AWS demo stack.',
+  'Provision S3, SQS, Lambda, EventBridge, Glue, and Athena in eu-west-3.',
+  'Inspect the live stack, then let it self-destruct or destroy it early.',
 ]
 
-const awsSourceOptions = [
-  { value: 'cdc-db', label: 'CDC / database change capture' },
-  { value: 'api-batch', label: 'API batch collection' },
-  { value: 'event-stream', label: 'Event stream landing' },
-  { value: 'file-landings', label: 'Partner files / S3 landings' },
+const demoProofPoints = [
+  {
+    title: 'Real provisioning',
+    detail: 'This is not a mock. The backend creates actual AWS resources and validates the stack with a Lambda invoke and Athena query.',
+  },
+  {
+    title: 'Hard limits',
+    detail: 'One fixed template, one live public stack, one browser-owned destroy path, and no arbitrary YAML or region input from the page.',
+  },
+  {
+    title: 'Forced teardown',
+    detail: 'The stack self-destructs after 10 minutes, and the page keeps polling the live status so the countdown is visible.',
+  },
 ]
 
-const awsFreshnessOptions = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'hourly', label: 'Hourly' },
-  { value: '15-minute', label: '15-minute windows' },
-]
+function formatCountdown(totalSeconds) {
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0)
+  const minutes = Math.floor(safeSeconds / 60)
+  const seconds = safeSeconds % 60
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
 
-const awsConsumerOptions = [
-  { value: 'bi-marts', label: 'BI marts' },
-  { value: 'operational', label: 'Operational views' },
-  { value: 'shared-product', label: 'Shared data product' },
-]
-
-const awsServingOptions = [
-  { value: 'athena-lakehouse', label: 'Athena lakehouse' },
-  { value: 'redshift-serving', label: 'Redshift serving layer' },
-  { value: 'hybrid-serving', label: 'Hybrid lakehouse + warehouse' },
-]
-
-const awsGovernanceOptions = [
-  { value: 'lean', label: 'Lean controls' },
-  { value: 'controlled', label: 'Controlled platform' },
-  { value: 'regulated', label: 'Regulated / audit-heavy' },
-]
-
-const rescueHotspotOptions = [
-  { value: 'ingestion', label: 'Ingestion breaks first' },
-  { value: 'transform', label: 'Transforms are brittle' },
-  { value: 'serving', label: 'Serving layer drifts' },
-]
-
-const rescueSlaOptions = [
-  { value: '4-hours', label: '4-hour recovery target' },
-  { value: '1-hour', label: '1-hour recovery target' },
-  { value: '15-minutes', label: '15-minute recovery target' },
-]
-
-function buildArchitectureBlueprint({ sourcePattern, freshness, dailyVolume, consumers, servingModel, governanceTier }) {
-  const ingestionLayer =
-    sourcePattern === 'api-batch'
-      ? 'EventBridge or Step Functions schedules -> Lambda or container collectors -> replayable S3 raw zone'
-      : sourcePattern === 'event-stream'
-        ? 'Kinesis or queue-fed micro-batches -> S3 raw append log -> dead-letter recovery path'
-        : sourcePattern === 'file-landings'
-          ? 'S3 landing zone -> validation and manifesting -> raw promotion'
-          : dailyVolume >= 1800
-            ? 'Database CDC or DMS-style change capture -> S3 raw change log -> replay manifests'
-            : 'Watermark-based incremental extraction -> S3 raw change log -> replay manifests'
-
-  const lakehouseLayer =
-    servingModel === 'redshift-serving'
-      ? 'S3 raw and curated zones with Parquet datasets feeding a warehouse-oriented serving layer'
-      : servingModel === 'hybrid-serving'
-        ? 'S3 raw / validated / curated zones with Parquet and Iceberg-ready curated domains'
-        : 'S3 raw / validated / curated lakehouse with Parquet today and Iceberg-ready curated domains'
-
-  const processingLayer =
-    freshness === '15-minute'
-      ? 'Step Functions control plane with short-window Glue or ECS transforms when Lambda stops fitting'
-      : dailyVolume >= 1800
-        ? 'Batch orchestration into Glue or ECS transforms for heavier joins and stateful windows'
-        : 'Lambda Python or lightweight Glue transforms into curated domain tables'
-
-  const orchestrationLayer =
-    freshness === '15-minute'
-      ? 'EventBridge 15-minute cadence + SQS buffering + DLQ + CloudWatch alarm routing'
-      : freshness === 'hourly'
-        ? 'Hourly EventBridge schedules + Step Functions retries + replay-safe backfills'
-        : 'Daily batch orchestration with explicit reruns, manifests, and backfill controls'
-
-  const servingLayer =
-    servingModel === 'redshift-serving'
-      ? 'Curated S3 datasets loaded into Redshift Serverless marts for stronger BI concurrency and semantic serving'
-      : servingModel === 'hybrid-serving'
-        ? 'Athena for exploration and shared access, Redshift Serverless only for hot marts and concurrency pressure'
-        : consumers === 'operational'
-          ? 'Athena operational views plus extract surfaces for lightweight downstream consumers'
-          : consumers === 'bi-marts'
-            ? 'Athena views over curated domains with marts exported only where needed'
-            : 'Athena-backed shared domain data products with curated access patterns'
-
-  const governanceLayer =
-    governanceTier === 'regulated'
-      ? 'Lake Formation permissions, PII-aware domain boundaries, retention controls, audit trails, and contract testing'
-      : governanceTier === 'controlled'
-        ? 'Glue Catalog, Lake Formation permissions, schema contracts, and freshness / quality checks on curated domains'
-        : 'Glue Catalog contracts, CloudWatch freshness alarms, and lightweight data quality gates'
-
-  const recoveryLayer =
-    freshness === '15-minute'
-      ? 'Replay manifests, DLQ reprocessing, partition-level backfills, and documented incident routing'
-      : 'Replayable raw storage, idempotent transforms, and rerun-safe downstream publication'
-
-  const architectureStance =
-    servingModel === 'athena-lakehouse'
-      ? 'Lakehouse-first with low idle cost and explicit warehouse escape hatches'
-      : servingModel === 'redshift-serving'
-        ? 'Warehouse-serving architecture for heavier BI concurrency and semantic pressure'
-        : 'Lakehouse core with selective warehouse serving where concurrency or latency justify it'
-
-  const scalePath =
-    servingModel === 'athena-lakehouse'
-      ? 'Stay on S3 + Athena until concurrency, semantic modeling, or SLA pressure justify Redshift'
-      : servingModel === 'redshift-serving'
-        ? 'Keep raw and curated zones on S3 while Redshift absorbs heavier marts and downstream BI load'
-        : 'Hold the lakehouse as the source of truth and add Redshift only for the small serving surfaces that need it'
-
-  const billRange =
-    servingModel === 'redshift-serving' || servingModel === 'hybrid-serving'
-      ? freshness === '15-minute' || dailyVolume >= 1800
-        ? '$180-$420/mo'
-        : '$90-$240/mo'
-      : freshness === '15-minute' || dailyVolume >= 1800
-        ? '$60-$160/mo'
-        : freshness === 'hourly'
-          ? '$25-$85/mo'
-          : '$20-$55/mo'
-
-  const resilienceScore = Math.min(
-    96,
-    73 +
-      (freshness === '15-minute' ? 8 : freshness === 'hourly' ? 6 : 4) +
-      (servingModel === 'hybrid-serving' ? 6 : servingModel === 'redshift-serving' ? 4 : 3) +
-      (governanceTier === 'regulated' ? 10 : governanceTier === 'controlled' ? 7 : 4),
-  )
-
-  const phasePlan = [
-    'Land ingestion into replayable raw storage with manifests, contracts, and explicit ownership by source.',
-    'Promote validated and curated domain datasets, then expose the first serving layer without collapsing raw and curated concerns.',
-    'Harden governance, recovery, and observability so the platform survives scale and incident pressure without heroics.',
-  ]
-
-  const guardrails =
-    governanceTier === 'regulated'
-      ? [
-          'Domain-level access boundaries with audited permissions',
-          'Schema-contract and freshness checks before publication',
-          'Partition-level replay plus retention controls for regulated data',
-        ]
-      : governanceTier === 'controlled'
-        ? [
-            'Curated domain ownership and Lake Formation permissions',
-            'Data quality checks before serving publication',
-            'CloudWatch and SNS routing for freshness and failure breaches',
-          ]
-        : [
-            'Replay manifests and idempotent publication paths',
-            'CloudWatch failure and freshness alarms',
-            'SQS dead-letter handling for asynchronous failure cases',
-          ]
-
-  const architectureDecisions = [
-    architectureStance,
-    scalePath,
-    recoveryLayer,
-  ]
-
-  const accessChecklist = [
-    'S3 access for raw, validated, and curated prefixes or dedicated buckets',
-    'Glue Catalog and optional Lake Formation permissions',
-    'Lambda, Glue, or ECS deployment rights for transforms',
-    'EventBridge, Step Functions, SQS, and CloudWatch access for the control plane',
-    servingModel === 'athena-lakehouse' ? 'Athena workgroup and results bucket access' : 'Athena plus optional Redshift Serverless namespace access',
-  ]
-
-  const manifest = {
-    profile: 'aws-data-architect',
-    source_pattern: sourcePattern,
-    target_freshness: freshness,
-    daily_volume_gb: dailyVolume,
-    consumers,
-    serving_model: servingModel,
-    governance_tier: governanceTier,
-    ingestion: ingestionLayer,
-    lakehouse: lakehouseLayer,
-    processing: processingLayer,
-    orchestration: orchestrationLayer,
-    serving: servingLayer,
-    recovery: recoveryLayer,
+function formatTimestamp(value) {
+  if (!value) {
+    return '—'
   }
 
-  return {
-    architectureStance,
-    billRange,
-    resilienceScore,
-    scalePath,
-    ingestionLayer,
-    lakehouseLayer,
-    processingLayer,
-    orchestrationLayer,
-    servingLayer,
-    governanceLayer,
-    recoveryLayer,
-    phasePlan,
-    guardrails,
-    architectureDecisions,
-    accessChecklist,
-    manifest,
+  try {
+    return new Date(Number(value) * 1000).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  } catch {
+    return '—'
   }
 }
 
-function buildRescuePlan({ hotspot, incidentsPerWeek, replayWindow, recoveryTarget }) {
-  const stabilizationTrack =
-    hotspot === 'ingestion'
-      ? 'Add source lag checks, idempotent raw loads, and manifest-backed replay before touching downstream marts.'
-      : hotspot === 'transform'
-        ? 'Split brittle transforms into replayable stages with domain contracts and quality gates.'
-        : 'Move serving publication behind staging tables, merge windows, and freshness drift detection.'
+function LaunchModal({
+  isOpen,
+  onClose,
+  onLaunch,
+  launching,
+  ttlMinutes,
+  guardrails,
+}) {
+  useEffect(() => {
+    if (!isOpen) {
+      return undefined
+    }
 
-  const first48Hours = [
-    'Pin the failing stage and freeze downstream workaround churn.',
-    stabilizationTrack,
-    `Define a replay path that can recover ${replayWindow} hours of missed data without manual warehouse surgery.`,
-  ]
+    const previousOverflow = document.body.style.overflow
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose?.()
+      }
+    }
 
-  const firstTwoWeeks = [
-    hotspot === 'ingestion' ? 'Add source freshness, schema, and lag dashboards.' : 'Add row-count, null, duplication, and publication checks to the critical path.',
-    recoveryTarget === '15-minutes'
-      ? 'Instrument fast-path alerts with owner routing, runbook links, and failure bucketing.'
-      : 'Build operator dashboards that make retries, backfills, and blast radius explicit.',
-    'Document ownership by layer so the next incident does not become a cross-team guessing exercise.',
-  ]
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
 
-  const monthOne = [
-    'Remove manual restore steps and make replay / republish automation explicit.',
-    'Add business-facing freshness SLIs alongside job-status metrics.',
-    'Decide whether the platform needs cleanup, staged re-architecture, or selective re-platforming.',
-  ]
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
 
-  const riskLevel =
-    incidentsPerWeek >= 10 ? 'Critical' : incidentsPerWeek >= 6 ? 'High' : incidentsPerWeek >= 3 ? 'Elevated' : 'Contained'
-
-  return {
-    riskLevel,
-    first48Hours,
-    firstTwoWeeks,
-    monthOne,
+  if (!isOpen) {
+    return null
   }
-}
-
-function AwsDataPipelineStudio() {
-  const [activeMode, setActiveMode] = useState('aws-data-architect')
-  const [sourcePattern, setSourcePattern] = useState('cdc-db')
-  const [freshness, setFreshness] = useState('hourly')
-  const [dailyVolume, setDailyVolume] = useState(700)
-  const [consumers, setConsumers] = useState('shared-product')
-  const [servingModel, setServingModel] = useState('hybrid-serving')
-  const [governanceTier, setGovernanceTier] = useState('controlled')
-
-  const [hotspot, setHotspot] = useState('transform')
-  const [incidentsPerWeek, setIncidentsPerWeek] = useState(5)
-  const [replayWindow, setReplayWindow] = useState(24)
-  const [recoveryTarget, setRecoveryTarget] = useState('1-hour')
-
-  const awsBlueprint = useMemo(
-    () => buildArchitectureBlueprint({ sourcePattern, freshness, dailyVolume, consumers, servingModel, governanceTier }),
-    [sourcePattern, freshness, dailyVolume, consumers, servingModel, governanceTier],
-  )
-  const rescuePlan = useMemo(
-    () => buildRescuePlan({ hotspot, incidentsPerWeek, replayWindow, recoveryTarget }),
-    [hotspot, incidentsPerWeek, replayWindow, recoveryTarget],
-  )
-
-  const architectureLayers = [
-    ['Ingestion', awsBlueprint.ingestionLayer],
-    ['Lakehouse', awsBlueprint.lakehouseLayer],
-    ['Processing', awsBlueprint.processingLayer],
-    ['Control plane', awsBlueprint.orchestrationLayer],
-    ['Serving', awsBlueprint.servingLayer],
-    ['Governance', awsBlueprint.governanceLayer],
-  ]
 
   return (
-    <section id="aws-data-demos" className="scroll-mt-28">
-      <div className="terminal-window">
-        <div className="terminal-header">
-          <div className="text-sm text-gray-400">data-platforms — aws architecture</div>
-        </div>
-
-        <div className="terminal-content">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="fixed inset-0 z-[70] overflow-y-auto" onClick={onClose}>
+      <div className="absolute inset-0 bg-[#020617]/80 backdrop-blur-md" />
+      <div className="relative z-10 flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6">
+        <div
+          className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-[#030817] p-5 shadow-[0_30px_80px_rgba(2,6,23,0.65)] sm:p-7"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <span className="section-chip">Architect-level proof</span>
-              <h2 className="section-title text-3xl sm:text-4xl">AWS data architecture and pipeline rescue</h2>
+              <span className="section-chip">Actual short-lived deployment</span>
+              <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">Launch the real AWS demo stack.</h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
+                This provisions one fixed demo shape in AWS, validates it, and then tears it down automatically after {ttlMinutes} minutes.
+              </p>
             </div>
-            <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-              Use the first mode to shape ingestion, lakehouse, orchestration, governance, and serving decisions for a production-minded AWS data platform. Use the second when the immediate problem is replayability, reliability, and operational recovery.
-            </p>
+            <button type="button" onClick={onClose} className="secondary-button px-4 py-3">
+              <FaTimes />
+            </button>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            {dataDemoModes.map((mode) => {
-              const isActive = activeMode === mode.value
-
-              return (
-                <button
-                  key={mode.value}
-                  type="button"
-                  onClick={() => setActiveMode(mode.value)}
-                  className={isActive ? 'primary-button' : 'secondary-button'}
-                >
-                  {mode.label}
-                </button>
-              )
-            })}
-          </div>
-
-          {activeMode === 'aws-data-architect' ? (
-            <div className="space-y-8">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Source pattern</span>
-                  <select value={sourcePattern} onChange={(event) => setSourcePattern(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {awsSourceOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Freshness target</span>
-                  <select value={freshness} onChange={(event) => setFreshness(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {awsFreshnessOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Serving model</span>
-                  <select value={servingModel} onChange={(event) => setServingModel(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {awsServingOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Consumer shape</span>
-                  <select value={consumers} onChange={(event) => setConsumers(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {awsConsumerOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Governance tier</span>
-                  <select value={governanceTier} onChange={(event) => setGovernanceTier(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {awsGovernanceOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Daily volume</span>
-                    <span className="text-sm font-semibold text-white">{dailyVolume} GB</span>
-                  </div>
-                  <input type="range" min="100" max="3000" step="100" value={dailyVolume} onChange={(event) => setDailyVolume(Number(event.target.value))} className="mt-4 w-full accent-cyan-300" />
-                  <p className="mt-3 text-xs leading-6 text-gray-500">Use this to pressure-test where Lambda still fits and where Glue, ECS, or Redshift start becoming justified.</p>
-                </label>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Architecture stance</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{awsBlueprint.architectureStance}</p>
-                </div>
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Monthly envelope</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{awsBlueprint.billRange}</p>
-                </div>
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Resilience posture</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{awsBlueprint.resilienceScore}/100</p>
-                </div>
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Scale path</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{awsBlueprint.scalePath}</p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {architectureLayers.map(([label, value]) => (
-                  <div key={label} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">{label}</p>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">{value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)]">
-                <div className="space-y-6">
-                  <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Phased rollout</p>
-                    <ol className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
-                      {awsBlueprint.phasePlan.map((item, index) => (
-                        <li key={item} className="flex gap-4 rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">{index + 1}</span>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-
-                  <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Guardrails and access</p>
-                    <div className="mt-4 grid gap-4 md:grid-cols-2">
-                      <ul className="space-y-3 text-sm leading-7 text-gray-300">
-                        {awsBlueprint.guardrails.map((item) => (
-                          <li key={item} className="flex gap-3">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <ul className="space-y-3 text-sm leading-7 text-gray-300">
-                        {awsBlueprint.accessChecklist.map((item) => (
-                          <li key={item} className="flex gap-3">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-300" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Architecture decisions</p>
-                    <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
-                      {awsBlueprint.architectureDecisions.map((item) => (
-                        <li key={item} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="rounded-[1.6rem] border border-dark-700/70 bg-[#040916]/80 p-5 terminal-readout">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Architecture manifest</p>
-                    <pre className="mt-4 overflow-x-auto text-[13px] leading-7 text-cyan-100">{JSON.stringify(awsBlueprint.manifest, null, 2)}</pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Failure hotspot</span>
-                  <select value={hotspot} onChange={(event) => setHotspot(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {rescueHotspotOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Incidents per week</span>
-                    <span className="text-sm font-semibold text-white">{incidentsPerWeek}</span>
-                  </div>
-                  <input type="range" min="1" max="12" step="1" value={incidentsPerWeek} onChange={(event) => setIncidentsPerWeek(Number(event.target.value))} className="mt-4 w-full accent-cyan-300" />
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Replay window</span>
-                    <span className="text-sm font-semibold text-white">{replayWindow}h</span>
-                  </div>
-                  <input type="range" min="6" max="72" step="6" value={replayWindow} onChange={(event) => setReplayWindow(Number(event.target.value))} className="mt-4 w-full accent-cyan-300" />
-                </label>
-
-                <label className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-gray-300">
-                  <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-200">Recovery target</span>
-                  <select value={recoveryTarget} onChange={(event) => setRecoveryTarget(event.target.value)} className="mt-3 w-full rounded-2xl border border-dark-700/70 bg-dark-900/80 px-4 py-3 text-sm text-white outline-none transition focus:border-primary-400">
-                    {rescueSlaOptions.map((option) => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Risk level</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{rescuePlan.riskLevel}</p>
-                </div>
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Immediate goal</p>
-                  <p className="mt-3 text-lg font-semibold text-white">Replay before redesign</p>
-                </div>
-                <div className="metric-card p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Target outcome</p>
-                  <p className="mt-3 text-lg font-semibold text-white">Operator-safe recovery path</p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">What gets created</p>
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
                 {[
-                  ['First 48 hours', rescuePlan.first48Hours],
-                  ['First 2 weeks', rescuePlan.firstTwoWeeks],
-                  ['Month 1', rescuePlan.monthOne],
-                ].map(([label, steps]) => (
-                  <div key={label} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">{label}</p>
-                    <ul className="mt-4 space-y-3 text-sm leading-7 text-gray-300">
-                      {steps.map((item) => (
-                        <li key={item} className="flex gap-3">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  'S3 landing bucket',
+                  'SQS queue plus dead-letter queue',
+                  'Lambda ingest function',
+                  'EventBridge schedule',
+                  'Glue catalog table',
+                  'Athena validation query',
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+                    <span>{item}</span>
+                  </li>
                 ))}
-              </div>
-
-              <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">What the rescue should produce</p>
-                <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  {[
-                    'A replay-safe ingestion or transformation path with explicit publication control',
-                    'Operator dashboards for lag, freshness, replay status, and blast radius',
-                    'A runbook and ownership model that survive the next incident without heroics',
-                  ].map((item) => (
-                    <div key={item} className="rounded-2xl border border-dark-700/70 bg-black/20 p-4 text-sm leading-7 text-gray-300">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              </ul>
             </div>
-          )}
 
-          <div className="rounded-[1.6rem] border border-primary-800 bg-primary-900/20 p-5">
-            <p className="text-sm leading-7 text-gray-300">
-              If this direction is close, I can turn it into an AWS data architecture brief or a pipeline stabilization engagement with concrete delivery scope.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link to={createDiscussUrl('data-platforms')} className="primary-button gap-2">
-                Turn this into a data platform brief
-                <FaArrowRight className="text-xs" />
-              </Link>
+            <div className="rounded-[1.5rem] border border-primary-500/20 bg-primary-500/10 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-200">Guard rails</p>
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-primary-50">
+                {guardrails.map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-200" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-400">Use this when you want proof that the infrastructure can really appear, validate, and disappear on demand.</p>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button type="button" onClick={onClose} className="secondary-button">
+                Not now
+              </button>
+              <button
+                type="button"
+                onClick={() => void onLaunch()}
+                disabled={launching}
+                className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                <FaCloudUploadAlt className="text-sm" />
+                {launching ? 'Launching real AWS stack…' : `Launch ${ttlMinutes}-minute demo`}
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  )
+}
+
+function AwsDataPipelineStudio() {
+  const [statusState, setStatusState] = useState({
+    loading: true,
+    available: false,
+    enabled: false,
+    reason: '',
+    launchTtlMinutes: 10,
+    guardrails: [],
+    activeRun: null,
+  })
+  const [launching, setLaunching] = useState(false)
+  const [destroying, setDestroying] = useState(false)
+  const [showLaunchModal, setShowLaunchModal] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+
+  const loadStatus = useCallback(async ({ quiet = false } = {}) => {
+    if (!quiet) {
+      setStatusState((current) => ({ ...current, loading: true }))
+    }
+
+    try {
+      const response = await fetch(`${SANDBOX_API_BASE}/aws-demo/live/status`, {
+        credentials: 'include',
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'The live AWS demo status could not be loaded.')
+      }
+
+      setStatusState({
+        loading: false,
+        available: Boolean(payload.available),
+        enabled: Boolean(payload.enabled),
+        reason: payload.reason || '',
+        launchTtlMinutes: payload.launchTtlMinutes || 10,
+        guardrails: payload.guardrails || [],
+        activeRun: payload.activeRun || null,
+      })
+      return payload
+    } catch (loadError) {
+      const message = loadError instanceof Error ? loadError.message : 'The live AWS demo status could not be loaded.'
+      setStatusState((current) => ({
+        ...current,
+        loading: false,
+        available: false,
+        reason: current.reason || message,
+      }))
+      if (!quiet) {
+        setError(message)
+      }
+      return null
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadStatus()
+  }, [loadStatus])
+
+  useEffect(() => {
+    if (!statusState.activeRun || !['creating', 'ready'].includes(statusState.activeRun.status)) {
+      return undefined
+    }
+
+    const intervalId = window.setInterval(() => {
+      void loadStatus({ quiet: true })
+    }, 10000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [loadStatus, statusState.activeRun])
+
+  const activeRun = statusState.activeRun
+  const countdownLabel = useMemo(
+    () => formatCountdown(activeRun?.countdownSeconds || statusState.launchTtlMinutes * 60),
+    [activeRun?.countdownSeconds, statusState.launchTtlMinutes],
+  )
+
+  const handleLaunch = useCallback(async () => {
+    setLaunching(true)
+    setError('')
+    setNotice('')
+
+    try {
+      const response = await fetch(`${SANDBOX_API_BASE}/aws-demo/live/launch`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(payload?.error || payload?.message || 'The live AWS demo could not be launched right now.')
+      }
+
+      setShowLaunchModal(false)
+      setNotice(`Live AWS demo armed. Stack ${payload?.activeRun?.id || 'created'} will self-destruct in ${statusState.launchTtlMinutes} minutes.`)
+      setStatusState((current) => ({
+        ...current,
+        activeRun: payload.activeRun || null,
+        guardrails: payload.guardrails || current.guardrails,
+        available: true,
+      }))
+      await loadStatus({ quiet: true })
+    } catch (launchError) {
+      setError(launchError instanceof Error ? launchError.message : 'The live AWS demo could not be launched right now.')
+    } finally {
+      setLaunching(false)
+    }
+  }, [loadStatus, statusState.launchTtlMinutes])
+
+  const handleDestroy = useCallback(async () => {
+    setDestroying(true)
+    setError('')
+    setNotice('')
+
+    try {
+      const response = await fetch(`${SANDBOX_API_BASE}/aws-demo/live/destroy`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'The live AWS demo could not be destroyed right now.')
+      }
+
+      setNotice('The live AWS demo stack is being torn down now.')
+      setStatusState((current) => ({
+        ...current,
+        activeRun: payload.activeRun || null,
+      }))
+      await loadStatus({ quiet: true })
+    } catch (destroyError) {
+      setError(destroyError instanceof Error ? destroyError.message : 'The live AWS demo could not be destroyed right now.')
+    } finally {
+      setDestroying(false)
+    }
+  }, [loadStatus])
+
+  const runSummaryEntries = activeRun?.summary
+    ? [
+        ['Region', activeRun.summary.region],
+        ['Bucket', activeRun.summary.bucketName],
+        ['Lambda', activeRun.summary.lambdaName],
+        ['Schedule', activeRun.summary.eventRuleName],
+        ['Glue catalog', activeRun.summary.glueDatabase && activeRun.summary.glueTable ? `${activeRun.summary.glueDatabase}.${activeRun.summary.glueTable}` : '—'],
+        ['Validation rows', activeRun.summary.athenaRowCount ?? '—'],
+      ]
+    : []
+
+  return (
+    <>
+      <section id="aws-data-demos" className="scroll-mt-28">
+        <div className="terminal-window">
+          <div className="terminal-header">
+            <div className="text-sm text-gray-400">data-platforms — live aws demo</div>
+          </div>
+
+          <div className="terminal-content">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <span className="section-chip">Actual deployment, not architecture theater</span>
+                <h2 className="section-title text-3xl sm:text-4xl">Launch a real AWS stack with a hard self-destruct timer.</h2>
+              </div>
+              <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
+                This page now exists to prove one thing clearly: I can stand up a real short-lived AWS data demo, validate it, and kill it again under tight guard rails.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {demoProofPoints.map((item) => (
+                <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.title}</p>
+                  <p className="mt-4 text-sm leading-7 text-gray-300">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
+              <div className="metric-card p-6 sm:p-7">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Launch panel</p>
+                    <h3 className="mt-4 text-2xl font-semibold text-white">One click. One fixed stack. One countdown.</h3>
+                    <p className="mt-4 max-w-2xl text-sm leading-8 text-gray-400">
+                      The live launcher is intentionally narrow: one approved stack shape, one region, and one browser-owned teardown flow.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.4rem] border border-primary-500/20 bg-primary-500/10 px-4 py-4 text-sm text-primary-50">
+                    <div className="flex items-center gap-2 font-semibold">
+                      <FaClock className="text-xs" />
+                      {activeRun ? `Self-destruct in ${countdownLabel}` : `${statusState.launchTtlMinutes}-minute TTL`}
+                    </div>
+                    <p className="mt-2 text-xs leading-6 text-primary-100/90">
+                      {activeRun ? `Created ${formatTimestamp(activeRun.createdAt)} · expires ${formatTimestamp(activeRun.expiresAt)}` : 'The timer is enforced by the backend even if the browser closes.'}
+                    </p>
+                  </div>
+                </div>
+
+                {notice ? (
+                  <div className="mt-5 rounded-[1.2rem] border border-cyan-400/30 bg-cyan-400/10 px-4 py-4 text-sm leading-7 text-cyan-100">
+                    {notice}
+                  </div>
+                ) : null}
+
+                {error ? (
+                  <div className="mt-5 rounded-[1.2rem] border border-red-400/30 bg-red-500/10 px-4 py-4 text-sm leading-7 text-red-100">
+                    {error}
+                  </div>
+                ) : null}
+
+                {!statusState.available ? (
+                  <div className="mt-6 rounded-[1.35rem] border border-amber-400/30 bg-amber-400/10 px-4 py-4 text-sm leading-7 text-amber-100">
+                    {statusState.loading
+                      ? 'Checking whether the live AWS runtime is armed…'
+                      : statusState.reason || 'The live AWS runtime is not armed yet.'}
+                  </div>
+                ) : null}
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setShowLaunchModal(true)}
+                    disabled={!statusState.available || launching || Boolean(activeRun)}
+                    className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <FaCloudUploadAlt className="text-sm" />
+                    {launching ? 'Launching real AWS stack…' : activeRun ? 'Live stack already active' : 'Launch real AWS demo'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void loadStatus()}
+                    disabled={statusState.loading}
+                    className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <FaSyncAlt className="text-xs" />
+                    Refresh status
+                  </button>
+
+                  {activeRun ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleDestroy()}
+                      disabled={destroying}
+                      className="secondary-button gap-2 border-red-400/30 text-red-100 hover:border-red-300/60"
+                    >
+                      <FaTrashAlt className="text-xs" />
+                      {destroying ? 'Destroying stack…' : 'Destroy now'}
+                    </button>
+                  ) : null}
+
+                  <Link to={createDiscussUrl('data-platforms')} className="secondary-button gap-2">
+                    Turn this into a scoped AWS engagement
+                    <FaArrowRight className="text-xs" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="terminal-window">
+                <div className="terminal-header">
+                  <div className="text-sm text-gray-400">live-demo — status</div>
+                </div>
+
+                <div className="terminal-content">
+                  <div>
+                    <span className="section-chip">Guarded launch path</span>
+                    <h3 className="section-title text-3xl sm:text-4xl">
+                      {activeRun ? 'A live stack is up right now.' : 'No live stack is running.'}
+                    </h3>
+                  </div>
+
+                  {activeRun ? (
+                    <div className="space-y-5">
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="metric-card p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Run status</p>
+                          <p className="mt-3 text-lg font-semibold text-white">{activeRun.status}</p>
+                        </div>
+                        <div className="metric-card p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">Countdown</p>
+                          <p className="mt-3 text-lg font-semibold text-white">{countdownLabel}</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Live resource summary</p>
+                        <div className="mt-4 grid gap-3 md:grid-cols-2">
+                          {runSummaryEntries.map(([label, value]) => (
+                            <div key={label} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
+                              <p className="mt-2 break-all text-sm leading-7 text-gray-200">{value || '—'}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      <p className="text-sm leading-7 text-gray-300">
+                        Open the launch modal when you want the real stack. The backend will create, validate, and later destroy the demo without needing custom inputs from the browser.
+                      </p>
+
+                      <ol className="space-y-3 text-sm leading-7 text-gray-300">
+                        {demoLaunchSteps.map((step, index) => (
+                          <li key={step} className="flex gap-4 rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-sm font-semibold text-white">
+                              {index + 1}
+                            </span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Why this is safe enough to show</p>
+                  <h3 className="mt-3 text-2xl font-semibold text-white">Big guard rails, very little room for chaos.</h3>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary-100">
+                  <FaShieldAlt className="text-[11px]" />
+                  {statusState.launchTtlMinutes}-minute forced TTL
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {statusState.guardrails.map((item) => (
+                  <div key={item} className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4 text-sm leading-7 text-gray-300">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <LaunchModal
+        isOpen={showLaunchModal}
+        onClose={() => setShowLaunchModal(false)}
+        onLaunch={handleLaunch}
+        launching={launching}
+        ttlMinutes={statusState.launchTtlMinutes}
+        guardrails={statusState.guardrails}
+      />
+    </>
   )
 }
 
