@@ -103,6 +103,7 @@ AWS_DEMO_PUBLIC_SPEC_NAME = os.getenv('AWS_DEMO_PUBLIC_SPEC_NAME', 'lowcost-data
 AWS_DEMO_PUBLIC_TTL_MINUTES = max(1, int(os.getenv('AWS_DEMO_PUBLIC_TTL_MINUTES', '10')))
 AWS_DEMO_PUBLIC_MAX_ACTIVE = max(1, int(os.getenv('AWS_DEMO_PUBLIC_MAX_ACTIVE', '1')))
 AWS_DEMO_PUBLIC_MAX_LAUNCHES_PER_HOUR = max(1, int(os.getenv('AWS_DEMO_PUBLIC_MAX_LAUNCHES_PER_HOUR', '2')))
+AWS_DEMO_ACTION_TEXT_MAX_CHARS = max(40, int(os.getenv('AWS_DEMO_ACTION_TEXT_MAX_CHARS', '240')))
 PROTECTED_ORIGIN_PATHS = {
     '/sessions',
     '/ws',
@@ -998,11 +999,37 @@ async def aws_demo_live_action(request: web.Request) -> web.Response:
         )
 
     action = request.match_info['action']
+    payload = {}
+    if request.can_read_body:
+        try:
+            payload = await request.json()
+        except json.JSONDecodeError as exc:
+            raise web.HTTPBadRequest(text=f'Invalid JSON body: {exc.msg}') from exc
+        if payload is None:
+            payload = {}
+        if not isinstance(payload, dict):
+            raise web.HTTPBadRequest(text='Request body must be a JSON object.')
+
+    payload_text = str(payload.get('payloadText') or '').strip()
+    if len(payload_text) > AWS_DEMO_ACTION_TEXT_MAX_CHARS:
+        raise web.HTTPBadRequest(
+            text=f'payloadText must be {AWS_DEMO_ACTION_TEXT_MAX_CHARS} characters or fewer.'
+        )
     try:
         if action == 'lambda-invoke':
-            result = await asyncio.to_thread(manager.invoke_demo_lambda, current_run['id'], source='manual-ui')
+            result = await asyncio.to_thread(
+                manager.invoke_demo_lambda,
+                current_run['id'],
+                source='manual-ui',
+                payload_text=payload_text,
+            )
         elif action == 'bucket-seed':
-            result = await asyncio.to_thread(manager.seed_demo_bucket, current_run['id'], source='manual-upload')
+            result = await asyncio.to_thread(
+                manager.seed_demo_bucket,
+                current_run['id'],
+                source='manual-upload',
+                payload_text=payload_text,
+            )
         else:
             raise web.HTTPNotFound(text=f'Unknown AWS demo action: {action}')
 

@@ -18,7 +18,7 @@ import { SANDBOX_API_BASE } from '../constants/sandbox'
 const demoLaunchSteps = [
   'Open the launch modal and arm one fixed AWS demo stack.',
   'Provision S3, SQS, Lambda, EventBridge, Glue, and Athena in eu-west-3.',
-  'Use the live resource actions, then let the stack self-destruct or destroy it early.',
+  'Use the live resource actions, inspect Athena in a modal, then let the stack self-destruct or destroy it early.',
 ]
 
 const demoProofPoints = [
@@ -71,15 +71,8 @@ function formatBytes(value) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function LaunchModal({
-  isOpen,
-  onClose,
-  onLaunch,
-  launching,
-  ttlMinutes,
-  guardrails,
-}) {
-  useEffect(() => {
+function overlayLifecycle(isOpen, onClose) {
+  return () => {
     if (!isOpen) {
       return undefined
     }
@@ -98,7 +91,18 @@ function LaunchModal({
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [isOpen, onClose])
+  }
+}
+
+function LaunchModal({
+  isOpen,
+  onClose,
+  onLaunch,
+  launching,
+  ttlMinutes,
+  guardrails,
+}) {
+  useEffect(overlayLifecycle(isOpen, onClose), [isOpen, onClose])
 
   if (!isOpen) {
     return null
@@ -181,6 +185,87 @@ function LaunchModal({
   )
 }
 
+function AthenaModal({
+  isOpen,
+  onClose,
+  athena,
+}) {
+  useEffect(overlayLifecycle(isOpen, onClose), [isOpen, onClose])
+
+  if (!isOpen) {
+    return null
+  }
+
+  return (
+    <div className="fixed inset-0 z-[70] overflow-y-auto" onClick={onClose}>
+      <div className="absolute inset-0 bg-[#020617]/80 backdrop-blur-md" />
+      <div className="relative z-10 flex min-h-full items-start justify-center p-3 sm:items-center sm:p-6">
+        <div
+          className="w-full max-w-6xl rounded-[2rem] border border-white/10 bg-[#030817] p-5 shadow-[0_30px_80px_rgba(2,6,23,0.65)] sm:p-7"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <span className="section-chip">Athena inspection modal</span>
+              <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+                {athena?.database && athena?.table ? `${athena.database}.${athena.table}` : 'Athena preview'}
+              </h3>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-300">
+                This preview is pulled from the current short-lived stack. Refresh the resources after writing new data and reopen this modal to inspect the live table state.
+              </p>
+            </div>
+            <button type="button" onClick={onClose} className="secondary-button px-4 py-3">
+              <FaTimes />
+            </button>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Database</p>
+              <p className="mt-2 break-all text-sm text-gray-200">{athena?.database || '—'}</p>
+            </div>
+            <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Table</p>
+              <p className="mt-2 break-all text-sm text-gray-200">{athena?.table || '—'}</p>
+            </div>
+            <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.03] p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Preview query id</p>
+              <p className="mt-2 break-all text-sm text-gray-200">{athena?.queryExecutionId || '—'}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-x-auto rounded-[1.5rem] border border-white/10 bg-black/20">
+            {athena?.previewColumns?.length ? (
+              <table className="min-w-full text-left text-sm text-gray-200">
+                <thead className="border-b border-dark-700/70 text-xs uppercase tracking-[0.18em] text-gray-500">
+                  <tr>
+                    {athena.previewColumns.map((column) => (
+                      <th key={column} className="px-4 py-3">{column}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {athena.previewRows.map((row, index) => (
+                    <tr key={`${row.join('-')}-${index}`} className="border-b border-dark-700/40 last:border-b-0">
+                      {row.map((value, cellIndex) => (
+                        <td key={`${index}-${cellIndex}`} className="px-4 py-3 align-top text-xs leading-6 text-gray-300">
+                          {value || '—'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="px-4 py-6 text-sm text-gray-300">No Athena preview rows are available yet.</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AwsDataPipelineStudio() {
   const [statusState, setStatusState] = useState({
     loading: true,
@@ -200,9 +285,12 @@ function AwsDataPipelineStudio() {
     loading: false,
     action: '',
   })
+  const [lambdaPayload, setLambdaPayload] = useState('demo note from the UI')
+  const [bucketPayload, setBucketPayload] = useState('manual row inserted from the UI')
   const [launching, setLaunching] = useState(false)
   const [destroying, setDestroying] = useState(false)
   const [showLaunchModal, setShowLaunchModal] = useState(false)
+  const [showAthenaModal, setShowAthenaModal] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
 
@@ -292,6 +380,7 @@ function AwsDataPipelineStudio() {
         loaded: false,
         resources: null,
       })
+      setShowAthenaModal(false)
       return undefined
     }
 
@@ -342,11 +431,6 @@ function AwsDataPipelineStudio() {
         guardrails: payload.guardrails || current.guardrails,
         available: true,
       }))
-      setResourceState({
-        loading: false,
-        loaded: false,
-        resources: payload.resources || null,
-      })
       await loadStatus({ quiet: true })
       await loadResources({ quiet: true })
     } catch (launchError) {
@@ -390,7 +474,7 @@ function AwsDataPipelineStudio() {
     }
   }, [loadStatus])
 
-  const handleResourceAction = useCallback(async (action) => {
+  const handleResourceAction = useCallback(async (action, payloadText = '') => {
     setActionState({ loading: true, action })
     setError('')
     setNotice('')
@@ -404,6 +488,12 @@ function AwsDataPipelineStudio() {
           : await fetch(`${SANDBOX_API_BASE}/aws-demo/live/actions/${action}`, {
               method: 'POST',
               credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                payloadText: payloadText.trim(),
+              }),
             })
 
       const payload = await response.json().catch(() => ({}))
@@ -424,7 +514,7 @@ function AwsDataPipelineStudio() {
         const key = payload?.result?.payload?.key
         setNotice(key ? `Lambda invoked successfully and wrote ${key}.` : 'Lambda invoked successfully.')
       } else if (action === 'bucket-seed') {
-        setNotice(payload?.result?.key ? `Sample object inserted into S3: ${payload.result.key}` : 'Sample object inserted into S3.')
+        setNotice(payload?.result?.key ? `Manual S3 row inserted: ${payload.result.key}` : 'Manual S3 row inserted.')
       } else {
         setNotice('Live AWS resource state refreshed.')
       }
@@ -463,7 +553,7 @@ function AwsDataPipelineStudio() {
                 <h2 className="section-title text-3xl sm:text-4xl">Launch a real AWS stack with a hard self-destruct timer.</h2>
               </div>
               <p className="max-w-2xl text-sm leading-8 text-gray-400 sm:text-base">
-                This page now exists to prove one thing clearly: I can stand up a real short-lived AWS data demo, validate it, and kill it again under tight guard rails.
+                This page now exists to prove one thing clearly: I can stand up a real short-lived AWS data demo, validate it, manipulate the data path, and kill it again under tight guard rails.
               </p>
             </div>
 
@@ -625,7 +715,7 @@ function AwsDataPipelineStudio() {
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Live resource actions</p>
                     <h3 className="mt-3 text-2xl font-semibold text-white">Use the resources you just provisioned.</h3>
                     <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-300">
-                      Every card below maps to a real AWS resource in the current short-lived stack. Invoke Lambda, insert data into S3, inspect queue depth, verify the EventBridge rule, and preview the Glue/Athena table from this browser session.
+                      Send your own text through Lambda, drop a manual row into S3, inspect the queue and schedule, then open Athena in a modal to verify the data arrived.
                     </p>
                   </div>
 
@@ -649,12 +739,12 @@ function AwsDataPipelineStudio() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => void handleResourceAction('lambda-invoke')}
+                        onClick={() => void handleResourceAction('lambda-invoke', lambdaPayload)}
                         disabled={actionState.loading}
                         className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaPlay className="text-xs" />
-                        {actionState.loading && actionState.action === 'lambda-invoke' ? 'Invoking Lambda…' : 'Invoke Lambda'}
+                        {actionState.loading && actionState.action === 'lambda-invoke' ? 'Running Lambda…' : 'Send text via Lambda'}
                       </button>
                     </div>
                     <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -671,8 +761,18 @@ function AwsDataPipelineStudio() {
                         <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.memorySize ? `${resources.lambda.memorySize} MB` : '—'}</p>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
-                      Action: run the ingest function on demand. It writes a new CSV object and pushes a message into the queue.
+                    <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                      Text to write through Lambda
+                    </label>
+                    <textarea
+                      value={lambdaPayload}
+                      onChange={(event) => setLambdaPayload(event.target.value)}
+                      className="mt-3 min-h-[112px] w-full rounded-[1.3rem] border border-dark-700/70 bg-black/30 px-4 py-4 text-sm text-white outline-none transition focus:border-primary-400"
+                      placeholder="Write a short message that should land in the demo data through Lambda."
+                      maxLength={240}
+                    />
+                    <p className="mt-3 text-sm leading-7 text-gray-300">
+                      Action: invoke the real Lambda function with your own text. The new row should show up in the Athena preview after refresh.
                     </p>
                   </div>
 
@@ -684,19 +784,29 @@ function AwsDataPipelineStudio() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => void handleResourceAction('bucket-seed')}
+                        onClick={() => void handleResourceAction('bucket-seed', bucketPayload)}
                         disabled={actionState.loading}
                         className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaCloudUploadAlt className="text-xs" />
-                        {actionState.loading && actionState.action === 'bucket-seed' ? 'Writing object…' : 'Insert sample object'}
+                        {actionState.loading && actionState.action === 'bucket-seed' ? 'Writing row…' : 'Insert row into S3'}
                       </button>
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
-                      Action: drop a sample CSV into the curated prefix so the Athena table can see fresh rows immediately.
+                    <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
+                      Manual row text
+                    </label>
+                    <textarea
+                      value={bucketPayload}
+                      onChange={(event) => setBucketPayload(event.target.value)}
+                      className="mt-3 min-h-[112px] w-full rounded-[1.3rem] border border-dark-700/70 bg-black/30 px-4 py-4 text-sm text-white outline-none transition focus:border-primary-400"
+                      placeholder="Write a short message that should be inserted directly into the S3 CSV object."
+                      maxLength={240}
+                    />
+                    <p className="mt-3 text-sm leading-7 text-gray-300">
+                      Action: write a manual CSV row into the curated bucket path without going through Lambda.
                     </p>
                     <div className="mt-4 space-y-3">
-                      {(resources?.bucket?.objects || []).slice(0, 5).map((item) => (
+                      {(resources?.bucket?.objects || []).slice(0, 4).map((item) => (
                         <div key={item.key} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
                           <p className="break-all text-sm text-gray-200">{item.key}</p>
                           <p className="mt-2 text-xs text-gray-500">{formatBytes(item.size)} · {formatTimestamp(item.lastModified)}</p>
@@ -737,7 +847,7 @@ function AwsDataPipelineStudio() {
                       </div>
                     </div>
                     <p className="mt-4 text-sm leading-7 text-gray-300">
-                      Action: refresh queue depth after Lambda or S3 actions to see how the runtime moved messages.
+                      Action: refresh queue depth after Lambda writes to see the runtime move messages.
                     </p>
                   </div>
 
@@ -808,18 +918,29 @@ function AwsDataPipelineStudio() {
                           {resources?.athena?.database && resources?.athena?.table ? `${resources.athena.database}.${resources.athena.table}` : 'Athena preview'}
                         </h4>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => void handleResourceAction('refresh-resources')}
-                        disabled={actionState.loading || resourceState.loading}
-                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        <FaTable className="text-xs" />
-                        {resourceState.loading || actionState.action === 'refresh-resources' ? 'Refreshing preview…' : 'Refresh Athena preview'}
-                      </button>
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        <button
+                          type="button"
+                          onClick={() => void handleResourceAction('refresh-resources')}
+                          disabled={actionState.loading || resourceState.loading}
+                          className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          <FaSyncAlt className="text-xs" />
+                          {resourceState.loading || actionState.action === 'refresh-resources' ? 'Refreshing preview…' : 'Refresh Athena preview'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAthenaModal(true)}
+                          disabled={!resources?.athena}
+                          className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          <FaTable className="text-xs" />
+                          Open Athena modal
+                        </button>
+                      </div>
                     </div>
                     <p className="mt-4 text-sm leading-7 text-gray-300">
-                      Action: rerun the Athena preview after Lambda or S3 writes and confirm the live table contents from the current stack.
+                      Action: rerun the Athena preview after Lambda or S3 writes and inspect the full result set in the modal.
                     </p>
                     {resources?.athena?.previewColumns?.length ? (
                       <div className="mt-4 overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/20">
@@ -832,7 +953,7 @@ function AwsDataPipelineStudio() {
                             </tr>
                           </thead>
                           <tbody>
-                            {resources.athena.previewRows.map((row, index) => (
+                            {resources.athena.previewRows.slice(0, 3).map((row, index) => (
                               <tr key={`${row.join('-')}-${index}`} className="border-b border-dark-700/40 last:border-b-0">
                                 {row.map((value, cellIndex) => (
                                   <td key={`${index}-${cellIndex}`} className="px-4 py-3 align-top text-xs leading-6 text-gray-300">
@@ -885,6 +1006,12 @@ function AwsDataPipelineStudio() {
         launching={launching}
         ttlMinutes={statusState.launchTtlMinutes}
         guardrails={statusState.guardrails}
+      />
+
+      <AthenaModal
+        isOpen={showAthenaModal}
+        onClose={() => setShowAthenaModal(false)}
+        athena={resources?.athena || null}
       />
     </>
   )

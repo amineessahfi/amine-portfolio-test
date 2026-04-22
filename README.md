@@ -60,7 +60,7 @@ The sandbox backend also includes a guarded AWS demo control plane for spinning 
 - run state is stored in SQLite on the host
 - the first enabled template provisions S3, SQS, Lambda, EventBridge, Glue, and Athena validation
 - the public portfolio launcher is a fixed 10-minute stack with forced teardown and no arbitrary browser-side inputs
-- the live page can invoke Lambda, insert sample objects into S3, inspect queue/rule state, and preview the Athena table for the current short-lived run
+- the live page can send custom text through Lambda, insert manual rows into S3, inspect queue/rule state, and open Athena results in a modal for the current short-lived run
 - docs: [`docs/aws-demo-control-plane.md`](docs/aws-demo-control-plane.md)
 
 ## License

@@ -326,7 +326,7 @@ class AwsDemoManager:
         except BotoCoreError as exc:
             raise AwsDemoControlError(f'AWS SDK error: {exc}') from exc
 
-    def invoke_demo_lambda(self, demo_id: str, *, source: str = 'manual-ui') -> dict[str, Any]:
+    def invoke_demo_lambda(self, demo_id: str, *, source: str = 'manual-ui', payload_text: str = '') -> dict[str, Any]:
         try:
             run = self.get_run(demo_id)
             if not run:
@@ -341,7 +341,7 @@ class AwsDemoManager:
             response = lambda_client.invoke(
                 FunctionName=lambda_name,
                 InvocationType='RequestResponse',
-                Payload=json.dumps({'source': source}).encode('utf-8'),
+                Payload=json.dumps({'source': source, 'payloadText': payload_text}).encode('utf-8'),
             )
             payload_text = response['Payload'].read().decode('utf-8', 'ignore')
             payload_json: Any
@@ -364,7 +364,7 @@ class AwsDemoManager:
         except BotoCoreError as exc:
             raise AwsDemoControlError(f'AWS SDK error: {exc}') from exc
 
-    def seed_demo_bucket(self, demo_id: str, *, source: str = 'manual-seed') -> dict[str, Any]:
+    def seed_demo_bucket(self, demo_id: str, *, source: str = 'manual-seed', payload_text: str = '') -> dict[str, Any]:
         try:
             run = self.get_run(demo_id)
             if not run:
@@ -379,9 +379,10 @@ class AwsDemoManager:
             event_id = os.urandom(8).hex()
             timestamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
             key = f'curated/events/manual-seed-{int(time.time())}-{event_id}.csv'
+            payload_escaped = payload_text.replace('"', '""')
             body = (
-                'event_id,event_type,source,ingested_at\n'
-                f'{event_id},demo.manual_insert,{source},{timestamp}\n'
+                'event_id,event_type,source,ingested_at,payload_text\n'
+                f'"{event_id}","demo.manual_insert","{source}","{timestamp}","{payload_escaped}"\n'
             )
             s3.put_object(
                 Bucket=bucket_name,
@@ -394,6 +395,7 @@ class AwsDemoManager:
                 'key': key,
                 'eventId': event_id,
                 'source': source,
+                'payloadText': payload_text,
             }
         except AwsDemoControlError:
             raise
@@ -571,7 +573,10 @@ class AwsDemoManager:
         session = self._aws_session(region)
         athena = session.client('athena')
         query = athena.start_query_execution(
-            QueryString=f'SELECT * FROM "{database_name}"."{table_name}" LIMIT {max(1, min(limit, 20))}',
+            QueryString=(
+                f'SELECT * FROM "{database_name}"."{table_name}" '
+                f'ORDER BY ingested_at DESC LIMIT {max(1, min(limit, 20))}'
+            ),
             ResultConfiguration={'OutputLocation': output_location},
         )['QueryExecutionId']
 
@@ -852,6 +857,7 @@ class AwsDemoManager:
                             {'Name': 'event_type', 'Type': 'string'},
                             {'Name': 'source', 'Type': 'string'},
                             {'Name': 'ingested_at', 'Type': 'string'},
+                            {'Name': 'payload_text', 'Type': 'string'},
                         ],
                         'Location': f's3://{bucket_name}/curated/events/',
                         'InputFormat': 'org.apache.hadoop.mapred.TextInputFormat',
@@ -1018,17 +1024,20 @@ def handler(event, _context):
     queue_url = os.environ.get('QUEUE_URL')
     now_value = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     source = 'bootstrap'
+    payload_text = ''
     if isinstance(event, dict):
         source = str(event.get('source') or source)
+        payload_text = str(event.get('payloadText') or '')
 
     row = {
         'event_id': str(uuid.uuid4()),
         'event_type': 'demo.ingested',
         'source': source,
         'ingested_at': now_value,
+        'payload_text': payload_text,
     }
     buffer = io.StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=['event_id', 'event_type', 'source', 'ingested_at'])
+    writer = csv.DictWriter(buffer, fieldnames=['event_id', 'event_type', 'source', 'ingested_at', 'payload_text'])
     writer.writeheader()
     writer.writerow(row)
 
@@ -1043,10 +1052,10 @@ def handler(event, _context):
     if queue_url:
         boto3.client('sqs').send_message(
             QueueUrl=queue_url,
-            MessageBody=json.dumps({'event_id': row['event_id'], 's3_key': key, 'source': source}),
+            MessageBody=json.dumps({'event_id': row['event_id'], 's3_key': key, 'source': source, 'payload_text': payload_text}),
         )
 
-    return {'status': 'ok', 'bucket': bucket_name, 'key': key}
+    return {'status': 'ok', 'bucket': bucket_name, 'key': key, 'payload_text': payload_text}
 """
         payload = io.BytesIO()
         with zipfile.ZipFile(payload, mode='w', compression=zipfile.ZIP_DEFLATED) as archive:

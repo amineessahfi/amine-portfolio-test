@@ -19,10 +19,10 @@ The sandbox backend now includes both:
 - destroys expired runs automatically on TTL
 - supports a public portfolio launcher with a fixed 10-minute self-destruct window
 - exposes public browser-owned resource actions for the current live run:
-  - invoke Lambda
-  - insert a sample CSV into S3
+  - invoke Lambda with a short text payload
+  - insert a sample CSV row into S3 with a short text payload
   - inspect SQS depth and EventBridge rule state
-  - preview Glue/Athena table contents
+  - preview Glue/Athena table contents, with the portfolio UI surfacing Athena in a modal
 
 Only the `lowcost-data-platform` template is enabled right now.
 
