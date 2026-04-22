@@ -1,0 +1,23 @@
+name: lowcost-data-platform
+description: Short-lived AWS data-platform demo with S3, SQS, Lambda, EventBridge, Glue, and Athena validation.
+template: lowcost-data-platform
+region: eu-west-3
+defaultTtlMinutes: 60
+limits:
+  minTtlMinutes: 15
+  maxTtlMinutes: 180
+tags:
+  DemoSurface: portfolio
+  DemoType: lowcost-data-platform
+resources:
+  bucket:
+    enabled: true
+  queue:
+    enabled: true
+  lambda:
+    enabled: true
+    scheduleExpression: rate(1 day)
+  glue:
+    enabled: true
+  athena:
+    enabled: true

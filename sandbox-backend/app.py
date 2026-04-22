@@ -14,9 +14,12 @@ import termios
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
+from pathlib import Path
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from aiohttp import BasicAuth, ClientSession, WSMsgType, web
+
+from aws_demo_control import AwsDemoControlError, AwsDemoManager, DemoControlSettings
 
 
 def env_flag(name: str, default: bool = False) -> bool:
@@ -96,6 +99,7 @@ ALLOWED_ORIGIN_PATTERNS = [
 DEFAULT_FRONTEND_ORIGIN = os.getenv('DEFAULT_FRONTEND_ORIGIN', 'https://amine-portfolio-test.vercel.app').rstrip('/')
 PROTECTED_ORIGIN_PATHS = {'/sessions', '/ws', '/auth/status', '/auth/logout'}
 ACTIVE_SESSION_STATUSES = {'created', 'starting', 'active'}
+AWS_DEMO_ADMIN_HEADER = 'X-Demo-Admin-Token'
 
 
 @dataclass
@@ -663,21 +667,127 @@ async def cors_middleware(request: web.Request, handler):
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         response.headers['Vary'] = 'Origin'
-        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST,DELETE,OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = f'Content-Type, {AWS_DEMO_ADMIN_HEADER}'
     return response
 
 
 async def health(request: web.Request) -> web.Response:
     app = request.app
+    aws_demo_manager = app['aws_demo_manager']
     return web.json_response(
         {
             'status': 'ok',
             'sessions': len(app['sessions']),
             'image': SANDBOX_IMAGE,
             'googleOAuthConfigured': google_oauth_enabled(),
+            'awsDemoControlEnabled': aws_demo_manager.settings.enabled,
         }
     )
+
+
+def require_aws_demo_admin(request: web.Request) -> AwsDemoManager:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    if not manager.settings.enabled:
+        raise web.HTTPServiceUnavailable(text='AWS demo control plane is disabled on this host.')
+
+    admin_token = request.headers.get(AWS_DEMO_ADMIN_HEADER, '').strip()
+    if not manager.authorize(admin_token):
+        raise web.HTTPForbidden(text='Missing or invalid AWS demo admin token.')
+
+    return manager
+
+
+async def aws_demo_specs(request: web.Request) -> web.Response:
+    manager = require_aws_demo_admin(request)
+    return web.json_response({'specs': manager.list_specs()})
+
+
+async def aws_demo_list_runs(request: web.Request) -> web.Response:
+    manager = require_aws_demo_admin(request)
+    return web.json_response({'runs': manager.list_runs()})
+
+
+async def aws_demo_get_run(request: web.Request) -> web.Response:
+    manager = require_aws_demo_admin(request)
+    demo_id = request.match_info['demo_id']
+    run = manager.get_run(demo_id)
+    if not run:
+        raise web.HTTPNotFound(text=f'Unknown demo run: {demo_id}')
+    return web.json_response(run)
+
+
+async def aws_demo_create_run(request: web.Request) -> web.Response:
+    manager = require_aws_demo_admin(request)
+    try:
+        payload = await request.json()
+    except json.JSONDecodeError as exc:
+        raise web.HTTPBadRequest(text=f'Invalid JSON body: {exc.msg}') from exc
+
+    if not isinstance(payload, dict):
+        raise web.HTTPBadRequest(text='Request body must be a JSON object.')
+
+    spec_name = str(payload.get('specName') or '').strip()
+    if not spec_name:
+        raise web.HTTPBadRequest(text='specName is required.')
+
+    ttl_minutes = payload.get('ttlMinutes')
+    if ttl_minutes is not None:
+        try:
+            ttl_minutes = int(ttl_minutes)
+        except (TypeError, ValueError) as exc:
+            raise web.HTTPBadRequest(text='ttlMinutes must be an integer.') from exc
+
+    try:
+        run = await asyncio.to_thread(manager.create_demo, spec_name, ttl_minutes)
+    except AwsDemoControlError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+
+    audit_log('aws_demo_created', demo_id=run['id'], spec_name=run['specName'], region=run['region'])
+    return web.json_response(run, status=201)
+
+
+async def aws_demo_destroy_run(request: web.Request) -> web.Response:
+    manager = require_aws_demo_admin(request)
+    demo_id = request.match_info['demo_id']
+    try:
+        run = await asyncio.to_thread(manager.destroy_demo, demo_id, reason='manual')
+    except AwsDemoControlError as exc:
+        message = str(exc)
+        if message.startswith('Unknown demo run:'):
+            raise web.HTTPNotFound(text=message) from exc
+        raise web.HTTPBadRequest(text=message) from exc
+
+    audit_log('aws_demo_destroyed', demo_id=run['id'], reason=run.get('destroyReason'))
+    return web.json_response(run)
+
+
+async def aws_demo_cleanup_loop(app: web.Application) -> None:
+    manager: AwsDemoManager = app['aws_demo_manager']
+    while True:
+        try:
+            if manager.settings.enabled:
+                expired_ids = await asyncio.to_thread(manager.cleanup_expired)
+                if expired_ids:
+                    audit_log('aws_demo_expired_cleanup', demo_ids=expired_ids)
+            await asyncio.sleep(manager.settings.cleanup_interval_seconds)
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            audit_log('aws_demo_cleanup_failed', error=str(exc))
+            await asyncio.sleep(manager.settings.cleanup_interval_seconds)
+
+
+async def aws_demo_cleanup_context(app: web.Application):
+    manager = AwsDemoManager(DemoControlSettings.from_env(base_dir=Path(__file__).resolve().parent))
+    app['aws_demo_manager'] = manager
+    cleanup_task = asyncio.create_task(aws_demo_cleanup_loop(app))
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await cleanup_task
 
 
 async def auth_status(request: web.Request) -> web.Response:
@@ -1097,12 +1207,18 @@ def create_app() -> web.Application:
     app = web.Application(middlewares=[cors_middleware])
     app['sessions'] = {}
     app['rate_limit'] = defaultdict(deque)
+    app.cleanup_ctx.append(aws_demo_cleanup_context)
     app.add_routes(
         [
             web.get('/health', health),
             web.post('/sessions', create_session),
             web.options('/sessions', create_session),
             web.get('/ws', websocket_handler),
+            web.get('/aws-demo/specs', aws_demo_specs),
+            web.get('/aws-demo/runs', aws_demo_list_runs),
+            web.post('/aws-demo/runs', aws_demo_create_run),
+            web.get('/aws-demo/runs/{demo_id}', aws_demo_get_run),
+            web.delete('/aws-demo/runs/{demo_id}', aws_demo_destroy_run),
             web.get('/auth/status', auth_status),
             web.get('/auth/studio-access', workflow_studio_access),
             web.get('/auth/google/start', google_oauth_start),
