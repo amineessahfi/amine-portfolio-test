@@ -109,8 +109,11 @@ PROTECTED_ORIGIN_PATHS = {
     '/auth/status',
     '/auth/logout',
     '/aws-demo/live/status',
+    '/aws-demo/live/resources',
     '/aws-demo/live/launch',
     '/aws-demo/live/destroy',
+    '/aws-demo/live/actions/lambda-invoke',
+    '/aws-demo/live/actions/bucket-seed',
 }
 ACTIVE_SESSION_STATUSES = {'created', 'starting', 'active'}
 AWS_DEMO_ADMIN_HEADER = 'X-Demo-Admin-Token'
@@ -726,7 +729,7 @@ async def cleanup_session(app: web.Application, session: Session, reason: str) -
 @web.middleware
 async def cors_middleware(request: web.Request, handler):
     origin = request.headers.get('Origin')
-    require_origin = request.path in PROTECTED_ORIGIN_PATHS
+    require_origin = request.path in PROTECTED_ORIGIN_PATHS or request.path.startswith('/aws-demo/live/')
 
     if not origin_allowed(origin, require_origin=require_origin):
         return web.json_response({'error': 'Origin not allowed.'}, status=403)
@@ -832,6 +835,22 @@ def current_public_aws_demo_run(
     return run, False
 
 
+def public_aws_demo_response(
+    payload: dict,
+    *,
+    visitor_state: dict,
+    refresh_visitor_cookie: bool,
+    clear_demo_cookie: bool,
+    status: int = 200,
+) -> web.Response:
+    response = web.json_response(payload, status=status)
+    if refresh_visitor_cookie:
+        set_visitor_cookie(response, visitor_state)
+    if clear_demo_cookie:
+        clear_aws_demo_cookie(response)
+    return response
+
+
 async def aws_demo_live_status(request: web.Request) -> web.Response:
     manager: AwsDemoManager = request.app['aws_demo_manager']
     visitor_state, refresh_visitor_cookie = get_visitor_state(request)
@@ -852,12 +871,41 @@ async def aws_demo_live_status(request: web.Request) -> web.Response:
             else 'The AWS demo runtime is not armed yet on vm2.'
         ),
     }
-    response = web.json_response(payload)
-    if refresh_visitor_cookie:
-        set_visitor_cookie(response, visitor_state)
-    if clear_demo_cookie:
-        clear_aws_demo_cookie(response)
-    return response
+    return public_aws_demo_response(
+        payload,
+        visitor_state=visitor_state,
+        refresh_visitor_cookie=refresh_visitor_cookie,
+        clear_demo_cookie=clear_demo_cookie,
+    )
+
+
+async def aws_demo_live_resources(request: web.Request) -> web.Response:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    current_run, clear_demo_cookie = current_public_aws_demo_run(request, manager, visitor_state=visitor_state)
+    if not current_run:
+        return public_aws_demo_response(
+            {'error': 'No live AWS demo is active in this browser session.', 'resources': None},
+            visitor_state=visitor_state,
+            refresh_visitor_cookie=refresh_visitor_cookie,
+            clear_demo_cookie=True,
+            status=404,
+        )
+
+    try:
+        resources = await asyncio.to_thread(manager.inspect_demo_resources, current_run['id'])
+    except AwsDemoControlError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+
+    return public_aws_demo_response(
+        {
+            'activeRun': serialize_public_aws_demo_run(current_run),
+            'resources': resources,
+        },
+        visitor_state=visitor_state,
+        refresh_visitor_cookie=refresh_visitor_cookie,
+        clear_demo_cookie=clear_demo_cookie,
+    )
 
 
 async def aws_demo_live_launch(request: web.Request) -> web.Response:
@@ -934,6 +982,46 @@ async def aws_demo_live_destroy(request: web.Request) -> web.Response:
     clear_aws_demo_cookie(response)
     audit_log('aws_demo_live_destroyed', demo_id=run['id'], visitor_id=visitor_state['visitor_id'])
     return response
+
+
+async def aws_demo_live_action(request: web.Request) -> web.Response:
+    manager: AwsDemoManager = request.app['aws_demo_manager']
+    visitor_state, refresh_visitor_cookie = get_visitor_state(request)
+    current_run, clear_demo_cookie = current_public_aws_demo_run(request, manager, visitor_state=visitor_state)
+    if not current_run:
+        return public_aws_demo_response(
+            {'error': 'No live AWS demo is active in this browser session.', 'activeRun': None},
+            visitor_state=visitor_state,
+            refresh_visitor_cookie=refresh_visitor_cookie,
+            clear_demo_cookie=True,
+            status=404,
+        )
+
+    action = request.match_info['action']
+    try:
+        if action == 'lambda-invoke':
+            result = await asyncio.to_thread(manager.invoke_demo_lambda, current_run['id'], source='manual-ui')
+        elif action == 'bucket-seed':
+            result = await asyncio.to_thread(manager.seed_demo_bucket, current_run['id'], source='manual-upload')
+        else:
+            raise web.HTTPNotFound(text=f'Unknown AWS demo action: {action}')
+
+        resources = await asyncio.to_thread(manager.inspect_demo_resources, current_run['id'])
+    except AwsDemoControlError as exc:
+        raise web.HTTPBadRequest(text=str(exc)) from exc
+
+    audit_log('aws_demo_live_action', demo_id=current_run['id'], action=action, visitor_id=visitor_state['visitor_id'])
+    return public_aws_demo_response(
+        {
+            'action': action,
+            'result': result,
+            'activeRun': serialize_public_aws_demo_run(current_run),
+            'resources': resources,
+        },
+        visitor_state=visitor_state,
+        refresh_visitor_cookie=refresh_visitor_cookie,
+        clear_demo_cookie=clear_demo_cookie,
+    )
 
 
 async def aws_demo_specs(request: web.Request) -> web.Response:
@@ -1454,8 +1542,10 @@ def create_app() -> web.Application:
             web.options('/sessions', create_session),
             web.get('/ws', websocket_handler),
             web.get('/aws-demo/live/status', aws_demo_live_status),
+            web.get('/aws-demo/live/resources', aws_demo_live_resources),
             web.post('/aws-demo/live/launch', aws_demo_live_launch),
             web.delete('/aws-demo/live/destroy', aws_demo_live_destroy),
+            web.post('/aws-demo/live/actions/{action}', aws_demo_live_action),
             web.get('/aws-demo/specs', aws_demo_specs),
             web.get('/aws-demo/runs', aws_demo_list_runs),
             web.post('/aws-demo/runs', aws_demo_create_run),

@@ -207,6 +207,203 @@ class AwsDemoManager:
             ).fetchone()
         return self._row_to_dict(row) if row else None
 
+    def inspect_demo_resources(self, demo_id: str) -> dict[str, Any]:
+        try:
+            run = self.get_run(demo_id)
+            if not run:
+                raise AwsDemoControlError(f'Unknown demo run: {demo_id}')
+
+            resources = run['resources']
+            region = run['region']
+            session = self._aws_session(region)
+            s3 = session.client('s3')
+            sqs = session.client('sqs')
+            lambda_client = session.client('lambda')
+            events = session.client('events')
+            glue = session.client('glue')
+
+            bucket_name = resources.get('bucketName')
+            queue_url = resources.get('queueUrl')
+            dlq_url = resources.get('deadLetterQueueUrl')
+            lambda_name = resources.get('lambdaName')
+            rule_name = resources.get('eventRuleName')
+            database_name = resources.get('glueDatabase')
+            table_name = resources.get('glueTable')
+            athena_output_location = resources.get('athenaOutputLocation')
+
+            details: dict[str, Any] = {
+                'bucket': {'name': bucket_name, 'objects': [], 'latestObject': None},
+                'queue': {'name': resources.get('queueName'), 'approximateMessages': None, 'approximateInFlight': None},
+                'deadLetterQueue': {
+                    'name': resources.get('deadLetterQueueName'),
+                    'approximateMessages': None,
+                    'approximateInFlight': None,
+                },
+                'lambda': {'name': lambda_name, 'runtime': '', 'timeout': None, 'memorySize': None, 'lastModified': ''},
+                'eventBridge': {'name': rule_name, 'scheduleExpression': '', 'state': ''},
+                'glue': {'database': database_name, 'tables': []},
+                'athena': {
+                    'database': database_name,
+                    'table': table_name,
+                    'queryExecutionId': resources.get('athenaQueryExecutionId'),
+                    'previewColumns': [],
+                    'previewRows': [],
+                },
+            }
+
+            if bucket_name:
+                listing = s3.list_objects_v2(Bucket=bucket_name, MaxKeys=50)
+                contents = listing.get('Contents', [])
+                sorted_contents = sorted(contents, key=lambda item: item['LastModified'], reverse=True)
+                details['bucket']['objects'] = [
+                    {
+                        'key': item['Key'],
+                        'size': item['Size'],
+                        'lastModified': int(item['LastModified'].timestamp()),
+                    }
+                    for item in sorted_contents[:12]
+                ]
+                if sorted_contents:
+                    latest_key = sorted_contents[0]['Key']
+                    latest_object = s3.get_object(Bucket=bucket_name, Key=latest_key)
+                    preview_text = latest_object['Body'].read(500).decode('utf-8', 'ignore')
+                    details['bucket']['latestObject'] = {
+                        'key': latest_key,
+                        'preview': preview_text,
+                    }
+
+            for queue_url_value, key in ((queue_url, 'queue'), (dlq_url, 'deadLetterQueue')):
+                if queue_url_value:
+                    queue_attributes = sqs.get_queue_attributes(
+                        QueueUrl=queue_url_value,
+                        AttributeNames=['ApproximateNumberOfMessages', 'ApproximateNumberOfMessagesNotVisible'],
+                    )['Attributes']
+                    details[key]['approximateMessages'] = int(queue_attributes.get('ApproximateNumberOfMessages', '0'))
+                    details[key]['approximateInFlight'] = int(
+                        queue_attributes.get('ApproximateNumberOfMessagesNotVisible', '0')
+                    )
+
+            if lambda_name:
+                function_configuration = lambda_client.get_function_configuration(FunctionName=lambda_name)
+                details['lambda'].update(
+                    {
+                        'runtime': function_configuration.get('Runtime', ''),
+                        'timeout': function_configuration.get('Timeout'),
+                        'memorySize': function_configuration.get('MemorySize'),
+                        'lastModified': function_configuration.get('LastModified', ''),
+                    }
+                )
+
+            if rule_name:
+                rule = events.describe_rule(Name=rule_name)
+                details['eventBridge'].update(
+                    {
+                        'scheduleExpression': rule.get('ScheduleExpression', ''),
+                        'state': rule.get('State', ''),
+                    }
+                )
+
+            if database_name:
+                tables = glue.get_tables(DatabaseName=database_name, MaxResults=10).get('TableList', [])
+                details['glue']['tables'] = [table.get('Name', '') for table in tables]
+
+            if database_name and table_name and athena_output_location:
+                athena_preview = self._athena_preview(
+                    region=region,
+                    database_name=database_name,
+                    table_name=table_name,
+                    output_location=athena_output_location,
+                )
+                details['athena'].update(athena_preview)
+
+            return details
+        except AwsDemoControlError:
+            raise
+        except ClientError as exc:
+            code = exc.response.get('Error', {}).get('Code', 'Unknown')
+            message = exc.response.get('Error', {}).get('Message', str(exc))
+            raise AwsDemoControlError(f'AWS error {code}: {message}') from exc
+        except BotoCoreError as exc:
+            raise AwsDemoControlError(f'AWS SDK error: {exc}') from exc
+
+    def invoke_demo_lambda(self, demo_id: str, *, source: str = 'manual-ui') -> dict[str, Any]:
+        try:
+            run = self.get_run(demo_id)
+            if not run:
+                raise AwsDemoControlError(f'Unknown demo run: {demo_id}')
+
+            lambda_name = run['resources'].get('lambdaName')
+            if not lambda_name:
+                raise AwsDemoControlError(f'Demo run {demo_id} does not have a Lambda function.')
+
+            session = self._aws_session(run['region'])
+            lambda_client = session.client('lambda')
+            response = lambda_client.invoke(
+                FunctionName=lambda_name,
+                InvocationType='RequestResponse',
+                Payload=json.dumps({'source': source}).encode('utf-8'),
+            )
+            payload_text = response['Payload'].read().decode('utf-8', 'ignore')
+            payload_json: Any
+            try:
+                payload_json = json.loads(payload_text) if payload_text else {}
+            except json.JSONDecodeError:
+                payload_json = {'raw': payload_text}
+
+            return {
+                'statusCode': response.get('StatusCode'),
+                'functionError': response.get('FunctionError'),
+                'payload': payload_json,
+            }
+        except AwsDemoControlError:
+            raise
+        except ClientError as exc:
+            code = exc.response.get('Error', {}).get('Code', 'Unknown')
+            message = exc.response.get('Error', {}).get('Message', str(exc))
+            raise AwsDemoControlError(f'AWS error {code}: {message}') from exc
+        except BotoCoreError as exc:
+            raise AwsDemoControlError(f'AWS SDK error: {exc}') from exc
+
+    def seed_demo_bucket(self, demo_id: str, *, source: str = 'manual-seed') -> dict[str, Any]:
+        try:
+            run = self.get_run(demo_id)
+            if not run:
+                raise AwsDemoControlError(f'Unknown demo run: {demo_id}')
+
+            bucket_name = run['resources'].get('bucketName')
+            if not bucket_name:
+                raise AwsDemoControlError(f'Demo run {demo_id} does not have a bucket.')
+
+            session = self._aws_session(run['region'])
+            s3 = session.client('s3')
+            event_id = os.urandom(8).hex()
+            timestamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+            key = f'curated/events/manual-seed-{int(time.time())}-{event_id}.csv'
+            body = (
+                'event_id,event_type,source,ingested_at\n'
+                f'{event_id},demo.manual_insert,{source},{timestamp}\n'
+            )
+            s3.put_object(
+                Bucket=bucket_name,
+                Key=key,
+                Body=body.encode('utf-8'),
+                ContentType='text/csv',
+            )
+            return {
+                'bucketName': bucket_name,
+                'key': key,
+                'eventId': event_id,
+                'source': source,
+            }
+        except AwsDemoControlError:
+            raise
+        except ClientError as exc:
+            code = exc.response.get('Error', {}).get('Code', 'Unknown')
+            message = exc.response.get('Error', {}).get('Message', str(exc))
+            raise AwsDemoControlError(f'AWS error {code}: {message}') from exc
+        except BotoCoreError as exc:
+            raise AwsDemoControlError(f'AWS SDK error: {exc}') from exc
+
     def create_demo(self, spec_name: str, ttl_minutes: int | None = None) -> dict[str, Any]:
         if not self.settings.enabled:
             raise AwsDemoControlError('AWS demo control plane is disabled on this host.')
@@ -361,6 +558,52 @@ class AwsDemoManager:
 
     def _aws_session(self, region: str):
         return boto3.session.Session(region_name=region)
+
+    def _athena_preview(
+        self,
+        *,
+        region: str,
+        database_name: str,
+        table_name: str,
+        output_location: str,
+        limit: int = 10,
+    ) -> dict[str, Any]:
+        session = self._aws_session(region)
+        athena = session.client('athena')
+        query = athena.start_query_execution(
+            QueryString=f'SELECT * FROM "{database_name}"."{table_name}" LIMIT {max(1, min(limit, 20))}',
+            ResultConfiguration={'OutputLocation': output_location},
+        )['QueryExecutionId']
+
+        state = None
+        reason = None
+        for _ in range(30):
+            execution = athena.get_query_execution(QueryExecutionId=query)['QueryExecution']
+            state = execution['Status']['State']
+            reason = execution['Status'].get('StateChangeReason')
+            if state in {'SUCCEEDED', 'FAILED', 'CANCELLED'}:
+                break
+            time.sleep(2)
+
+        if state != 'SUCCEEDED':
+            raise AwsDemoControlError(
+                f'Athena preview query {query} did not succeed: {state} ({reason or "no reason"})'
+            )
+
+        rows = athena.get_query_results(QueryExecutionId=query)['ResultSet']['Rows']
+        if not rows:
+            return {'queryExecutionId': query, 'previewColumns': [], 'previewRows': []}
+
+        columns = [item.get('VarCharValue', '') for item in rows[0].get('Data', [])]
+        preview_rows = [
+            [item.get('VarCharValue', '') for item in row.get('Data', [])]
+            for row in rows[1:]
+        ]
+        return {
+            'queryExecutionId': query,
+            'previewColumns': columns,
+            'previewRows': preview_rows,
+        }
 
     def _provision_lowcost_data_platform(
         self,

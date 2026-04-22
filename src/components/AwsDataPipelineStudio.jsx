@@ -4,8 +4,11 @@ import {
   FaArrowRight,
   FaClock,
   FaCloudUploadAlt,
+  FaDatabase,
+  FaPlay,
   FaShieldAlt,
   FaSyncAlt,
+  FaTable,
   FaTimes,
   FaTrashAlt,
 } from 'react-icons/fa'
@@ -15,7 +18,7 @@ import { SANDBOX_API_BASE } from '../constants/sandbox'
 const demoLaunchSteps = [
   'Open the launch modal and arm one fixed AWS demo stack.',
   'Provision S3, SQS, Lambda, EventBridge, Glue, and Athena in eu-west-3.',
-  'Inspect the live stack, then let it self-destruct or destroy it early.',
+  'Use the live resource actions, then let the stack self-destruct or destroy it early.',
 ]
 
 const demoProofPoints = [
@@ -46,13 +49,26 @@ function formatTimestamp(value) {
   }
 
   try {
-    return new Date(Number(value) * 1000).toLocaleTimeString([], {
+    const numericValue = Number(value)
+    const parsed = Number.isFinite(numericValue) && numericValue > 0 ? new Date(numericValue * 1000) : new Date(value)
+    return parsed.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     })
   } catch {
     return '—'
   }
+}
+
+function formatBytes(value) {
+  const bytes = Number(value) || 0
+  if (bytes < 1024) {
+    return `${bytes} B`
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
 function LaunchModal({
@@ -175,6 +191,15 @@ function AwsDataPipelineStudio() {
     guardrails: [],
     activeRun: null,
   })
+  const [resourceState, setResourceState] = useState({
+    loading: false,
+    loaded: false,
+    resources: null,
+  })
+  const [actionState, setActionState] = useState({
+    loading: false,
+    action: '',
+  })
   const [launching, setLaunching] = useState(false)
   const [destroying, setDestroying] = useState(false)
   const [showLaunchModal, setShowLaunchModal] = useState(false)
@@ -221,12 +246,52 @@ function AwsDataPipelineStudio() {
     }
   }, [])
 
+  const loadResources = useCallback(async ({ quiet = false } = {}) => {
+    if (!quiet) {
+      setResourceState((current) => ({ ...current, loading: true }))
+    }
+
+    try {
+      const response = await fetch(`${SANDBOX_API_BASE}/aws-demo/live/resources`, {
+        credentials: 'include',
+      })
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(payload?.error || 'The live AWS resource state could not be loaded.')
+      }
+
+      setResourceState({
+        loading: false,
+        loaded: true,
+        resources: payload.resources || null,
+      })
+      return payload
+    } catch (loadError) {
+      const message = loadError instanceof Error ? loadError.message : 'The live AWS resource state could not be loaded.'
+      setResourceState({
+        loading: false,
+        loaded: true,
+        resources: null,
+      })
+      if (!quiet) {
+        setError(message)
+      }
+      return null
+    }
+  }, [])
+
   useEffect(() => {
     void loadStatus()
   }, [loadStatus])
 
   useEffect(() => {
     if (!statusState.activeRun || !['creating', 'ready'].includes(statusState.activeRun.status)) {
+      setResourceState({
+        loading: false,
+        loaded: false,
+        resources: null,
+      })
       return undefined
     }
 
@@ -239,7 +304,15 @@ function AwsDataPipelineStudio() {
     }
   }, [loadStatus, statusState.activeRun])
 
+  useEffect(() => {
+    if (!statusState.activeRun || statusState.activeRun.status !== 'ready') {
+      return
+    }
+    void loadResources({ quiet: true })
+  }, [loadResources, statusState.activeRun?.id, statusState.activeRun?.status])
+
   const activeRun = statusState.activeRun
+  const resources = resourceState.resources
   const countdownLabel = useMemo(
     () => formatCountdown(activeRun?.countdownSeconds || statusState.launchTtlMinutes * 60),
     [activeRun?.countdownSeconds, statusState.launchTtlMinutes],
@@ -269,13 +342,19 @@ function AwsDataPipelineStudio() {
         guardrails: payload.guardrails || current.guardrails,
         available: true,
       }))
+      setResourceState({
+        loading: false,
+        loaded: false,
+        resources: payload.resources || null,
+      })
       await loadStatus({ quiet: true })
+      await loadResources({ quiet: true })
     } catch (launchError) {
       setError(launchError instanceof Error ? launchError.message : 'The live AWS demo could not be launched right now.')
     } finally {
       setLaunching(false)
     }
-  }, [loadStatus, statusState.launchTtlMinutes])
+  }, [loadResources, loadStatus, statusState.launchTtlMinutes])
 
   const handleDestroy = useCallback(async () => {
     setDestroying(true)
@@ -298,11 +377,63 @@ function AwsDataPipelineStudio() {
         ...current,
         activeRun: payload.activeRun || null,
       }))
+      setResourceState({
+        loading: false,
+        loaded: false,
+        resources: null,
+      })
       await loadStatus({ quiet: true })
     } catch (destroyError) {
       setError(destroyError instanceof Error ? destroyError.message : 'The live AWS demo could not be destroyed right now.')
     } finally {
       setDestroying(false)
+    }
+  }, [loadStatus])
+
+  const handleResourceAction = useCallback(async (action) => {
+    setActionState({ loading: true, action })
+    setError('')
+    setNotice('')
+
+    try {
+      const response =
+        action === 'refresh-resources'
+          ? await fetch(`${SANDBOX_API_BASE}/aws-demo/live/resources`, {
+              credentials: 'include',
+            })
+          : await fetch(`${SANDBOX_API_BASE}/aws-demo/live/actions/${action}`, {
+              method: 'POST',
+              credentials: 'include',
+            })
+
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(payload?.error || `The ${action} action could not be completed.`)
+      }
+
+      if (payload.resources) {
+        setResourceState({
+          loading: false,
+          loaded: true,
+          resources: payload.resources,
+        })
+      }
+
+      if (action === 'lambda-invoke') {
+        const key = payload?.result?.payload?.key
+        setNotice(key ? `Lambda invoked successfully and wrote ${key}.` : 'Lambda invoked successfully.')
+      } else if (action === 'bucket-seed') {
+        setNotice(payload?.result?.key ? `Sample object inserted into S3: ${payload.result.key}` : 'Sample object inserted into S3.')
+      } else {
+        setNotice('Live AWS resource state refreshed.')
+      }
+
+      await loadStatus({ quiet: true })
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'The live AWS resource action could not be completed.')
+    } finally {
+      setActionState({ loading: false, action: '' })
     }
   }, [loadStatus])
 
@@ -486,6 +617,242 @@ function AwsDataPipelineStudio() {
                 </div>
               </div>
             </div>
+
+            {activeRun ? (
+              <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Live resource actions</p>
+                    <h3 className="mt-3 text-2xl font-semibold text-white">Use the resources you just provisioned.</h3>
+                    <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-300">
+                      Every card below maps to a real AWS resource in the current short-lived stack. Invoke Lambda, insert data into S3, inspect queue depth, verify the EventBridge rule, and preview the Glue/Athena table from this browser session.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => void handleResourceAction('refresh-resources')}
+                    disabled={resourceState.loading || actionState.loading}
+                    className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    <FaSyncAlt className="text-xs" />
+                    {resourceState.loading || actionState.action === 'refresh-resources' ? 'Refreshing resources…' : 'Refresh resource state'}
+                  </button>
+                </div>
+
+                <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Lambda function</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.lambda?.name || activeRun.summary.lambdaName}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('lambda-invoke')}
+                        disabled={actionState.loading}
+                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaPlay className="text-xs" />
+                        {actionState.loading && actionState.action === 'lambda-invoke' ? 'Invoking Lambda…' : 'Invoke Lambda'}
+                      </button>
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-3">
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Runtime</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.runtime || '—'}</p>
+                      </div>
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Timeout</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.timeout ? `${resources.lambda.timeout}s` : '—'}</p>
+                      </div>
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Memory</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.memorySize ? `${resources.lambda.memorySize} MB` : '—'}</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: run the ingest function on demand. It writes a new CSV object and pushes a message into the queue.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">S3 bucket</p>
+                        <h4 className="mt-3 break-all text-xl font-semibold text-white">{resources?.bucket?.name || activeRun.summary.bucketName}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('bucket-seed')}
+                        disabled={actionState.loading}
+                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaCloudUploadAlt className="text-xs" />
+                        {actionState.loading && actionState.action === 'bucket-seed' ? 'Writing object…' : 'Insert sample object'}
+                      </button>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: drop a sample CSV into the curated prefix so the Athena table can see fresh rows immediately.
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {(resources?.bucket?.objects || []).slice(0, 5).map((item) => (
+                        <div key={item.key} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                          <p className="break-all text-sm text-gray-200">{item.key}</p>
+                          <p className="mt-2 text-xs text-gray-500">{formatBytes(item.size)} · {formatTimestamp(item.lastModified)}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {resources?.bucket?.latestObject?.preview ? (
+                      <pre className="mt-4 overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/30 px-4 py-4 text-xs leading-6 text-cyan-100">
+                        {resources.bucket.latestObject.preview}
+                      </pre>
+                    ) : null}
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Queues</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.queue?.name || 'Primary queue'}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('refresh-resources')}
+                        disabled={actionState.loading || resourceState.loading}
+                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaSyncAlt className="text-xs" />
+                        Refresh depth
+                      </button>
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Primary queue</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.queue?.approximateMessages ?? 0} waiting · {resources?.queue?.approximateInFlight ?? 0} in flight</p>
+                      </div>
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Dead-letter queue</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.deadLetterQueue?.approximateMessages ?? 0} waiting · {resources?.deadLetterQueue?.approximateInFlight ?? 0} in flight</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: refresh queue depth after Lambda or S3 actions to see how the runtime moved messages.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">EventBridge schedule</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.eventBridge?.name || activeRun.summary.eventRuleName}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('refresh-resources')}
+                        disabled={actionState.loading || resourceState.loading}
+                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaSyncAlt className="text-xs" />
+                        Refresh rule
+                      </button>
+                    </div>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">State</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.eventBridge?.state || '—'}</p>
+                      </div>
+                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Schedule</p>
+                        <p className="mt-2 text-sm text-gray-200">{resources?.eventBridge?.scheduleExpression || '—'}</p>
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: inspect the rule state and cadence that would re-trigger the demo function automatically.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Glue catalog</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.glue?.database || activeRun.summary.glueDatabase}</h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('refresh-resources')}
+                        disabled={actionState.loading || resourceState.loading}
+                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaDatabase className="text-xs" />
+                        Refresh tables
+                      </button>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {(resources?.glue?.tables || []).map((tableName) => (
+                        <span key={tableName} className="rounded-full border border-primary-500/20 bg-primary-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-primary-100">
+                          {tableName}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: inspect the live catalog entries that Athena can query in the current demo stack.
+                    </p>
+                  </div>
+
+                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 xl:col-span-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Athena table preview</p>
+                        <h4 className="mt-3 text-xl font-semibold text-white">
+                          {resources?.athena?.database && resources?.athena?.table ? `${resources.athena.database}.${resources.athena.table}` : 'Athena preview'}
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void handleResourceAction('refresh-resources')}
+                        disabled={actionState.loading || resourceState.loading}
+                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        <FaTable className="text-xs" />
+                        {resourceState.loading || actionState.action === 'refresh-resources' ? 'Refreshing preview…' : 'Refresh Athena preview'}
+                      </button>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                      Action: rerun the Athena preview after Lambda or S3 writes and confirm the live table contents from the current stack.
+                    </p>
+                    {resources?.athena?.previewColumns?.length ? (
+                      <div className="mt-4 overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/20">
+                        <table className="min-w-full text-left text-sm text-gray-200">
+                          <thead className="border-b border-dark-700/70 text-xs uppercase tracking-[0.18em] text-gray-500">
+                            <tr>
+                              {resources.athena.previewColumns.map((column) => (
+                                <th key={column} className="px-4 py-3">{column}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {resources.athena.previewRows.map((row, index) => (
+                              <tr key={`${row.join('-')}-${index}`} className="border-b border-dark-700/40 last:border-b-0">
+                                {row.map((value, cellIndex) => (
+                                  <td key={`${index}-${cellIndex}`} className="px-4 py-3 align-top text-xs leading-6 text-gray-300">
+                                    {value || '—'}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4 text-sm text-gray-300">
+                        {resourceState.loading ? 'Loading Athena preview…' : 'No Athena preview rows are available yet.'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

@@ -18,6 +18,11 @@ The sandbox backend now includes both:
 - stores run state in SQLite on the host
 - destroys expired runs automatically on TTL
 - supports a public portfolio launcher with a fixed 10-minute self-destruct window
+- exposes public browser-owned resource actions for the current live run:
+  - invoke Lambda
+  - insert a sample CSV into S3
+  - inspect SQS depth and EventBridge rule state
+  - preview Glue/Athena table contents
 
 Only the `lowcost-data-platform` template is enabled right now.
 
@@ -164,6 +169,38 @@ curl -s \
   --cookie-jar /tmp/aws-demo.cookies \
   --cookie /tmp/aws-demo.cookies \
   https://vm2.amineessahfi.xyz/sandbox-api/aws-demo/live/destroy
+```
+
+### Inspect the current browser-owned resources
+
+```bash
+curl -s \
+  -H "Origin: https://amine-portfolio-test.vercel.app" \
+  --cookie-jar /tmp/aws-demo.cookies \
+  --cookie /tmp/aws-demo.cookies \
+  https://vm2.amineessahfi.xyz/sandbox-api/aws-demo/live/resources
+```
+
+### Invoke the live Lambda function
+
+```bash
+curl -s \
+  -X POST \
+  -H "Origin: https://amine-portfolio-test.vercel.app" \
+  --cookie-jar /tmp/aws-demo.cookies \
+  --cookie /tmp/aws-demo.cookies \
+  https://vm2.amineessahfi.xyz/sandbox-api/aws-demo/live/actions/lambda-invoke
+```
+
+### Insert a sample object into the live S3 bucket
+
+```bash
+curl -s \
+  -X POST \
+  -H "Origin: https://amine-portfolio-test.vercel.app" \
+  --cookie-jar /tmp/aws-demo.cookies \
+  --cookie /tmp/aws-demo.cookies \
+  https://vm2.amineessahfi.xyz/sandbox-api/aws-demo/live/actions/bucket-seed
 ```
 
 ## Deploy
