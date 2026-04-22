@@ -119,7 +119,7 @@ function LaunchModal({
           <div className="flex items-start justify-between gap-4">
             <div>
               <span className="section-chip">Actual short-lived deployment</span>
-              <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">Launch the real AWS demo stack.</h3>
+              <h3 className="aws-demo-pane-title">Launch the real AWS demo stack.</h3>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-300 sm:text-base">
                 This provisions one fixed demo shape in AWS, validates it, and then tears it down automatically after {ttlMinutes} minutes.
               </p>
@@ -207,7 +207,7 @@ function AthenaModal({
           <div className="flex items-start justify-between gap-4">
             <div>
               <span className="section-chip">Athena inspection modal</span>
-              <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+              <h3 className="aws-demo-pane-title">
                 {athena?.database && athena?.table ? `${athena.database}.${athena.table}` : 'Athena preview'}
               </h3>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-300">
@@ -234,13 +234,13 @@ function AthenaModal({
             </div>
           </div>
 
-          <div className="mt-6 overflow-x-auto rounded-[1.5rem] border border-white/10 bg-black/20">
+          <div className="aws-demo-table-wrap !mt-6">
             {athena?.previewColumns?.length ? (
-              <table className="min-w-full text-left text-sm text-gray-200">
-                <thead className="border-b border-dark-700/70 text-xs uppercase tracking-[0.18em] text-gray-500">
+              <table className="aws-demo-table">
+                <thead>
                   <tr>
                     {athena.previewColumns.map((column) => (
-                      <th key={column} className="px-4 py-3">{column}</th>
+                      <th key={column}>{column}</th>
                     ))}
                   </tr>
                 </thead>
@@ -248,7 +248,7 @@ function AthenaModal({
                   {athena.previewRows.map((row, index) => (
                     <tr key={`${row.join('-')}-${index}`} className="border-b border-dark-700/40 last:border-b-0">
                       {row.map((value, cellIndex) => (
-                        <td key={`${index}-${cellIndex}`} className="px-4 py-3 align-top text-xs leading-6 text-gray-300">
+                        <td key={`${index}-${cellIndex}`}>
                           {value || '—'}
                         </td>
                       ))}
@@ -559,7 +559,7 @@ function AwsDataPipelineStudio() {
 
             <div className="grid gap-4 md:grid-cols-3">
               {demoProofPoints.map((item) => (
-                <div key={item.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
+                <div key={item.title} className="min-w-0 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary-300">{item.title}</p>
                   <p className="mt-4 text-sm leading-7 text-gray-300">{item.detail}</p>
                 </div>
@@ -567,7 +567,7 @@ function AwsDataPipelineStudio() {
             </div>
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.04fr)_minmax(0,0.96fr)]">
-              <div className="metric-card p-6 sm:p-7">
+              <div className="metric-card min-w-0 p-6 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Launch panel</p>
@@ -648,7 +648,7 @@ function AwsDataPipelineStudio() {
                 </div>
               </div>
 
-              <div className="terminal-window">
+              <div className="terminal-window min-w-0">
                 <div className="terminal-header">
                   <div className="text-sm text-gray-400">live-demo — status</div>
                 </div>
@@ -656,7 +656,7 @@ function AwsDataPipelineStudio() {
                 <div className="terminal-content">
                   <div>
                     <span className="section-chip">Guarded launch path</span>
-                    <h3 className="section-title text-3xl sm:text-4xl">
+                    <h3 className="aws-demo-pane-title sm:text-4xl">
                       {activeRun ? 'A live stack is up right now.' : 'No live stack is running.'}
                     </h3>
                   </div>
@@ -678,9 +678,9 @@ function AwsDataPipelineStudio() {
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Live resource summary</p>
                         <div className="mt-4 grid gap-3 md:grid-cols-2">
                           {runSummaryEntries.map(([label, value]) => (
-                            <div key={label} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">{label}</p>
-                              <p className="mt-2 break-all text-sm leading-7 text-gray-200">{value || '—'}</p>
+                            <div key={label} className="aws-demo-meta-card">
+                              <p className="aws-demo-meta-label">{label}</p>
+                              <p className="aws-demo-meta-value">{value || '—'}</p>
                             </div>
                           ))}
                         </div>
@@ -709,7 +709,7 @@ function AwsDataPipelineStudio() {
             </div>
 
             {activeRun ? (
-              <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
+              <div className="min-w-0 rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Live resource actions</p>
@@ -731,34 +731,34 @@ function AwsDataPipelineStudio() {
                 </div>
 
                 <div className="mt-5 grid gap-4 xl:grid-cols-2">
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Lambda function</p>
-                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.lambda?.name || activeRun.summary.lambdaName}</h4>
+                  <div className="aws-demo-resource-card">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">Lambda function</p>
+                        <h4 className="aws-demo-resource-title">{resources?.lambda?.name || activeRun.summary.lambdaName}</h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleResourceAction('lambda-invoke', lambdaPayload)}
                         disabled={actionState.loading}
-                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="primary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaPlay className="text-xs" />
                         {actionState.loading && actionState.action === 'lambda-invoke' ? 'Running Lambda…' : 'Send text via Lambda'}
                       </button>
                     </div>
-                    <div className="mt-4 grid gap-3 md:grid-cols-3">
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Runtime</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.runtime || '—'}</p>
+                    <div className="aws-demo-resource-stats">
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Runtime</p>
+                        <p className="aws-demo-meta-value">{resources?.lambda?.runtime || '—'}</p>
                       </div>
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Timeout</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.timeout ? `${resources.lambda.timeout}s` : '—'}</p>
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Timeout</p>
+                        <p className="aws-demo-meta-value">{resources?.lambda?.timeout ? `${resources.lambda.timeout}s` : '—'}</p>
                       </div>
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Memory</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.lambda?.memorySize ? `${resources.lambda.memorySize} MB` : '—'}</p>
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Memory</p>
+                        <p className="aws-demo-meta-value">{resources?.lambda?.memorySize ? `${resources.lambda.memorySize} MB` : '—'}</p>
                       </div>
                     </div>
                     <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
@@ -767,26 +767,26 @@ function AwsDataPipelineStudio() {
                     <textarea
                       value={lambdaPayload}
                       onChange={(event) => setLambdaPayload(event.target.value)}
-                      className="mt-3 min-h-[112px] w-full rounded-[1.3rem] border border-dark-700/70 bg-black/30 px-4 py-4 text-sm text-white outline-none transition focus:border-primary-400"
+                      className="aws-demo-textarea"
                       placeholder="Write a short message that should land in the demo data through Lambda."
                       maxLength={240}
                     />
-                    <p className="mt-3 text-sm leading-7 text-gray-300">
+                    <p className="mt-3 aws-demo-copy">
                       Action: invoke the real Lambda function with your own text. The new row should show up in the Athena preview after refresh.
                     </p>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">S3 bucket</p>
-                        <h4 className="mt-3 break-all text-xl font-semibold text-white">{resources?.bucket?.name || activeRun.summary.bucketName}</h4>
+                  <div className="aws-demo-resource-card">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">S3 bucket</p>
+                        <h4 className="aws-demo-resource-title">{resources?.bucket?.name || activeRun.summary.bucketName}</h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleResourceAction('bucket-seed', bucketPayload)}
                         disabled={actionState.loading}
-                        className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="primary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaCloudUploadAlt className="text-xs" />
                         {actionState.loading && actionState.action === 'bucket-seed' ? 'Writing row…' : 'Insert row into S3'}
@@ -798,101 +798,101 @@ function AwsDataPipelineStudio() {
                     <textarea
                       value={bucketPayload}
                       onChange={(event) => setBucketPayload(event.target.value)}
-                      className="mt-3 min-h-[112px] w-full rounded-[1.3rem] border border-dark-700/70 bg-black/30 px-4 py-4 text-sm text-white outline-none transition focus:border-primary-400"
+                      className="aws-demo-textarea"
                       placeholder="Write a short message that should be inserted directly into the S3 CSV object."
                       maxLength={240}
                     />
-                    <p className="mt-3 text-sm leading-7 text-gray-300">
+                    <p className="mt-3 aws-demo-copy">
                       Action: write a manual CSV row into the curated bucket path without going through Lambda.
                     </p>
                     <div className="mt-4 space-y-3">
                       {(resources?.bucket?.objects || []).slice(0, 4).map((item) => (
-                        <div key={item.key} className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                          <p className="break-all text-sm text-gray-200">{item.key}</p>
+                        <div key={item.key} className="aws-demo-meta-card">
+                          <p className="aws-demo-meta-value">{item.key}</p>
                           <p className="mt-2 text-xs text-gray-500">{formatBytes(item.size)} · {formatTimestamp(item.lastModified)}</p>
                         </div>
                       ))}
                     </div>
                     {resources?.bucket?.latestObject?.preview ? (
-                      <pre className="mt-4 overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/30 px-4 py-4 text-xs leading-6 text-cyan-100">
+                      <pre className="aws-demo-preview">
                         {resources.bucket.latestObject.preview}
                       </pre>
                     ) : null}
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Queues</p>
-                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.queue?.name || 'Primary queue'}</h4>
+                  <div className="aws-demo-resource-card">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">Queues</p>
+                        <h4 className="aws-demo-resource-title">{resources?.queue?.name || 'Primary queue'}</h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleResourceAction('refresh-resources')}
                         disabled={actionState.loading || resourceState.loading}
-                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="secondary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaSyncAlt className="text-xs" />
                         Refresh depth
                       </button>
                     </div>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Primary queue</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.queue?.approximateMessages ?? 0} waiting · {resources?.queue?.approximateInFlight ?? 0} in flight</p>
+                    <div className="aws-demo-resource-stats-two">
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Primary queue</p>
+                        <p className="aws-demo-meta-value">{resources?.queue?.approximateMessages ?? 0} waiting · {resources?.queue?.approximateInFlight ?? 0} in flight</p>
                       </div>
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Dead-letter queue</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.deadLetterQueue?.approximateMessages ?? 0} waiting · {resources?.deadLetterQueue?.approximateInFlight ?? 0} in flight</p>
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Dead-letter queue</p>
+                        <p className="aws-demo-meta-value">{resources?.deadLetterQueue?.approximateMessages ?? 0} waiting · {resources?.deadLetterQueue?.approximateInFlight ?? 0} in flight</p>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                    <p className="mt-4 aws-demo-copy">
                       Action: refresh queue depth after Lambda writes to see the runtime move messages.
                     </p>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">EventBridge schedule</p>
-                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.eventBridge?.name || activeRun.summary.eventRuleName}</h4>
+                  <div className="aws-demo-resource-card">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">EventBridge schedule</p>
+                        <h4 className="aws-demo-resource-title">{resources?.eventBridge?.name || activeRun.summary.eventRuleName}</h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleResourceAction('refresh-resources')}
                         disabled={actionState.loading || resourceState.loading}
-                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="secondary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaSyncAlt className="text-xs" />
                         Refresh rule
                       </button>
                     </div>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">State</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.eventBridge?.state || '—'}</p>
+                    <div className="aws-demo-resource-stats-two">
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">State</p>
+                        <p className="aws-demo-meta-value">{resources?.eventBridge?.state || '—'}</p>
                       </div>
-                      <div className="rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500">Schedule</p>
-                        <p className="mt-2 text-sm text-gray-200">{resources?.eventBridge?.scheduleExpression || '—'}</p>
+                      <div className="aws-demo-meta-card">
+                        <p className="aws-demo-meta-label">Schedule</p>
+                        <p className="aws-demo-meta-value">{resources?.eventBridge?.scheduleExpression || '—'}</p>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                    <p className="mt-4 aws-demo-copy">
                       Action: inspect the rule state and cadence that would re-trigger the demo function automatically.
                     </p>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Glue catalog</p>
-                        <h4 className="mt-3 text-xl font-semibold text-white">{resources?.glue?.database || activeRun.summary.glueDatabase}</h4>
+                  <div className="aws-demo-resource-card">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">Glue catalog</p>
+                        <h4 className="aws-demo-resource-title">{resources?.glue?.database || activeRun.summary.glueDatabase}</h4>
                       </div>
                       <button
                         type="button"
                         onClick={() => void handleResourceAction('refresh-resources')}
                         disabled={actionState.loading || resourceState.loading}
-                        className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                        className="secondary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                       >
                         <FaDatabase className="text-xs" />
                         Refresh tables
@@ -905,25 +905,25 @@ function AwsDataPipelineStudio() {
                         </span>
                       ))}
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                    <p className="mt-4 aws-demo-copy">
                       Action: inspect the live catalog entries that Athena can query in the current demo stack.
                     </p>
                   </div>
 
-                  <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 xl:col-span-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">Athena table preview</p>
-                        <h4 className="mt-3 text-xl font-semibold text-white">
+                  <div className="aws-demo-resource-card aws-demo-resource-card-wide">
+                    <div className="aws-demo-resource-header">
+                      <div className="aws-demo-resource-heading">
+                        <p className="aws-demo-resource-kicker">Athena table preview</p>
+                        <h4 className="aws-demo-resource-title">
                           {resources?.athena?.database && resources?.athena?.table ? `${resources.athena.database}.${resources.athena.table}` : 'Athena preview'}
                         </h4>
                       </div>
-                      <div className="flex flex-col gap-3 sm:flex-row">
+                      <div className="aws-demo-resource-actions">
                         <button
                           type="button"
                           onClick={() => void handleResourceAction('refresh-resources')}
                           disabled={actionState.loading || resourceState.loading}
-                          className="secondary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="secondary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <FaSyncAlt className="text-xs" />
                           {resourceState.loading || actionState.action === 'refresh-resources' ? 'Refreshing preview…' : 'Refresh Athena preview'}
@@ -932,23 +932,23 @@ function AwsDataPipelineStudio() {
                           type="button"
                           onClick={() => setShowAthenaModal(true)}
                           disabled={!resources?.athena}
-                          className="primary-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
+                          className="primary-button aws-demo-resource-button gap-2 disabled:cursor-not-allowed disabled:opacity-70"
                         >
                           <FaTable className="text-xs" />
                           Open Athena modal
                         </button>
                       </div>
                     </div>
-                    <p className="mt-4 text-sm leading-7 text-gray-300">
+                    <p className="mt-4 aws-demo-copy">
                       Action: rerun the Athena preview after Lambda or S3 writes and inspect the full result set in the modal.
                     </p>
                     {resources?.athena?.previewColumns?.length ? (
-                      <div className="mt-4 overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/20">
-                        <table className="min-w-full text-left text-sm text-gray-200">
-                          <thead className="border-b border-dark-700/70 text-xs uppercase tracking-[0.18em] text-gray-500">
+                      <div className="aws-demo-table-wrap">
+                        <table className="aws-demo-table">
+                          <thead>
                             <tr>
                               {resources.athena.previewColumns.map((column) => (
-                                <th key={column} className="px-4 py-3">{column}</th>
+                                <th key={column}>{column}</th>
                               ))}
                             </tr>
                           </thead>
@@ -956,7 +956,7 @@ function AwsDataPipelineStudio() {
                             {resources.athena.previewRows.slice(0, 3).map((row, index) => (
                               <tr key={`${row.join('-')}-${index}`} className="border-b border-dark-700/40 last:border-b-0">
                                 {row.map((value, cellIndex) => (
-                                  <td key={`${index}-${cellIndex}`} className="px-4 py-3 align-top text-xs leading-6 text-gray-300">
+                                  <td key={`${index}-${cellIndex}`}>
                                     {value || '—'}
                                   </td>
                                 ))}
@@ -975,7 +975,7 @@ function AwsDataPipelineStudio() {
               </div>
             ) : null}
 
-            <div className="rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
+              <div className="min-w-0 rounded-[1.6rem] border border-dark-700/70 bg-dark-900/40 p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary-300">Why this is safe enough to show</p>

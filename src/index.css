@@ -414,6 +414,95 @@
     resize: vertical;
   }
 
+  .aws-demo-pane-title {
+    @apply mt-3 text-2xl font-semibold leading-tight text-white sm:text-3xl;
+  }
+
+  .aws-demo-resource-card {
+    @apply min-w-0 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5;
+  }
+
+  .aws-demo-resource-card-wide {
+    @apply xl:col-span-2;
+  }
+
+  .aws-demo-resource-header {
+    @apply flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .aws-demo-resource-heading {
+    @apply min-w-0 flex-1;
+  }
+
+  .aws-demo-resource-kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200;
+  }
+
+  .aws-demo-resource-title {
+    @apply mt-3 break-words text-lg font-semibold leading-tight text-white sm:text-xl;
+  }
+
+  .aws-demo-resource-actions {
+    @apply flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-end;
+  }
+
+  .aws-demo-resource-button {
+    @apply w-full sm:w-auto;
+  }
+
+  .aws-demo-resource-stats {
+    @apply mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .aws-demo-resource-stats-two {
+    @apply mt-4 grid gap-3 sm:grid-cols-2;
+  }
+
+  .aws-demo-meta-card {
+    @apply min-w-0 rounded-2xl border border-dark-700/70 bg-black/20 px-4 py-4;
+  }
+
+  .aws-demo-meta-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500;
+  }
+
+  .aws-demo-meta-value {
+    @apply mt-2 break-words text-sm leading-6 text-gray-200;
+  }
+
+  .aws-demo-copy {
+    @apply text-sm leading-7 text-gray-300;
+  }
+
+  .aws-demo-textarea {
+    @apply mt-3 min-h-[112px] w-full rounded-[1.3rem] border border-dark-700/70 bg-black/30 px-4 py-4 text-sm leading-7 text-white outline-none transition focus:border-primary-400;
+    resize: vertical;
+  }
+
+  .aws-demo-preview {
+    @apply mt-4 max-w-full overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/30 px-4 py-4 font-mono text-xs leading-6 text-cyan-100;
+  }
+
+  .aws-demo-table-wrap {
+    @apply mt-4 max-w-full overflow-x-auto rounded-2xl border border-dark-700/70 bg-black/20;
+  }
+
+  .aws-demo-table {
+    @apply min-w-full text-left text-sm text-gray-200;
+  }
+
+  .aws-demo-table thead {
+    @apply border-b border-dark-700/70 text-xs uppercase tracking-[0.14em] text-gray-500;
+  }
+
+  .aws-demo-table th {
+    @apply px-4 py-3;
+  }
+
+  .aws-demo-table td {
+    @apply px-4 py-3 align-top text-xs leading-6 text-gray-300;
+  }
+
   .content-scroller::-webkit-scrollbar {
     display: none;
   }
