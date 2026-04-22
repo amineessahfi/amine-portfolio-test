@@ -97,29 +97,31 @@ function HomePage() {
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)] lg:items-end">
               <div>
                 <span className="section-chip">Common starting points</span>
-                <h2 className="section-title text-3xl sm:text-4xl">Most engagements start when one of these problems becomes hard to ignore.</h2>
+                <h2 className="section-title text-2xl sm:text-3xl">Most engagements start when one of these problems becomes hard to ignore.</h2>
               </div>
-              <p className="max-w-3xl text-sm leading-8 text-gray-400 sm:text-base">
+              <p className="max-w-3xl text-sm leading-7 text-gray-400">
                 If you already know the pressure, start with the matching path below. If not, browse the full services directory and narrow it down from there.
               </p>
             </div>
 
-            <div className="content-scroller lg:grid lg:grid-cols-3 lg:items-start lg:overflow-visible lg:pb-0 lg:[scroll-snap-type:none]">
+            <div className="content-scroller lg:grid lg:grid-cols-3 lg:items-stretch lg:overflow-visible lg:pb-0 lg:[scroll-snap-type:none]">
               {problemPaths.map((path) => (
                 <article
                   key={path.title}
-                  className="content-scroller-card rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-7"
+                  className="content-scroller-card flex h-full flex-col rounded-[1.55rem] border border-white/10 bg-white/[0.03] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] sm:p-6"
                 >
-                  <span className="section-chip">{path.eyebrow}</span>
-                  <h3 className="mt-5 text-2xl font-semibold text-white">{path.title}</h3>
-                  <p className="mt-4 text-sm leading-8 text-gray-400">{path.description}</p>
+                  <span className="inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-200">
+                    {path.eyebrow}
+                  </span>
+                  <h3 className="mt-4 text-xl font-semibold leading-7 text-white">{path.title}</h3>
+                  <p className="mt-3 text-[13px] leading-7 text-gray-400">{path.description}</p>
 
-                  <div className="mt-6 rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-200">Best first output</p>
-                    <p className="mt-2 text-sm leading-7 text-gray-300">{path.bestFirstOutput}</p>
+                  <div className="mt-5 flex flex-1 flex-col rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-200">Best first output</p>
+                    <p className="mt-2 text-[13px] leading-7 text-gray-300">{path.bestFirstOutput}</p>
                   </div>
 
-                  <div className="mt-6 flex flex-wrap gap-3">
+                  <div className="mt-5 flex flex-wrap gap-3 pt-1">
                     <Link to={path.primaryTo} className="primary-button">
                       {path.primaryLabel}
                     </Link>

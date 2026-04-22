@@ -71,15 +71,17 @@ function ServicesPage() {
       <section className="page-hero">
         <div className="w-full">
           <div className="hero-shell px-6 py-8 sm:px-10 sm:py-10 lg:px-14 lg:py-12">
-            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
-              <div>
-                <span className="section-chip">Services</span>
-                <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
-                  Find the service that matches the bottleneck.
-                </h1>
-                <p className="section-copy max-w-3xl text-base sm:text-lg">
-                  If you already know the kind of problem you have, start with the recommended path on the right. If not, browse the full directory below.
-                </p>
+            <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-stretch">
+              <div className="flex h-full flex-col justify-between">
+                <div>
+                  <span className="section-chip">Services</span>
+                  <h1 className="section-title max-w-4xl text-4xl sm:text-5xl lg:text-[4rem] lg:leading-[1.02]">
+                    Find the service that matches the bottleneck.
+                  </h1>
+                  <p className="section-copy max-w-3xl text-base sm:text-lg">
+                    If you already know the kind of problem you have, start with the recommended path on the right. If not, browse the full directory below.
+                  </p>
+                </div>
 
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap">
                   <a href="#services-directory" className="secondary-button">
@@ -91,15 +93,15 @@ function ServicesPage() {
                 </div>
               </div>
 
-              <div className="rounded-[1.55rem] border border-white/10 bg-[#060b1b]/68 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.28)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary-200">Recommended starting paths</p>
-                <div className="mt-4 space-y-4">
+              <div className="flex h-full flex-col rounded-[1.55rem] border border-white/10 bg-[#060b1b]/68 p-6 shadow-[0_24px_80px_rgba(2,6,23,0.28)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-200">Recommended starting paths</p>
+                <div className="mt-4 grid flex-1 gap-4">
                   {recommendedStarts.map((item) => (
-                    <div key={item.title} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-200">{item.eyebrow}</p>
-                      <p className="mt-2 text-sm font-semibold leading-7 text-white">{item.title}</p>
-                      <p className="mt-2 text-sm leading-7 text-gray-400">{item.recommendation}</p>
-                      <div className="mt-4">
+                    <div key={item.title} className="flex h-full flex-col rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary-200">{item.eyebrow}</p>
+                      <p className="mt-2 text-[15px] font-semibold leading-6 text-white">{item.title}</p>
+                      <p className="mt-2 text-[13px] leading-6 text-gray-400">{item.recommendation}</p>
+                      <div className="mt-auto pt-4">
                         {item.kind === 'intake' ? (
                           <IntakeTriggerButton className="soft-link text-left">{item.label}</IntakeTriggerButton>
                         ) : (
@@ -139,9 +141,9 @@ function ServicesPage() {
                   </p>
                 </div>
 
-                <div className="content-scroller mt-6 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:[scroll-snap-type:none]">
+                <div className="content-scroller mt-6 md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:[scroll-snap-type:none] md:items-stretch">
                   {deliverySteps.map((step, index) => (
-                    <div key={step.title} className="content-scroller-card rounded-[1.45rem] border border-white/10 bg-white/[0.03] px-5 py-5">
+                    <div key={step.title} className="content-scroller-card flex h-full rounded-[1.45rem] border border-white/10 bg-white/[0.03] px-5 py-5">
                       <div className="flex items-start gap-4">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary-400/25 bg-white/[0.04] text-sm font-semibold text-primary-200">
                           0{index + 1}
